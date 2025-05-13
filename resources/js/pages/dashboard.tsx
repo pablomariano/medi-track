@@ -1,0 +1,185 @@
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
+import { Head } from '@inertiajs/react';
+
+import { ChartContainer, ChartConfig, ChartLegend, ChartTooltip, ChartLegendContent, ChartTooltipContent } from '@/components/ui/chart';
+import { Bar,  BarChart, Line, LineChart, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { RefreshCw } from 'lucide-react';
+
+
+const initialChartData = [
+    { month: 'Enero', desktop: 172, mobile: 440 },
+    { month: 'Febrero', desktop: 212, mobile: 378 },
+    { month: 'Marzo', desktop: 189, mobile: 300 },
+    { month: 'Abril', desktop: 120, mobile: 280 },
+    { month: 'Mayo', desktop: 110, mobile: 210 },
+    { month: 'Junio', desktop: 100, mobile: 245 },
+    { month: 'Julio', desktop: 145, mobile: 289 },
+    { month: 'Agosto', desktop: 180, mobile: 270 },
+    { month: 'Septiembre', desktop: 170, mobile: 260 },
+    { month: 'Octubre', desktop: 160, mobile: 250 },
+    { month: 'Noviembre', desktop: 150, mobile: 240 },
+    { month: 'Diciembre', desktop: 140, mobile: 260 },
+];
+
+const chartConfig = {
+    desktop: {
+      label: "Desktop",
+      color: "var(--primary)",
+    },
+    mobile: {
+      label: "Mobile",
+      color: "var(--secondary)",
+    },
+  } satisfies ChartConfig
+
+const statisticsData = [
+    { title: 'Total Users', value: '2,543', change: '+12%', trend: 'up' },
+    { title: 'Active Sessions', value: '1,234', change: '+5%', trend: 'up' },
+    { title: 'Conversion Rate', value: '3.2%', change: '-2%', trend: 'down' },
+    { title: 'Avg. Session', value: '4m 32s', change: '+8%', trend: 'up' },
+];
+
+const recentActivity = [
+    { id: 1, user: 'John Doe', action: 'Completed profile', time: '2 minutes ago' },
+    { id: 2, user: 'Jane Smith', action: 'Started new session', time: '5 minutes ago' },
+    { id: 3, user: 'Mike Johnson', action: 'Updated settings', time: '10 minutes ago' },
+    { id: 4, user: 'Sarah Wilson', action: 'Logged in', time: '15 minutes ago' },
+];
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Dashboard',
+        href: '/dashboard',
+    },
+];
+
+// Function to generate random data
+const generateRandomData = (min: number, max: number) => {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+// Function to update chart data
+const updateChartData = (data: typeof initialChartData) => {
+    return data.map(item => ({
+        ...item,
+        desktop: generateRandomData(100, 300),
+        mobile: generateRandomData(200, 500)
+    }));
+};
+
+export default function Dashboard() {
+    const [chartData, setChartData] = useState(initialChartData);
+    const [isLoading, setIsLoading] = useState(false);
+
+    const refreshData = () => {
+        setIsLoading(true);
+        setTimeout(() => {
+            setChartData(prevData => updateChartData(prevData));
+            setIsLoading(false);
+        }, 1000);
+    };
+
+    useEffect(() => {
+        const interval = setInterval(refreshData, 30000);
+        return () => clearInterval(interval);
+    }, []);
+
+    return (
+        <AppLayout breadcrumbs={breadcrumbs}>
+            <Head title="Dashboard" />
+            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
+                {/* Statistics Cards */}
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+                    {statisticsData.map((stat, index) => (
+                        <Card key={index} className="p-4">
+                            <div className="flex flex-col">
+                                <span className="text-sm text-gray-500">{stat.title}</span>
+                                <span className="text-2xl font-bold">{stat.value}</span>
+                                <div className="flex items-center gap-2">
+                                    <Badge variant={stat.trend === 'up' ? 'default' : 'destructive'}>
+                                        {stat.change}
+                                    </Badge>
+                                </div>
+                            </div>
+                        </Card>
+                    ))}
+                </div>
+
+                {/* Charts Section */}
+                <div className="grid gap-4 md:grid-cols-2">
+                    {/* Bar Chart */}
+                    <Card className="p-4">
+                        <div className="mb-4 flex items-center justify-between">
+                            <h3 className="text-lg font-semibold">Device Usage</h3>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={refreshData}
+                                disabled={isLoading}
+                            >
+                                <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                                Refresh
+                            </Button>
+                        </div>
+                        <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+                            <BarChart data={chartData}>
+                                <ChartTooltip content={<ChartTooltipContent />} />
+                                <ChartLegend content={<ChartLegendContent />} />
+                                <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
+                                <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+                            </BarChart>
+                        </ChartContainer>
+                    </Card>
+
+                    {/* Line Chart */}
+                    <Card className="p-4">
+                        <div className="mb-4 flex items-center justify-between">
+                            <h3 className="text-lg font-semibold">Trend Analysis</h3>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={refreshData}
+                                disabled={isLoading}
+                            >
+                                <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                                Refresh
+                            </Button>
+                        </div>
+                        <div className="h-[200px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={chartData}>
+                                    <XAxis dataKey="month" />
+                                    <YAxis />
+                                    <Tooltip />
+                                    <Line type="monotone" dataKey="desktop" stroke="var(--primary)" strokeWidth={2} />
+                                    <Line type="monotone" dataKey="mobile" stroke="var(--secondary)" strokeWidth={2} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </Card>
+                </div>
+
+                {/* Recent Activity */}
+                <Card className="p-4">
+                    <h3 className="mb-4 text-lg font-semibold">Recent Activity</h3>
+                    <div className="space-y-4">
+                        {recentActivity.map((activity) => (
+                            <div key={activity.id} className="flex items-center justify-between border-b pb-2">
+                                <div>
+                                    <span className="font-medium">{activity.user}</span>
+                                    <span className="text-gray-500"> {activity.action}</span>
+                                </div>
+                                <span className="text-sm text-gray-500">{activity.time}</span>
+                            </div>
+                        ))}
+                    </div>
+                </Card>
+            </div>
+        </AppLayout>
+    );
+}
