@@ -159,8 +159,8 @@ export default function Dashboard() {
                                 Refresh
                             </Button>
                         </div>
-                        <div className="h-[200px] w-full">
-                            <ResponsiveContainer width="100%" height="100%">
+                        <div className="h-[300px] w-full">
+                            <ResponsiveContainer width="90%" height="100%">
                                 <LineChart data={chartData}>
                                     <XAxis dataKey="month" />
                                     <YAxis />
