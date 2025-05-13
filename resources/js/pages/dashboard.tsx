@@ -114,6 +114,7 @@ export default function Dashboard() {
                 <div className="grid gap-4 md:grid-cols-2">
                     {/* Bar Chart */}
                     <Card className="p-4">
+                        {/* Header */}
                         <div className="mb-4 flex items-center justify-between">
                             <h3 className="text-lg font-semibold">Device Usage</h3>
                             <Button
@@ -126,10 +127,18 @@ export default function Dashboard() {
                                 Refresh
                             </Button>
                         </div>
+                        {/* Bar Chart */}
                         <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
                             <BarChart data={chartData}>
                                 <ChartTooltip content={<ChartTooltipContent />} />
                                 <ChartLegend content={<ChartLegendContent />} />
+                                <XAxis
+                                    dataKey="month"
+                                    tickLine={false}
+                                    tickMargin={10}
+                                    axisLine={false}
+                                    tickFormatter={(value) => value.slice(0, 3)}
+                                    />
                                 <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
                                 <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
                             </BarChart>
