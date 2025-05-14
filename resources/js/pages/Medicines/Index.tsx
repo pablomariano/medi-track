@@ -11,6 +11,13 @@ import {
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import { router } from '@inertiajs/react';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
 
 interface Medicine {
     id: number;
@@ -43,55 +50,63 @@ export default function Index({ medicines }: Props) {
     return (
         <AppSidebarLayout>
             <div className="container mx-auto py-6">
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-2xl font-bold">Medicamentos</h1>
-                    <Link href={route('medicines.create')}>
-                        <Button>
-                            <Plus className="h-4 w-4 mr-2" />
-                            Nuevo Medicamento
-                        </Button>
-                    </Link>
-                </div>
-
-                <div className="bg-white rounded-lg shadow">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Nombre</TableHead>
-                                <TableHead>Medida</TableHead>
-                                <TableHead>Unidad de Medida</TableHead>
-                                <TableHead>Descripción</TableHead>
-                                <TableHead className="w-[100px]">Acciones</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {medicines.data.map((medicine) => (
-                                <TableRow key={medicine.id}>
-                                    <TableCell>{medicine.nombre}</TableCell>
-                                    <TableCell>{medicine.medida}</TableCell>
-                                    <TableCell>{medicine.unidad_medida}</TableCell>
-                                    <TableCell>{medicine.descripcion}</TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center gap-2">
-                                            <Link href={route('medicines.edit', medicine.id)}>
-                                                <Button variant="ghost" size="icon">
-                                                    <Pencil className="h-4 w-4" />
-                                                </Button>
-                                            </Link>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => handleDelete(medicine.id)}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    </TableCell>
+                <Card>
+                    <CardHeader>
+                        <div className="flex justify-between items-center">
+                            <div>
+                                <CardTitle>Medicamentos</CardTitle>
+                                <CardDescription>
+                                    Gestiona el inventario de medicamentos
+                                </CardDescription>
+                            </div>
+                            <Link href={route('medicines.create')}>
+                                <Button>
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Nuevo Medicamento
+                                </Button>
+                            </Link>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Nombre</TableHead>
+                                    <TableHead>Medida</TableHead>
+                                    <TableHead>Unidad de Medida</TableHead>
+                                    <TableHead>Descripción</TableHead>
+                                    <TableHead className="w-[100px]">Acciones</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </div>
+                            </TableHeader>
+                            <TableBody>
+                                {medicines.data.map((medicine) => (
+                                    <TableRow key={medicine.id}>
+                                        <TableCell className="font-medium">{medicine.nombre}</TableCell>
+                                        <TableCell>{medicine.medida}</TableCell>
+                                        <TableCell>{medicine.unidad_medida}</TableCell>
+                                        <TableCell>{medicine.descripcion}</TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2">
+                                                <Link href={route('medicines.edit', medicine.id)}>
+                                                    <Button variant="ghost" size="icon">
+                                                        <Pencil className="h-4 w-4" />
+                                                    </Button>
+                                                </Link>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => handleDelete(medicine.id)}
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
             </div>
         </AppSidebarLayout>
     );
