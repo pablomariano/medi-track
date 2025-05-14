@@ -22,6 +22,18 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Link } from "@inertiajs/react"
+import {
+  ChevronLeft,
+  ChevronRight,
+  Home,
+  Calendar,
+  Settings,
+  Users,
+  FileText,
+  PlusCircle,
+} from "lucide-react"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
