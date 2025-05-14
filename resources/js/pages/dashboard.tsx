@@ -1,17 +1,17 @@
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
+import AppLayout from '@/layouts/app-layout'; // Import the AppLayout component
+import { type BreadcrumbItem } from '@/types'; // Import the BreadcrumbItem type
+import { Head } from '@inertiajs/react'; // Import the Head component
 
-import { ChartContainer, ChartConfig, ChartLegend, ChartTooltip, ChartLegendContent, ChartTooltipContent } from '@/components/ui/chart';
-import { Bar,  BarChart, Line, LineChart, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
+import { ChartContainer, ChartConfig, ChartLegend, ChartTooltip, ChartLegendContent, ChartTooltipContent } from '@/components/ui/chart'; // Import the ChartContainer, ChartConfig, ChartLegend, ChartTooltip, ChartLegendContent, and ChartTooltipContent components
+import { Bar,  BarChart, Line, LineChart, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'; // Import the Bar, BarChart, Line, LineChart, XAxis, YAxis, Tooltip, and ResponsiveContainer components
+import { Card } from '@/components/ui/card'; // Import the Card component
+import { Badge } from '@/components/ui/badge'; // Import the Badge component
+import { useState, useEffect } from 'react'; // Import the useState and useEffect hooks
+import { Button } from '@/components/ui/button'; // Import the Button component
+import { RefreshCw } from 'lucide-react'; // Import the RefreshCw icon from Lucide      
 
 
-const initialChartData = [
+const initialChartData = [ // Define the initial chart data
     { month: 'Enero', desktop: 172, mobile: 440 },
     { month: 'Febrero', desktop: 212, mobile: 378 },
     { month: 'Marzo', desktop: 189, mobile: 300 },
@@ -26,7 +26,7 @@ const initialChartData = [
     { month: 'Diciembre', desktop: 140, mobile: 260 },
 ];
 
-const chartConfig = {
+const chartConfig = { // Define the chart configuration
     desktop: {
       label: "Desktop",
       color: "var(--primary)",
@@ -37,21 +37,21 @@ const chartConfig = {
     },
   } satisfies ChartConfig
 
-const statisticsData = [
+const statisticsData = [ // Define the statistics data
     { title: 'Total Users', value: '2,543', change: '+12%', trend: 'up' },
     { title: 'Active Sessions', value: '1,234', change: '+5%', trend: 'up' },
     { title: 'Conversion Rate', value: '3.2%', change: '-2%', trend: 'down' },
     { title: 'Avg. Session', value: '4m 32s', change: '+8%', trend: 'up' },
 ];
 
-const recentActivity = [
+const recentActivity = [ // Define the recent activity data
     { id: 1, user: 'John Doe', action: 'Completed profile', time: '2 minutes ago' },
     { id: 2, user: 'Jane Smith', action: 'Started new session', time: '5 minutes ago' },
     { id: 3, user: 'Mike Johnson', action: 'Updated settings', time: '10 minutes ago' },
     { id: 4, user: 'Sarah Wilson', action: 'Logged in', time: '15 minutes ago' },
 ];
 
-const breadcrumbs: BreadcrumbItem[] = [
+const breadcrumbs: BreadcrumbItem[] = [ // Define the breadcrumbs
     {
         title: 'Dashboard',
         href: '/dashboard',
@@ -72,24 +72,24 @@ const updateChartData = (data: typeof initialChartData) => {
     }));
 };
 
-export default function Dashboard() {
-    const [chartData, setChartData] = useState(initialChartData);
-    const [isLoading, setIsLoading] = useState(false);
+export default function Dashboard() { // Define the Dashboard component
+    const [chartData, setChartData] = useState(initialChartData); // Define the chart data state
+    const [isLoading, setIsLoading] = useState(false); // Define the isLoading state
 
-    const refreshData = () => {
-        setIsLoading(true);
-        setTimeout(() => {
-            setChartData(prevData => updateChartData(prevData));
-            setIsLoading(false);
-        }, 1000);
+    const refreshData = () => { // Define the refreshData function
+        setIsLoading(true); // Set the isLoading state to true
+        setTimeout(() => { // Set a timeout to update the chart data
+            setChartData(prevData => updateChartData(prevData)); // Update the chart data
+            setIsLoading(false); // Set the isLoading state to false
+        }, 1000); // Set a timeout of 1 second
     };
 
-    useEffect(() => {
-        const interval = setInterval(refreshData, 30000);
-        return () => clearInterval(interval);
-    }, []);
+    useEffect(() => { // Use the useEffect hook to refresh the data every 30 seconds
+        const interval = setInterval(refreshData, 12000); // Set an interval to refresh the data every 12 seconds
+        return () => clearInterval(interval); // Return a cleanup function to clear the interval
+    }, []); // Empty dependency array
 
-    return (
+    return ( // Return the Dashboard component
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
