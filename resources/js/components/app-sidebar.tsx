@@ -1,5 +1,4 @@
 import * as React from "react";
-import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { 
   Sidebar, 
@@ -11,9 +10,8 @@ import {
   SidebarMenuButton,
   SidebarFooter
 } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { Home, Calendar, Users, FileText, Settings, PlusCircle, LucideIcon } from 'lucide-react';
+import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, LucideIcon } from 'lucide-react';
 
 interface NavigationItem {
   title: string;
@@ -41,6 +39,11 @@ const mainNavItems: NavigationItem[] = [
     title: 'Medical Records',
     href: '/records',
     icon: FileText,
+  },
+  {
+    title: 'Medicines',
+    href: '/medicines',
+    icon: Pill,
   },
   {
     title: 'Settings',
