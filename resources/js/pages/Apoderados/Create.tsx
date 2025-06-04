@@ -29,12 +29,16 @@ export default function Create({ usuarios }: Props) {
     const { data, setData, post, processing, errors } = useForm({
         usuario_id: '',
         relacion_paciente: '',
-        es_contacto_emergencia: false,
+        es_contacto_emergencia: true,
     });
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         post(route('apoderados.store'));
+    };
+
+    const handleCheckboxChange = (checked: boolean | string) => {
+        setData('es_contacto_emergencia', checked === true || checked === 'true');
     };
 
     const relacionesOpciones = [
@@ -114,7 +118,7 @@ export default function Create({ usuarios }: Props) {
                                 <Checkbox
                                     id="es_contacto_emergencia"
                                     checked={data.es_contacto_emergencia}
-                                    onCheckedChange={(checked) => setData('es_contacto_emergencia', !!checked)}
+                                    onCheckedChange={handleCheckboxChange}
                                 />
                                 <Label htmlFor="es_contacto_emergencia">
                                     Es contacto de emergencia
