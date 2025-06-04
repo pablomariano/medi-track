@@ -7,6 +7,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\PermisoController;
 use App\Http\Controllers\GeneroController;
 use App\Http\Controllers\PersonalMedicoController;
+use App\Http\Controllers\CuidadorController;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -22,6 +23,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('permisos', PermisoController::class);
     Route::resource('generos', GeneroController::class);
     Route::resource('personal-medico', PersonalMedicoController::class);
+    Route::resource('cuidadores', CuidadorController::class);
 });
 
 require __DIR__.'/settings.php';
