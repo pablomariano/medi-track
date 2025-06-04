@@ -29,7 +29,7 @@ export default function Create({ usuarios }: Props) {
     const { data, setData, post, processing, errors } = useForm({
         usuario_id: '',
         relacion_paciente: '',
-        es_contacto_emergencia: true,
+        es_contacto_emergencia: false,
     });
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -114,7 +114,7 @@ export default function Create({ usuarios }: Props) {
                                 <Checkbox
                                     id="es_contacto_emergencia"
                                     checked={data.es_contacto_emergencia}
-                                    onCheckedChange={(checked) => setData('es_contacto_emergencia', checked === true)}
+                                    onCheckedChange={(checked) => setData('es_contacto_emergencia', !!checked)}
                                 />
                                 <Label htmlFor="es_contacto_emergencia">
                                     Es contacto de emergencia

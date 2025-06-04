@@ -38,6 +38,10 @@ export default function Edit({ apoderado }: Props) {
         put(route('apoderados.update', apoderado.usuario_id));
     };
 
+    const handleCheckboxChange = (checked: boolean | string) => {
+        setData('es_contacto_emergencia', checked === true || checked === 'true');
+    };
+
     const relacionesOpciones = [
         { value: 'padre', label: 'Padre' },
         { value: 'madre', label: 'Madre' },
@@ -104,7 +108,7 @@ export default function Edit({ apoderado }: Props) {
                                 <Checkbox
                                     id="es_contacto_emergencia"
                                     checked={data.es_contacto_emergencia}
-                                    onCheckedChange={(checked) => setData('es_contacto_emergencia', checked === true)}
+                                    onCheckedChange={handleCheckboxChange}
                                 />
                                 <Label htmlFor="es_contacto_emergencia">
                                     Es contacto de emergencia
