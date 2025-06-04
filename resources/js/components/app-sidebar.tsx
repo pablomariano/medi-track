@@ -11,7 +11,7 @@ import {
   SidebarFooter
 } from '@/components/ui/sidebar';
 import { Link } from '@inertiajs/react';
-import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, LucideIcon } from 'lucide-react';
+import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, UserCheck, LucideIcon } from 'lucide-react';
 
 interface NavigationItem {
   title: string;
@@ -54,6 +54,11 @@ const mainNavItems: NavigationItem[] = [
     title: 'Permisos',
     href: '/permisos',
     icon: Key,
+  },
+  {
+    title: 'Géneros',
+    href: '/generos',
+    icon: UserCheck,
   },
   {
     title: 'Settings',
