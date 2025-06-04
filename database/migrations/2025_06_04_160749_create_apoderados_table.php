@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('apoderados', function (Blueprint $table) {
-            $table->foreignId('usuario_id')->primary()->constrained('usuarios');
+            $table->foreignId('usuario_id')->primary()->constrained('users');
             $table->string('relacion_paciente', 50)->nullable();
             $table->boolean('es_contacto_emergencia')->default(true);
             $table->comment('Información específica de apoderados/tutores');

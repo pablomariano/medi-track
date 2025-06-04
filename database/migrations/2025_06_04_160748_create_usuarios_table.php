@@ -11,18 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('usuarios', function (Blueprint $table) {
-            $table->id();
-            $table->string('nombre', 100);
-            $table->string('email', 100)->unique();
-            $table->string('password', 255);
-            $table->string('telefono', 20)->nullable();
-            $table->foreignId('rol_id')->constrained('roles');
-            $table->boolean('activo')->default(true);
-            $table->boolean('email_verificado')->default(false);
-            $table->timestamp('ultimo_acceso')->nullable();
-            $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('updated_at')->useCurrent();
+        Schema::table('users', function (Blueprint $table) {
+            // Agregamos los campos adicionales que necesitamos
+            $table->string('telefono', 20)->nullable()->after('email');
+            $table->foreignId('rol_id')->nullable()->after('telefono')->constrained('roles');
+            $table->boolean('activo')->default(true)->after('rol_id');
+            $table->boolean('email_verificado')->default(false)->after('activo');
+            $table->timestamp('ultimo_acceso')->nullable()->after('email_verificado');
             $table->comment('Tabla central de usuarios del sistema');
         });
     }
@@ -32,6 +27,15 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('usuarios');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign(['rol_id']);
+            $table->dropColumn([
+                'telefono',
+                'rol_id',
+                'activo',
+                'email_verificado',
+                'ultimo_acceso'
+            ]);
+        });
     }
 };

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('pacientes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('usuario_id')->nullable()->constrained('usuarios');
+            $table->foreignId('usuario_id')->nullable()->constrained('users');
             $table->string('nombre', 100);
             $table->date('fecha_nacimiento')->nullable();
             $table->char('genero_id', 1)->nullable();

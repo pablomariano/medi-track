@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('cuidadores', function (Blueprint $table) {
-            $table->foreignId('usuario_id')->primary()->constrained('usuarios');
+            $table->foreignId('usuario_id')->primary()->constrained('users');
             $table->text('certificaciones')->nullable();
             $table->integer('experiencia_anos')->nullable();
             $table->string('disponibilidad_horaria', 100)->nullable();
