@@ -11,7 +11,7 @@ import {
   SidebarFooter
 } from '@/components/ui/sidebar';
 import { Link } from '@inertiajs/react';
-import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, UserCheck, Stethoscope, Heart, LucideIcon } from 'lucide-react';
+import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, UserCheck, Stethoscope, Heart, UserX, LucideIcon } from 'lucide-react';
 
 interface NavigationItem {
   title: string;
@@ -69,6 +69,11 @@ const mainNavItems: NavigationItem[] = [
     title: 'Cuidadores',
     href: '/cuidadores',
     icon: Heart,
+  },
+  {
+    title: 'Apoderados',
+    href: '/apoderados',
+    icon: UserX,
   },
   {
     title: 'Settings',
