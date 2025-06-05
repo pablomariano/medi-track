@@ -11,7 +11,7 @@ import {
   SidebarFooter
 } from '@/components/ui/sidebar';
 import { Link } from '@inertiajs/react';
-import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, UserCheck, Stethoscope, Heart, UserX, User, LucideIcon } from 'lucide-react';
+import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, UserCheck, Stethoscope, Heart, UserX, User, LucideIcon, UserPlus } from 'lucide-react';
 
 interface NavigationItem {
   title: string;
@@ -110,6 +110,14 @@ export function AppSidebar() {
               <Link href="/new-appointment" className="flex items-center gap-2">
                 <PlusCircle className="h-4 w-4" />
                 <span>New Appointment</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Link href="/usuarios/select-type" className="flex items-center gap-2">
+                <UserPlus className="h-4 w-4" />
+                <span>Crear Usuario</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
