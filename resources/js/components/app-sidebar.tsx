@@ -36,6 +36,11 @@ const mainNavItems: NavigationItem[] = [
     icon: User,
   },
   {
+    title: 'Usuarios',
+    href: '/usuarios',
+    icon: Users,
+  },
+  {
     title: 'Medical Records',
     href: '/records',
     icon: FileText,

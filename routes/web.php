@@ -10,6 +10,7 @@ use App\Http\Controllers\PersonalMedicoController;
 use App\Http\Controllers\CuidadorController;
 use App\Http\Controllers\ApoderadoController;
 use App\Http\Controllers\PacienteController;
+use App\Http\Controllers\UserController;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -28,6 +29,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('cuidadores', CuidadorController::class);
     Route::resource('apoderados', ApoderadoController::class);
     Route::resource('pacientes', PacienteController::class);
+    Route::resource('usuarios', UserController::class);
 });
 
 require __DIR__.'/settings.php';

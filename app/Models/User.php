@@ -21,6 +21,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'telefono',
+        'rol_id',
+        'activo',
+        'email_verified_at',
+        'ultimo_acceso',
     ];
 
     /**
@@ -43,6 +48,50 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'activo' => 'boolean',
+            'ultimo_acceso' => 'datetime',
         ];
+    }
+
+    // Relación con el rol
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'rol_id');
+    }
+
+    // Relación con personal médico
+    public function personalMedico()
+    {
+        return $this->hasOne(PersonalMedico::class, 'usuario_id');
+    }
+
+    // Relación con pacientes (donde este usuario es el paciente)
+    public function pacientes()
+    {
+        return $this->hasMany(Paciente::class, 'usuario_id');
+    }
+
+    // Método para verificar si el usuario está activo
+    public function isActive()
+    {
+        return $this->activo;
+    }
+
+    // Método para obtener el nombre del rol
+    public function getRolNombreAttribute()
+    {
+        return $this->role ? $this->role->nombre : 'Sin rol';
+    }
+
+    // Método para verificar si el email está verificado
+    public function isEmailVerified()
+    {
+        return !is_null($this->email_verified_at);
+    }
+
+    // Scope para usuarios activos
+    public function scopeActivos($query)
+    {
+        return $query->where('activo', true);
     }
 }
