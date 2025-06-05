@@ -10,7 +10,7 @@ class PermisoController extends Controller
 {
     public function index()
     {
-        $permisos = Permiso::latest()->paginate(10);
+        $permisos = Permiso::orderBy('id', 'desc')->paginate(10);
         
         return Inertia::render('Permisos/Index', [
             'permisos' => $permisos
