@@ -30,15 +30,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('cuidadores', CuidadorController::class);
     Route::resource('apoderados', ApoderadoController::class);
     Route::resource('pacientes', PacienteController::class);
-    Route::resource('usuarios', UserController::class);
 
-    // Nuevas rutas para el sistema unificado de usuarios
+    // IMPORTANTE: Rutas específicas del sistema unificado ANTES que el resource
     Route::prefix('usuarios')->name('usuarios.')->group(function () {
         Route::get('select-type', [UnifiedUserController::class, 'selectType'])->name('select-type');
         Route::get('create-by-type', [UnifiedUserController::class, 'create'])->name('create-by-type');
         Route::post('store-by-type', [UnifiedUserController::class, 'store'])->name('store-by-type');
         Route::get('form-data', [UnifiedUserController::class, 'getFormData'])->name('form-data');
     });
+
+    // Resource de usuarios DESPUÉS de las rutas específicas
+    Route::resource('usuarios', UserController::class);
 });
 
 require __DIR__.'/settings.php';
