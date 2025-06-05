@@ -23,6 +23,17 @@ services:
             - sail
         depends_on:
             - mysql
+    adminer:
+        image: adminer
+        ports:
+            - '${FORWARD_DB_PORT:-8080}:8080'
+        networks:
+            - sail
+        depends_on:
+            - mysql
+        environment:
+            ADMINER_DEFAULT_SERVER: 'mysql'
+            ADMINER_DESIGN: 'hydra'
     mysql:
         image: 'mysql/mysql-server:8.0'
         ports:
