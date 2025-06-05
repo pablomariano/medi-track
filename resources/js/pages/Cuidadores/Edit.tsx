@@ -25,7 +25,7 @@ interface Props {
             id: number;
             name: string;
             email: string;
-        };
+        } | null;
     };
 }
 
@@ -63,7 +63,7 @@ export default function Edit({ cuidador }: Props) {
                     <CardHeader>
                         <CardTitle>Información del Cuidador</CardTitle>
                         <CardDescription>
-                            Actualiza los detalles del cuidador - {cuidador.user.name}
+                            Actualiza los detalles del cuidador - {cuidador.user ? cuidador.user.name : `Usuario ID: ${cuidador.usuario_id} (Usuario no encontrado)`}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -71,8 +71,20 @@ export default function Edit({ cuidador }: Props) {
                             <div className="space-y-2">
                                 <Label>Usuario Asignado</Label>
                                 <div className="p-3 bg-gray-50 rounded-md">
-                                    <p className="font-medium">{cuidador.user.name}</p>
-                                    <p className="text-sm text-gray-600">{cuidador.user.email}</p>
+                                    {cuidador.user ? (
+                                        <>
+                                            <p className="font-medium">{cuidador.user.name}</p>
+                                            <p className="text-sm text-gray-600">{cuidador.user.email}</p>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <p className="font-medium text-red-600">Usuario no encontrado</p>
+                                            <p className="text-sm text-gray-600">ID de usuario: {cuidador.usuario_id}</p>
+                                            <p className="text-xs text-red-500 mt-1">
+                                                ⚠️ El usuario asociado a este cuidador no existe o fue eliminado
+                                            </p>
+                                        </>
+                                    )}
                                 </div>
                             </div>
 

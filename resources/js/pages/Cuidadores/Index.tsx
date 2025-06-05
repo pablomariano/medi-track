@@ -29,7 +29,7 @@ interface Cuidador {
         id: number;
         name: string;
         email: string;
-    };
+    } | null;
 }
 
 interface PaginationLink {
@@ -93,8 +93,16 @@ export default function Index({ cuidadores }: Props) {
                             <TableBody>
                                 {cuidadores.data.map((cuidador) => (
                                     <TableRow key={cuidador.usuario_id}>
-                                        <TableCell className="font-medium">{cuidador.user.name}</TableCell>
-                                        <TableCell>{cuidador.user.email}</TableCell>
+                                        <TableCell className="font-medium">
+                                            {cuidador.user ? cuidador.user.name : (
+                                                <span className="text-red-600">Usuario no encontrado</span>
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
+                                            {cuidador.user ? cuidador.user.email : (
+                                                <span className="text-red-600 text-sm">ID: {cuidador.usuario_id}</span>
+                                            )}
+                                        </TableCell>
                                         <TableCell>
                                             {cuidador.experiencia_anos && (
                                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
