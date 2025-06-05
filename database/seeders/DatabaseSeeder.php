@@ -13,11 +13,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Seedear roles y permisos primero
+        $this->call([
+            RolesAndPermissionsSeeder::class,
+            TestUsersSeeder::class,
         ]);
+
+        echo "\n🎉 Base de datos inicializada con datos coherentes\n";
+        echo "👤 Usuarios de prueba:\n";
+        echo "   - admin@meditrack.com (Administrador)\n";
+        echo "   - medico@meditrack.com (Personal Médico)\n";
+        echo "   - cuidador@meditrack.com (Cuidador)\n";
+        echo "   - apoderado@meditrack.com (Apoderado)\n";
+        echo "   - paciente@meditrack.com (Paciente)\n";
+        echo "🔑 Contraseña para todos: password\n\n";
     }
 }
