@@ -13,15 +13,33 @@ use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UnifiedUserController;
 
+// Nuevos controladores del sistema de medicamentos
+use App\Http\Controllers\PrincipiosActivosController;
+use App\Http\Controllers\MedicamentosController;
+use App\Http\Controllers\FormasFarmaceuticasController;
+use App\Http\Controllers\ViasAdministracionController;
+use App\Http\Controllers\UnidadesMedidaController;
+use App\Http\Controllers\TratamientosController;
+use App\Http\Controllers\AdministracionesController;
+use App\Http\Controllers\DashboardController;
+
 Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    // Dashboard principal
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Dashboards específicos por rol
+    Route::get('dashboard/medico', [DashboardController::class, 'dashboardMedico'])->name('dashboard.medico');
+    Route::get('dashboard/cuidador', [DashboardController::class, 'dashboardCuidador'])->name('dashboard.cuidador');
+    Route::get('api/dashboard/stats', [DashboardController::class, 'apiStats'])->name('api.dashboard.stats');
+    
+    // Página de prueba del sistema de medicamentos
+    Route::get('test/medicamentos', [DashboardController::class, 'testMedicamentos'])->name('test.medicamentos');
 
+    // Sistema de usuarios existente
     Route::resource('medicines', MedicineController::class);
     Route::resource('roles', RoleController::class);
     Route::resource('permisos', PermisoController::class);
@@ -41,6 +59,43 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Resource de usuarios DESPUÉS de las rutas específicas
     Route::resource('usuarios', UserController::class);
+
+    // ========================================
+    // 🏥 SISTEMA DE MEDICAMENTOS PROFESIONAL
+    // ========================================
+
+    // 📋 CATÁLOGOS BÁSICOS
+    Route::prefix('medicamentos')->name('medicamentos.')->group(function () {
+        
+        // Principios Activos
+        Route::resource('principios-activos', PrincipiosActivosController::class);
+        Route::post('principios-activos/{principiosActivo}/toggle-status', [PrincipiosActivosController::class, 'toggleStatus'])
+             ->name('principios-activos.toggle-status');
+        Route::get('api/principios-activos/activos', [PrincipiosActivosController::class, 'getActivos'])
+             ->name('api.principios-activos.activos');
+
+        // Formas Farmacéuticas
+        Route::resource('formas-farmaceuticas', FormasFarmaceuticasController::class);
+        
+        // Vías de Administración  
+        Route::resource('vias-administracion', ViasAdministracionController::class);
+        
+        // Unidades de Medida
+        Route::resource('unidades-medida', UnidadesMedidaController::class);
+    });
+
+    // 💊 MEDICAMENTOS
+    Route::resource('medicamentos', MedicamentosController::class);
+    Route::get('medicamentos/inventario/alertas', [MedicamentosController::class, 'inventario'])
+         ->name('medicamentos.inventario');
+    Route::get('api/medicamentos/activos', [MedicamentosController::class, 'getActivos'])
+         ->name('api.medicamentos.activos');
+
+    // 🩺 TRATAMIENTOS
+    Route::resource('tratamientos', TratamientosController::class);
+
+    // 👩‍⚕️ ADMINISTRACIONES (Para Cuidadores)
+    Route::resource('administraciones', AdministracionesController::class);
 });
 
 require __DIR__.'/settings.php';
