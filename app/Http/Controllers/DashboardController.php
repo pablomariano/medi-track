@@ -16,6 +16,7 @@ use App\Models\AlertaMedicamento;
 use App\Models\AutorizacionTratamiento;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
@@ -95,22 +96,22 @@ class DashboardController extends Controller
             // Actividad reciente del sistema
             $actividadReciente = $this->getActividadReciente();
 
-            return view('dashboard.index', compact(
-                'systemStats',
-                'medicationStats', 
-                'treatmentStats',
-                'alertasRecientes',
-                'administracionesHoy',
-                'medicamentosVencer',
-                'autorizacionesPendientes',
-                'actividadReciente'
-            ));
+            return Inertia::render('dashboard', [
+                'systemStats' => $systemStats,
+                'medicationStats' => $medicationStats, 
+                'treatmentStats' => $treatmentStats,
+                'alertasRecientes' => $alertasRecientes,
+                'administracionesHoy' => $administracionesHoy,
+                'medicamentosVencer' => $medicamentosVencer,
+                'autorizacionesPendientes' => $autorizacionesPendientes,
+                'actividadReciente' => $actividadReciente
+            ]);
 
         } catch (\Exception $e) {
             Log::error('Error al cargar dashboard: ' . $e->getMessage());
             
             // Dashboard básico en caso de error
-            return view('dashboard.index', [
+            return Inertia::render('dashboard', [
                 'systemStats' => ['error' => 'Error al cargar estadísticas'],
                 'medicationStats' => [],
                 'treatmentStats' => [],
