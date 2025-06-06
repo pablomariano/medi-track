@@ -30,176 +30,176 @@ class CatalogosFarmaceuticosSeeder extends Seeder
             // Formas sólidas
             [
                 'nombre' => 'Tableta',
-                'descripcion' => 'Forma farmacéutica sólida obtenida por compresión',
-                'activo' => true
+                'tipo' => 'Sólida',
+                'descripcion' => 'Forma farmacéutica sólida obtenida por compresión'
             ],
             [
                 'nombre' => 'Cápsula',
-                'descripcion' => 'Forma farmacéutica sólida con cubierta de gelatina',
-                'activo' => true
+                'tipo' => 'Sólida',
+                'descripcion' => 'Forma farmacéutica sólida con cubierta de gelatina'
             ],
             [
                 'nombre' => 'Comprimido',
-                'descripcion' => 'Forma farmacéutica sólida compacta',
-                'activo' => true
+                'tipo' => 'Sólida',
+                'descripcion' => 'Forma farmacéutica sólida compacta'
             ],
             [
                 'nombre' => 'Comprimido recubierto',
-                'descripcion' => 'Comprimido con recubrimiento entérico o de liberación controlada',
-                'activo' => true
+                'tipo' => 'Sólida',
+                'descripcion' => 'Comprimido con recubrimiento entérico o de liberación controlada'
             ],
             [
                 'nombre' => 'Tableta masticable',
-                'descripcion' => 'Tableta diseñada para ser masticada antes de tragar',
-                'activo' => true
+                'tipo' => 'Sólida',
+                'descripcion' => 'Tableta diseñada para ser masticada antes de tragar'
             ],
             [
                 'nombre' => 'Tableta sublingual',
-                'descripcion' => 'Tableta para disolución bajo la lengua',
-                'activo' => true
+                'tipo' => 'Sólida',
+                'descripcion' => 'Tableta para disolución bajo la lengua'
             ],
             [
                 'nombre' => 'Tableta efervescente',
-                'descripcion' => 'Tableta que se disuelve en agua formando burbujas',
-                'activo' => true
+                'tipo' => 'Sólida',
+                'descripcion' => 'Tableta que se disuelve en agua formando burbujas'
             ],
             [
                 'nombre' => 'Polvo',
-                'descripcion' => 'Preparación farmacéutica en forma de polvo fino',
-                'activo' => true
+                'tipo' => 'Sólida',
+                'descripcion' => 'Preparación farmacéutica en forma de polvo fino'
             ],
             [
                 'nombre' => 'Granulado',
-                'descripcion' => 'Agregados de partículas de polvo',
-                'activo' => true
+                'tipo' => 'Sólida',
+                'descripcion' => 'Agregados de partículas de polvo'
             ],
             [
                 'nombre' => 'Sobres',
-                'descripcion' => 'Polvo o granulado envasado en sobres unitarios',
-                'activo' => true
+                'tipo' => 'Sólida',
+                'descripcion' => 'Polvo o granulado envasado en sobres unitarios'
             ],
 
             // Formas líquidas
             [
                 'nombre' => 'Jarabe',
-                'descripcion' => 'Solución acuosa azucarada para administración oral',
-                'activo' => true
+                'tipo' => 'Líquida',
+                'descripcion' => 'Solución acuosa azucarada para administración oral'
             ],
             [
                 'nombre' => 'Suspensión',
-                'descripcion' => 'Dispersión de sólidos finamente divididos en líquido',
-                'activo' => true
+                'tipo' => 'Líquida',
+                'descripcion' => 'Dispersión de sólidos finamente divididos en líquido'
             ],
             [
                 'nombre' => 'Solución oral',
-                'descripcion' => 'Preparación líquida para administración por vía oral',
-                'activo' => true
+                'tipo' => 'Líquida',
+                'descripcion' => 'Preparación líquida para administración por vía oral'
             ],
             [
                 'nombre' => 'Gotas orales',
-                'descripcion' => 'Solución en gotas para administración oral',
-                'activo' => true
+                'tipo' => 'Líquida',
+                'descripcion' => 'Solución en gotas para administración oral'
             ],
             [
                 'nombre' => 'Elixir',
-                'descripcion' => 'Preparación líquida hidroalcohólica edulcorada',
-                'activo' => true
+                'tipo' => 'Líquida',
+                'descripcion' => 'Preparación líquida hidroalcohólica edulcorada'
             ],
             [
                 'nombre' => 'Emulsión',
-                'descripcion' => 'Sistema disperso de dos líquidos inmiscibles',
-                'activo' => true
+                'tipo' => 'Líquida',
+                'descripcion' => 'Sistema disperso de dos líquidos inmiscibles'
             ],
 
             // Formas inyectables
             [
                 'nombre' => 'Ampolla',
-                'descripcion' => 'Envase de vidrio sellado para inyectables',
-                'activo' => true
+                'tipo' => 'Inyectable',
+                'descripcion' => 'Envase de vidrio sellado para inyectables'
             ],
             [
                 'nombre' => 'Vial',
-                'descripcion' => 'Frasco de vidrio para inyectables con tapón',
-                'activo' => true
+                'tipo' => 'Inyectable',
+                'descripcion' => 'Frasco de vidrio para inyectables con tapón'
             ],
             [
                 'nombre' => 'Jeringa prellenada',
-                'descripcion' => 'Jeringa lista para usar con medicamento precargado',
-                'activo' => true
+                'tipo' => 'Inyectable',
+                'descripcion' => 'Jeringa lista para usar con medicamento precargado'
             ],
             [
                 'nombre' => 'Solución inyectable',
-                'descripcion' => 'Preparación estéril para administración parenteral',
-                'activo' => true
+                'tipo' => 'Inyectable',
+                'descripcion' => 'Preparación estéril para administración parenteral'
             ],
             [
                 'nombre' => 'Polvo para inyección',
-                'descripcion' => 'Polvo estéril para reconstituir antes de inyectar',
-                'activo' => true
+                'tipo' => 'Inyectable',
+                'descripcion' => 'Polvo estéril para reconstituir antes de inyectar'
             ],
 
             // Formas tópicas
             [
                 'nombre' => 'Crema',
-                'descripcion' => 'Emulsión semisólida para aplicación tópica',
-                'activo' => true
+                'tipo' => 'Tópica',
+                'descripcion' => 'Emulsión semisólida para aplicación tópica'
             ],
             [
                 'nombre' => 'Pomada',
-                'descripcion' => 'Preparación semisólida grasa para uso tópico',
-                'activo' => true
+                'tipo' => 'Tópica',
+                'descripcion' => 'Preparación semisólida grasa para uso tópico'
             ],
             [
                 'nombre' => 'Gel',
-                'descripcion' => 'Sistema coloidal semisólido transparente',
-                'activo' => true
+                'tipo' => 'Tópica',
+                'descripcion' => 'Sistema coloidal semisólido transparente'
             ],
             [
                 'nombre' => 'Loción',
-                'descripcion' => 'Preparación líquida para aplicación externa',
-                'activo' => true
+                'tipo' => 'Tópica',
+                'descripcion' => 'Preparación líquida para aplicación externa'
             ],
             [
                 'nombre' => 'Parche transdérmico',
-                'descripcion' => 'Sistema de liberación controlada a través de la piel',
-                'activo' => true
+                'tipo' => 'Tópica',
+                'descripcion' => 'Sistema de liberación controlada a través de la piel'
             ],
 
             // Formas especiales
             [
                 'nombre' => 'Supositorio',
-                'descripcion' => 'Forma farmacéutica sólida para inserción rectal o vaginal',
-                'activo' => true
+                'tipo' => 'Especial',
+                'descripcion' => 'Forma farmacéutica sólida para inserción rectal o vaginal'
             ],
             [
                 'nombre' => 'Óvulo vaginal',
-                'descripcion' => 'Forma farmacéutica sólida para inserción vaginal',
-                'activo' => true
+                'tipo' => 'Especial',
+                'descripcion' => 'Forma farmacéutica sólida para inserción vaginal'
             ],
             [
                 'nombre' => 'Aerosol',
-                'descripcion' => 'Dispersión de partículas líquidas o sólidas en gas',
-                'activo' => true
+                'tipo' => 'Especial',
+                'descripcion' => 'Dispersión de partículas líquidas o sólidas en gas'
             ],
             [
                 'nombre' => 'Inhalador',
-                'descripcion' => 'Dispositivo para administración por vía respiratoria',
-                'activo' => true
+                'tipo' => 'Especial',
+                'descripcion' => 'Dispositivo para administración por vía respiratoria'
             ],
             [
                 'nombre' => 'Colirio',
-                'descripcion' => 'Solución estéril para aplicación ocular',
-                'activo' => true
+                'tipo' => 'Especial',
+                'descripcion' => 'Solución estéril para aplicación ocular'
             ],
             [
                 'nombre' => 'Gotas nasales',
-                'descripcion' => 'Solución para aplicación en cavidad nasal',
-                'activo' => true
+                'tipo' => 'Especial',
+                'descripcion' => 'Solución para aplicación en cavidad nasal'
             ],
             [
                 'nombre' => 'Spray nasal',
-                'descripcion' => 'Pulverización para administración nasal',
-                'activo' => true
+                'tipo' => 'Especial',
+                'descripcion' => 'Pulverización para administración nasal'
             ]
         ];
 
@@ -219,149 +219,126 @@ class CatalogosFarmaceuticosSeeder extends Seeder
             // Vías enterales
             [
                 'nombre' => 'Oral',
-                'descripcion' => 'Administración por la boca, deglución al estómago',
                 'abreviatura' => 'PO',
-                'activo' => true
+                'descripcion' => 'Administración por la boca, deglución al estómago'
             ],
             [
                 'nombre' => 'Sublingual',
-                'descripcion' => 'Absorción bajo la lengua',
                 'abreviatura' => 'SL',
-                'activo' => true
+                'descripcion' => 'Absorción bajo la lengua'
             ],
             [
                 'nombre' => 'Bucal',
-                'descripcion' => 'Absorción a través de la mucosa bucal',
                 'abreviatura' => 'BUC',
-                'activo' => true
+                'descripcion' => 'Absorción a través de la mucosa bucal'
             ],
             [
                 'nombre' => 'Rectal',
-                'descripcion' => 'Administración por vía rectal (supositorios)',
                 'abreviatura' => 'PR',
-                'activo' => true
+                'descripcion' => 'Administración por vía rectal (supositorios)'
             ],
 
             // Vías parenterales
             [
                 'nombre' => 'Intravenosa',
-                'descripcion' => 'Inyección directa en vena',
                 'abreviatura' => 'IV',
-                'activo' => true
+                'descripcion' => 'Inyección directa en vena'
             ],
             [
                 'nombre' => 'Intramuscular',
-                'descripcion' => 'Inyección en músculo',
                 'abreviatura' => 'IM',
-                'activo' => true
+                'descripcion' => 'Inyección en músculo'
             ],
             [
                 'nombre' => 'Subcutánea',
-                'descripcion' => 'Inyección en tejido subcutáneo',
                 'abreviatura' => 'SC',
-                'activo' => true
+                'descripcion' => 'Inyección en tejido subcutáneo'
             ],
             [
                 'nombre' => 'Intradérmica',
-                'descripcion' => 'Inyección en dermis',
                 'abreviatura' => 'ID',
-                'activo' => true
+                'descripcion' => 'Inyección en dermis'
             ],
             [
                 'nombre' => 'Intraperitoneal',
-                'descripcion' => 'Inyección en cavidad peritoneal',
                 'abreviatura' => 'IP',
-                'activo' => true
+                'descripcion' => 'Inyección en cavidad peritoneal'
             ],
             [
                 'nombre' => 'Intratecal',
-                'descripcion' => 'Inyección en espacio subaracnoideo',
                 'abreviatura' => 'IT',
-                'activo' => true
+                'descripcion' => 'Inyección en espacio subaracnoideo'
             ],
             [
                 'nombre' => 'Epidural',
-                'descripcion' => 'Inyección en espacio epidural',
                 'abreviatura' => 'EP',
-                'activo' => true
+                'descripcion' => 'Inyección en espacio epidural'
             ],
             [
                 'nombre' => 'Intraósea',
-                'descripcion' => 'Inyección directa en médula ósea',
                 'abreviatura' => 'IO',
-                'activo' => true
+                'descripcion' => 'Inyección directa en médula ósea'
             ],
 
             // Vías tópicas
             [
                 'nombre' => 'Tópica cutánea',
-                'descripcion' => 'Aplicación sobre la piel',
-                'abreviatura' => 'TOP',
-                'activo' => true
+                'abreviatura' => 'TOPC',
+                'descripcion' => 'Aplicación sobre la piel'
             ],
             [
                 'nombre' => 'Transdérmica',
-                'descripcion' => 'Absorción sistémica a través de la piel',
                 'abreviatura' => 'TD',
-                'activo' => true
+                'descripcion' => 'Absorción sistémica a través de la piel'
             ],
             [
                 'nombre' => 'Oftálmica',
-                'descripcion' => 'Aplicación en el ojo',
                 'abreviatura' => 'OFT',
-                'activo' => true
+                'descripcion' => 'Aplicación en el ojo'
             ],
             [
                 'nombre' => 'Ótica',
-                'descripcion' => 'Aplicación en el oído',
                 'abreviatura' => 'OT',
-                'activo' => true
+                'descripcion' => 'Aplicación en el oído'
             ],
             [
                 'nombre' => 'Nasal',
-                'descripcion' => 'Aplicación en cavidad nasal',
                 'abreviatura' => 'NAS',
-                'activo' => true
+                'descripcion' => 'Aplicación en cavidad nasal'
             ],
             [
                 'nombre' => 'Vaginal',
-                'descripcion' => 'Aplicación en cavidad vaginal',
                 'abreviatura' => 'VAG',
-                'activo' => true
+                'descripcion' => 'Aplicación en cavidad vaginal'
             ],
 
             // Vías respiratorias
             [
                 'nombre' => 'Inhalatoria',
-                'descripcion' => 'Inhalación para absorción pulmonar',
                 'abreviatura' => 'INH',
-                'activo' => true
+                'descripcion' => 'Inhalación para absorción pulmonar'
             ],
             [
                 'nombre' => 'Nebulización',
-                'descripcion' => 'Administración por nebulizador',
                 'abreviatura' => 'NEB',
-                'activo' => true
+                'descripcion' => 'Administración por nebulizador'
             ],
 
             // Vías especiales
             [
                 'nombre' => 'Intraventricular',
-                'descripcion' => 'Inyección en ventrículo cerebral',
                 'abreviatura' => 'IVT',
-                'activo' => true
+                'descripcion' => 'Inyección en ventrículo cerebral'
             ],
             [
                 'nombre' => 'Intraarticular',
-                'descripcion' => 'Inyección en articulación',
                 'abreviatura' => 'IA',
-                'activo' => true
+                'descripcion' => 'Inyección en articulación'
             ],
             [
                 'nombre' => 'Intracardiaca',
-                'descripcion' => 'Inyección directa en corazón',
                 'abreviatura' => 'IC',
-                'activo' => true
+                'descripcion' => 'Inyección directa en corazón'
             ]
         ];
 
@@ -381,217 +358,142 @@ class CatalogosFarmaceuticosSeeder extends Seeder
             // Unidades de peso/masa
             [
                 'nombre' => 'Kilogramo',
-                'simbolo' => 'kg',
-                'tipo_unidad' => 'peso',
-                'factor_conversion_base' => 1000000.0,
-                'unidad_base' => 'mg',
-                'activo' => true
+                'tipo' => 'peso',
+                'equivalencia_base' => 1000000.0
             ],
             [
                 'nombre' => 'Gramo',
-                'simbolo' => 'g',
-                'tipo_unidad' => 'peso',
-                'factor_conversion_base' => 1000.0,
-                'unidad_base' => 'mg',
-                'activo' => true
+                'tipo' => 'peso',
+                'equivalencia_base' => 1000.0
             ],
             [
                 'nombre' => 'Miligramo',
-                'simbolo' => 'mg',
-                'tipo_unidad' => 'peso',
-                'factor_conversion_base' => 1.0,
-                'unidad_base' => 'mg',
-                'activo' => true
+                'tipo' => 'peso',
+                'equivalencia_base' => 1.0
             ],
             [
                 'nombre' => 'Microgramo',
-                'simbolo' => 'mcg',
-                'tipo_unidad' => 'peso',
-                'factor_conversion_base' => 0.001,
-                'unidad_base' => 'mg',
-                'activo' => true
+                'tipo' => 'peso',
+                'equivalencia_base' => 0.001
             ],
             [
                 'nombre' => 'Nanogramo',
-                'simbolo' => 'ng',
-                'tipo_unidad' => 'peso',
-                'factor_conversion_base' => 0.000001,
-                'unidad_base' => 'mg',
-                'activo' => true
+                'tipo' => 'peso',
+                'equivalencia_base' => 0.000001
             ],
 
             // Unidades de volumen
             [
                 'nombre' => 'Litro',
-                'simbolo' => 'L',
-                'tipo_unidad' => 'volumen',
-                'factor_conversion_base' => 1000.0,
-                'unidad_base' => 'mL',
-                'activo' => true
+                'tipo' => 'volumen',
+                'equivalencia_base' => 1000.0
             ],
             [
                 'nombre' => 'Mililitro',
-                'simbolo' => 'mL',
-                'tipo_unidad' => 'volumen',
-                'factor_conversion_base' => 1.0,
-                'unidad_base' => 'mL',
-                'activo' => true
+                'tipo' => 'volumen',
+                'equivalencia_base' => 1.0
             ],
             [
                 'nombre' => 'Microlitro',
-                'simbolo' => 'μL',
-                'tipo_unidad' => 'volumen',
-                'factor_conversion_base' => 0.001,
-                'unidad_base' => 'mL',
-                'activo' => true
+                'tipo' => 'volumen',
+                'equivalencia_base' => 0.001
             ],
             [
                 'nombre' => 'Gota',
-                'simbolo' => 'gtt',
-                'tipo_unidad' => 'volumen',
-                'factor_conversion_base' => 0.05,
-                'unidad_base' => 'mL',
-                'activo' => true
+                'tipo' => 'volumen',
+                'equivalencia_base' => 0.05
             ],
 
             // Unidades de concentración
             [
-                'nombre' => 'Miligramo por mililitro',
-                'simbolo' => 'mg/mL',
-                'tipo_unidad' => 'concentracion',
-                'factor_conversion_base' => 1.0,
-                'unidad_base' => 'mg/mL',
-                'activo' => true
+                'nombre' => 'mg/mL',
+                'tipo' => 'concentracion',
+                'equivalencia_base' => 1.0
             ],
             [
-                'nombre' => 'Microgramo por mililitro',
-                'simbolo' => 'mcg/mL',
-                'tipo_unidad' => 'concentracion',
-                'factor_conversion_base' => 0.001,
-                'unidad_base' => 'mg/mL',
-                'activo' => true
+                'nombre' => 'mcg/mL',
+                'tipo' => 'concentracion',
+                'equivalencia_base' => 0.001
             ],
             [
-                'nombre' => 'Porcentaje peso/peso',
-                'simbolo' => '% p/p',
-                'tipo_unidad' => 'concentracion',
-                'factor_conversion_base' => 10.0,
-                'unidad_base' => 'mg/mL',
-                'activo' => true
+                'nombre' => '% p/p',
+                'tipo' => 'concentracion',
+                'equivalencia_base' => 10.0
             ],
             [
-                'nombre' => 'Porcentaje peso/volumen',
-                'simbolo' => '% p/v',
-                'tipo_unidad' => 'concentracion',
-                'factor_conversion_base' => 10.0,
-                'unidad_base' => 'mg/mL',
-                'activo' => true
+                'nombre' => '% p/v',
+                'tipo' => 'concentracion',
+                'equivalencia_base' => 10.0
             ],
             [
-                'nombre' => 'Partes por millón',
-                'simbolo' => 'ppm',
-                'tipo_unidad' => 'concentracion',
-                'factor_conversion_base' => 0.001,
-                'unidad_base' => 'mg/mL',
-                'activo' => true
+                'nombre' => 'ppm',
+                'tipo' => 'concentracion',
+                'equivalencia_base' => 0.001
             ],
 
             // Unidades internacionales
             [
-                'nombre' => 'Unidad Internacional',
-                'simbolo' => 'UI',
-                'tipo_unidad' => 'actividad',
-                'factor_conversion_base' => 1.0,
-                'unidad_base' => 'UI',
-                'activo' => true
+                'nombre' => 'UI',
+                'tipo' => 'actividad',
+                'equivalencia_base' => 1.0
             ],
             [
-                'nombre' => 'Mili-Unidad Internacional',
-                'simbolo' => 'mUI',
-                'tipo_unidad' => 'actividad',
-                'factor_conversion_base' => 0.001,
-                'unidad_base' => 'UI',
-                'activo' => true
+                'nombre' => 'mUI',
+                'tipo' => 'actividad',
+                'equivalencia_base' => 0.001
             ],
             [
-                'nombre' => 'Micro-Unidad Internacional',
-                'simbolo' => 'μUI',
-                'tipo_unidad' => 'actividad',
-                'factor_conversion_base' => 0.000001,
-                'unidad_base' => 'UI',
-                'activo' => true
+                'nombre' => 'μUI',
+                'tipo' => 'actividad',
+                'equivalencia_base' => 0.000001
             ],
 
             // Unidades especiales
             [
-                'nombre' => 'Miliequivalente',
-                'simbolo' => 'mEq',
-                'tipo_unidad' => 'actividad',
-                'factor_conversion_base' => 1.0,
-                'unidad_base' => 'mEq',
-                'activo' => true
+                'nombre' => 'mEq',
+                'tipo' => 'actividad',
+                'equivalencia_base' => 1.0
             ],
             [
-                'nombre' => 'Miliosmol',
-                'simbolo' => 'mOsm',
-                'tipo_unidad' => 'actividad',
-                'factor_conversion_base' => 1.0,
-                'unidad_base' => 'mOsm',
-                'activo' => true
+                'nombre' => 'mOsm',
+                'tipo' => 'actividad',
+                'equivalencia_base' => 1.0
             ],
             [
-                'nombre' => 'Comprimido',
-                'simbolo' => 'comp',
-                'tipo_unidad' => 'unitario',
-                'factor_conversion_base' => 1.0,
-                'unidad_base' => 'comp',
-                'activo' => true
+                'nombre' => 'comp',
+                'tipo' => 'unitario',
+                'equivalencia_base' => 1.0
             ],
             [
-                'nombre' => 'Cápsula',
-                'simbolo' => 'cap',
-                'tipo_unidad' => 'unitario',
-                'factor_conversion_base' => 1.0,
-                'unidad_base' => 'cap',
-                'activo' => true
+                'nombre' => 'cap',
+                'tipo' => 'unitario',
+                'equivalencia_base' => 1.0
             ],
             [
-                'nombre' => 'Tableta',
-                'simbolo' => 'tab',
-                'tipo_unidad' => 'unitario',
-                'factor_conversion_base' => 1.0,
-                'unidad_base' => 'tab',
-                'activo' => true
+                'nombre' => 'tab',
+                'tipo' => 'unitario',
+                'equivalencia_base' => 1.0
             ],
             [
-                'nombre' => 'Ampolla',
-                'simbolo' => 'amp',
-                'tipo_unidad' => 'unitario',
-                'factor_conversion_base' => 1.0,
-                'unidad_base' => 'amp',
-                'activo' => true
+                'nombre' => 'amp',
+                'tipo' => 'unitario',
+                'equivalencia_base' => 1.0
             ],
             [
-                'nombre' => 'Vial',
-                'simbolo' => 'vial',
-                'tipo_unidad' => 'unitario',
-                'factor_conversion_base' => 1.0,
-                'unidad_base' => 'vial',
-                'activo' => true
+                'nombre' => 'vial',
+                'tipo' => 'unitario',
+                'equivalencia_base' => 1.0
             ],
             [
-                'nombre' => 'Sobre',
-                'simbolo' => 'sob',
-                'tipo_unidad' => 'unitario',
-                'factor_conversion_base' => 1.0,
-                'unidad_base' => 'sob',
-                'activo' => true
+                'nombre' => 'sob',
+                'tipo' => 'unitario',
+                'equivalencia_base' => 1.0
             ]
         ];
 
         foreach ($unidades as $unidad) {
             UnidadMedida::firstOrCreate(
-                ['simbolo' => $unidad['simbolo']],
+                ['nombre' => $unidad['nombre']],
                 $unidad
             );
         }

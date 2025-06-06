@@ -21,7 +21,7 @@ return new class extends Migration
             $table->boolean('activo')->default(true);
             
             // Índices para optimización
-            $table->unique(['principio_activo_1_id', 'principio_activo_2_id']);
+            $table->unique(['principio_activo_1_id', 'principio_activo_2_id'], 'interacciones_unique');
             $table->index(['tipo_interaccion']);
             $table->index(['severidad']);
             $table->index(['activo']);

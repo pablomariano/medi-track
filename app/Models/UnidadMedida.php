@@ -11,24 +11,19 @@ class UnidadMedida extends Model
     use HasFactory;
 
     protected $table = 'unidades_medida';
+    public $timestamps = false;
 
     protected $fillable = [
         'nombre',
-        'simbolo',
-        'tipo_unidad',
-        'factor_conversion',
-        'unidad_base_id',
-        'activo'
+        'tipo',
+        'equivalencia_base',
+        'unidad_base_id'
     ];
 
     protected $casts = [
-        'factor_conversion' => 'decimal:6',
-        'activo' => 'boolean',
-        'creado_en' => 'datetime'
+        'equivalencia_base' => 'decimal:6',
+        'activo' => 'boolean'
     ];
-
-    const CREATED_AT = 'creado_en';
-    const UPDATED_AT = null;
 
     // Tipos de unidad
     const TIPO_PESO = 'peso';
@@ -58,7 +53,7 @@ class UnidadMedida extends Model
 
     public function scopePorTipo($query, $tipo)
     {
-        return $query->where('tipo_unidad', $tipo);
+        return $query->where('tipo', $tipo);
     }
 
     public function scopeUnidadesBase($query)
@@ -69,7 +64,7 @@ class UnidadMedida extends Model
     // Métodos de conversión
     public function convertirA($cantidad, UnidadMedida $unidadDestino)
     {
-        if ($this->tipo_unidad !== $unidadDestino->tipo_unidad) {
+        if ($this->tipo !== $unidadDestino->tipo) {
             throw new \InvalidArgumentException('No se pueden convertir unidades de tipos diferentes');
         }
 
@@ -79,9 +74,9 @@ class UnidadMedida extends Model
         }
 
         // Convertir a unidad base
-        $cantidadBase = $cantidad * $this->factor_conversion;
+        $cantidadBase = $cantidad * $this->equivalencia_base;
         
         // Convertir de unidad base a destino
-        return $cantidadBase / $unidadDestino->factor_conversion;
+        return $cantidadBase / $unidadDestino->equivalencia_base;
     }
 }

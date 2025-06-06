@@ -312,7 +312,7 @@ class MedicamentosCompletos extends Seeder
                 'nombre_comercial' => 'Rocephin',
                 'forma_farmaceutica' => 'Vial',
                 'concentracion' => 1,
-                'unidad_concentracion' => 'g',
+                'unidad_concentracion' => 'Gramo',
                 'via_administracion' => 'Intravenosa',
                 'laboratorio' => 'Roche',
                 'registro_sanitario' => 'F-56789/21',
@@ -388,7 +388,7 @@ class MedicamentosCompletos extends Seeder
                 'nombre_comercial' => 'Ventolin HFA',
                 'forma_farmaceutica' => 'Inhalador',
                 'concentracion' => 100,
-                'unidad_concentracion' => 'mcg',
+                'unidad_concentracion' => 'Microgramo',
                 'via_administracion' => 'Inhalatoria',
                 'laboratorio' => 'GlaxoSmithKline',
                 'registro_sanitario' => 'F-01234/20',
@@ -451,7 +451,7 @@ class MedicamentosCompletos extends Seeder
             $principio = PrincipioActivo::where('nombre_generico', $medData['principio_activo'])->first();
             $forma = FormaFarmaceutica::where('nombre', $medData['forma_farmaceutica'])->first();
             $via = ViaAdministracion::where('nombre', $medData['via_administracion'])->first();
-            $unidad = UnidadMedida::where('simbolo', $medData['unidad_concentracion'])->first();
+            $unidad = UnidadMedida::where('nombre', $medData['unidad_concentracion'])->first();
 
             if ($principio && $forma && $via && $unidad) {
                 Medicamento::firstOrCreate(
@@ -487,8 +487,8 @@ class MedicamentosCompletos extends Seeder
                 'principio_activo_1' => 'Paracetamol',
                 'principio_activo_2' => 'Ibuprofeno',
                 'tipo_interaccion' => 'menor',
-                'descripcion' => 'Puede aumentar el riesgo de efectos gastrointestinales cuando se usan conjuntamente',
-                'gravedad' => 'leve',
+                'efecto_clinico' => 'Puede aumentar el riesgo de efectos gastrointestinales cuando se usan conjuntamente',
+                'severidad' => 2,
                 'mecanismo' => 'Sinergia en efectos adversos gastrointestinales',
                 'recomendacion' => 'Monitorear síntomas gastrointestinales. Considerar alternar horarios de administración.'
             ],
@@ -496,8 +496,8 @@ class MedicamentosCompletos extends Seeder
                 'principio_activo_1' => 'Enalapril',
                 'principio_activo_2' => 'Losartán',
                 'tipo_interaccion' => 'mayor',
-                'descripcion' => 'Combinación contraindicada - doble bloqueo del sistema renina-angiotensina',
-                'gravedad' => 'severa',
+                'efecto_clinico' => 'Combinación contraindicada - doble bloqueo del sistema renina-angiotensina',
+                'severidad' => 5,
                 'mecanismo' => 'Doble inhibición del sistema renina-angiotensina-aldosterona',
                 'recomendacion' => 'CONTRAINDICADO. No usar conjuntamente. Elegir un solo agente.'
             ],
@@ -505,8 +505,8 @@ class MedicamentosCompletos extends Seeder
                 'principio_activo_1' => 'Ciprofloxacino',
                 'principio_activo_2' => 'Lorazepam',
                 'tipo_interaccion' => 'moderada',
-                'descripcion' => 'El ciprofloxacino puede aumentar los niveles séricos de lorazepam',
-                'gravedad' => 'moderada',
+                'efecto_clinico' => 'El ciprofloxacino puede aumentar los niveles séricos de lorazepam',
+                'severidad' => 3,
                 'mecanismo' => 'Inhibición del metabolismo de benzodiazepinas',
                 'recomendacion' => 'Monitorear signos de sedación excesiva. Considerar reducir dosis de lorazepam.'
             ],
@@ -514,8 +514,8 @@ class MedicamentosCompletos extends Seeder
                 'principio_activo_1' => 'Metformina',
                 'principio_activo_2' => 'Enalapril',
                 'tipo_interaccion' => 'beneficiosa',
-                'descripcion' => 'Combinación sinérgica en pacientes diabéticos con hipertensión',
-                'gravedad' => 'ninguna',
+                'efecto_clinico' => 'Combinación sinérgica en pacientes diabéticos con hipertensión',
+                'severidad' => 1,
                 'mecanismo' => 'Efectos complementarios en protección cardiovascular',
                 'recomendacion' => 'Combinación recomendada en diabéticos hipertensos. Monitorear función renal.'
             ],
@@ -523,8 +523,8 @@ class MedicamentosCompletos extends Seeder
                 'principio_activo_1' => 'Salbutamol',
                 'principio_activo_2' => 'Enalapril',
                 'tipo_interaccion' => 'menor',
-                'descripcion' => 'Los beta2 agonistas pueden reducir la eficacia antihipertensiva',
-                'gravedad' => 'leve',
+                'efecto_clinico' => 'Los beta2 agonistas pueden reducir la eficacia antihipertensiva',
+                'severidad' => 2,
                 'mecanismo' => 'Estimulación beta2 puede contrarrestar efectos hipotensores',
                 'recomendacion' => 'Monitorear presión arterial más frecuentemente'
             ],
@@ -532,8 +532,8 @@ class MedicamentosCompletos extends Seeder
                 'principio_activo_1' => 'Paclitaxel',
                 'principio_activo_2' => 'Ciprofloxacino',
                 'tipo_interaccion' => 'mayor',
-                'descripcion' => 'Riesgo aumentado de neuropatía periférica',
-                'gravedad' => 'severa',
+                'efecto_clinico' => 'Riesgo aumentado de neuropatía periférica',
+                'severidad' => 4,
                 'mecanismo' => 'Efectos neurotóxicos aditivos',
                 'recomendacion' => 'Evitar uso concomitante. Si es necesario, monitoreo neurológico estrecho.'
             ]
@@ -551,8 +551,8 @@ class MedicamentosCompletos extends Seeder
                     ],
                     [
                         'tipo_interaccion' => $interaccionData['tipo_interaccion'],
-                        'descripcion' => $interaccionData['descripcion'],
-                        'gravedad' => $interaccionData['gravedad'],
+                        'efecto_clinico' => $interaccionData['efecto_clinico'],
+                        'severidad' => $interaccionData['severidad'],
                         'mecanismo' => $interaccionData['mecanismo'],
                         'recomendacion' => $interaccionData['recomendacion'],
                         'activo' => true

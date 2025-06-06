@@ -11,23 +11,18 @@ class ViaAdministracion extends Model
     use HasFactory;
 
     protected $table = 'vias_administracion';
+    public $timestamps = false;
 
     protected $fillable = [
         'nombre',
         'abreviatura',
-        'descripcion',
-        'requiere_supervision',
-        'activo'
+        'descripcion'
     ];
 
     protected $casts = [
         'requiere_supervision' => 'boolean',
-        'activo' => 'boolean',
-        'creado_en' => 'datetime'
+        'activo' => 'boolean'
     ];
-
-    const CREATED_AT = 'creado_en';
-    const UPDATED_AT = null;
 
     public function medicamentos(): HasMany
     {

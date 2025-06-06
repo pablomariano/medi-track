@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('tratamientos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('paciente_id')->constrained('pacientes')->onDelete('cascade');
-            $table->foreignId('medico_usuario_id')->nullable()->constrained('personal_medico', 'usuario_id')->onDelete('set null');
+            $table->foreignId('paciente_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('medico_usuario_id')->nullable()->constrained('users', 'id')->onDelete('set null');
             $table->string('nombre', 100);
             $table->string('diagnostico', 200)->nullable();
             $table->text('objetivo_terapeutico')->nullable();

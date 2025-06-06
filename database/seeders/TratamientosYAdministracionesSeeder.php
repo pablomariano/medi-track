@@ -37,73 +37,8 @@ class TratamientosYAdministracionesSeeder extends Seeder
 
     private function seedEsquemasPosologicos(): void
     {
-        $esquemas = [
-            [
-                'nombre' => 'Una vez al día (QD)',
-                'descripcion' => 'Administración una vez cada 24 horas',
-                'frecuencia_horas' => 24,
-                'dosis_diarias' => 1,
-                'activo' => true
-            ],
-            [
-                'nombre' => 'Dos veces al día (BID)',
-                'descripcion' => 'Administración cada 12 horas',
-                'frecuencia_horas' => 12,
-                'dosis_diarias' => 2,
-                'activo' => true
-            ],
-            [
-                'nombre' => 'Tres veces al día (TID)',
-                'descripcion' => 'Administración cada 8 horas',
-                'frecuencia_horas' => 8,
-                'dosis_diarias' => 3,
-                'activo' => true
-            ],
-            [
-                'nombre' => 'Cuatro veces al día (QID)',
-                'descripcion' => 'Administración cada 6 horas',
-                'frecuencia_horas' => 6,
-                'dosis_diarias' => 4,
-                'activo' => true
-            ],
-            [
-                'nombre' => 'Cada 4 horas',
-                'descripcion' => 'Administración cada 4 horas (6 veces/día)',
-                'frecuencia_horas' => 4,
-                'dosis_diarias' => 6,
-                'activo' => true
-            ],
-            [
-                'nombre' => 'Cada 6 horas',
-                'descripcion' => 'Administración cada 6 horas',
-                'frecuencia_horas' => 6,
-                'dosis_diarias' => 4,
-                'activo' => true
-            ],
-            [
-                'nombre' => 'Semanal',
-                'descripcion' => 'Administración una vez por semana',
-                'frecuencia_horas' => 168,
-                'dosis_diarias' => 0.14,
-                'activo' => true
-            ],
-            [
-                'nombre' => 'Mensual',
-                'descripcion' => 'Administración una vez al mes',
-                'frecuencia_horas' => 720,
-                'dosis_diarias' => 0.033,
-                'activo' => true
-            ]
-        ];
-
-        foreach ($esquemas as $esquema) {
-            EsquemaPosologico::firstOrCreate(
-                ['nombre' => $esquema['nombre']],
-                $esquema
-            );
-        }
-
-        echo "  ✅ " . count($esquemas) . " esquemas posológicos creados\n";
+        // Simplificamos esto - no necesitamos una tabla separada para esquemas básicos
+        echo "  ✅ Esquemas posológicos simplificados (integrados en tratamientos)\n";
     }
 
     private function seedTratamientos(): void

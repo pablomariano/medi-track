@@ -11,15 +11,15 @@ return new class extends Migration
         Schema::create('administraciones_medicamentos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('medicamento_tratamiento_id')->constrained('medicamentos_tratamientos')->onDelete('cascade');
-            $table->foreignId('cuidador_usuario_id')->nullable()->constrained('cuidadores', 'usuario_id')->onDelete('set null');
-            $table->foreignId('paciente_id')->constrained('pacientes')->onDelete('cascade');
+            $table->foreignId('cuidador_usuario_id')->nullable()->constrained('users', 'id')->onDelete('set null');
+            $table->foreignId('paciente_id')->constrained('users')->onDelete('cascade');
             $table->timestamp('fecha_hora_programada');
             $table->timestamp('fecha_hora_administrada')->nullable();
             $table->decimal('dosis_administrada', 10, 3)->nullable();
             $table->enum('estado', ['Programada', 'Administrada', 'Omitida', 'Retrasada'])->default('Programada');
             $table->text('observaciones')->nullable();
             $table->text('efectos_adversos')->nullable();
-            $table->foreignId('creado_por')->constrained('usuarios')->onDelete('restrict');
+            $table->foreignId('creado_por')->constrained('users')->onDelete('restrict');
             $table->timestamp('creado_en')->useCurrent();
             
             // Índices para optimización

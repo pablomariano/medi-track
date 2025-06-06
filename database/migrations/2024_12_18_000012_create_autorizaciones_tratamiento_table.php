@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::create('autorizaciones_tratamiento', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tratamiento_id')->constrained('tratamientos')->onDelete('cascade');
-            $table->foreignId('apoderado_usuario_id')->constrained('apoderados', 'usuario_id')->onDelete('cascade');
-            $table->foreignId('paciente_id')->constrained('pacientes')->onDelete('cascade');
+            $table->foreignId('apoderado_usuario_id')->constrained('users', 'id')->onDelete('cascade');
+            $table->foreignId('paciente_id')->constrained('users')->onDelete('cascade');
             $table->enum('tipo_autorizacion', ['Inicial', 'Modificacion', 'Suspension', 'Emergencia']);
             $table->enum('estado', ['Pendiente', 'Autorizada', 'Rechazada'])->default('Pendiente');
             $table->timestamp('fecha_solicitud')->useCurrent();

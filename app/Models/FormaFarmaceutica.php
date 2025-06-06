@@ -11,21 +11,17 @@ class FormaFarmaceutica extends Model
     use HasFactory;
 
     protected $table = 'formas_farmaceuticas';
+    public $timestamps = false;
 
     protected $fillable = [
         'nombre',
         'descripcion',
-        'tipo_forma',
-        'activo'
+        'tipo'
     ];
 
     protected $casts = [
-        'activo' => 'boolean',
-        'creado_en' => 'datetime'
+        'activo' => 'boolean'
     ];
-
-    const CREATED_AT = 'creado_en';
-    const UPDATED_AT = null;
 
     public function medicamentos(): HasMany
     {
@@ -39,6 +35,6 @@ class FormaFarmaceutica extends Model
 
     public function scopePorTipo($query, $tipo)
     {
-        return $query->where('tipo_forma', $tipo);
+        return $query->where('tipo', $tipo);
     }
 }

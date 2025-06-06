@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('historial_tratamientos', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tratamiento_id')->constrained('tratamientos')->onDelete('cascade');
-            $table->foreignId('usuario_id')->constrained('usuarios')->onDelete('restrict');
+            $table->foreignId('usuario_id')->constrained('users')->onDelete('restrict');
             $table->enum('accion', ['Creado', 'Modificado', 'Pausado', 'Reanudado', 'Finalizado', 'Cancelado']);
             $table->string('campo_modificado', 50)->nullable();
             $table->text('valor_anterior')->nullable();
