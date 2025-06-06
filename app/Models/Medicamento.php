@@ -14,35 +14,32 @@ class Medicamento extends Model
     protected $table = 'medicamentos';
 
     protected $fillable = [
-        'principio_activo_id',
         'nombre_comercial',
+        'principio_activo_id',
         'forma_farmaceutica_id',
-        'concentracion',
-        'unidad_concentracion_id',
         'via_administracion_id',
-        'laboratorio',
-        'registro_sanitario',
+        'unidad_concentracion_id',
+        'concentracion',
+        'codigo_barras',
         'lote',
         'fecha_vencimiento',
         'precio_unitario',
-        'requiere_receta',
-        'controlado',
-        'activo',
-        'observaciones'
+        'stock_actual',
+        'stock_minimo',
+        'descripcion',
+        'activo'
     ];
 
     protected $casts = [
         'concentracion' => 'decimal:3',
         'precio_unitario' => 'decimal:2',
+        'stock_actual' => 'integer',
+        'stock_minimo' => 'integer',
         'fecha_vencimiento' => 'date',
-        'requiere_receta' => 'boolean',
-        'controlado' => 'boolean',
         'activo' => 'boolean',
-        'creado_en' => 'datetime'
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime'
     ];
-
-    const CREATED_AT = 'creado_en';
-    const UPDATED_AT = null;
 
     // Relaciones hacia catálogos
     public function principioActivo(): BelongsTo
@@ -84,19 +81,14 @@ class Medicamento extends Model
         return $query->where('activo', true);
     }
 
-    public function scopeRequiereReceta($query)
+    public function scopeStockBajo($query)
     {
-        return $query->where('requiere_receta', true);
+        return $query->whereRaw('stock_actual <= stock_minimo');
     }
 
-    public function scopeControlados($query)
+    public function scopeVencidos($query)
     {
-        return $query->where('controlado', true);
-    }
-
-    public function scopePorLaboratorio($query, $laboratorio)
-    {
-        return $query->where('laboratorio', 'like', "%{$laboratorio}%");
+        return $query->where('fecha_vencimiento', '<', now());
     }
 
     public function scopeProximosAVencer($query, $dias = 30)
@@ -105,10 +97,25 @@ class Medicamento extends Model
                     ->where('fecha_vencimiento', '>=', now());
     }
 
+    public function scopePorPrincipioActivo($query, $principioActivoId)
+    {
+        return $query->where('principio_activo_id', $principioActivoId);
+    }
+
+    public function scopePorFormaFarmaceutica($query, $formaId)
+    {
+        return $query->where('forma_farmaceutica_id', $formaId);
+    }
+
+    public function scopePorViaAdministracion($query, $viaId)
+    {
+        return $query->where('via_administracion_id', $viaId);
+    }
+
     // Métodos útiles
     public function getNombreCompletoAttribute()
     {
-        return "{$this->nombre_comercial} ({$this->principioActivo->nombre_generico} {$this->concentracion}{$this->unidadConcentracion->nombre})";
+        return "{$this->nombre_comercial} ({$this->principioActivo->nombre_generico} {$this->concentracion}{$this->unidadConcentracion->simbolo})";
     }
 
     public function estaVencido()
@@ -119,5 +126,18 @@ class Medicamento extends Model
     public function diasParaVencer()
     {
         return $this->fecha_vencimiento ? now()->diffInDays($this->fecha_vencimiento, false) : null;
+    }
+
+    public function tieneStockBajo()
+    {
+        return $this->stock_actual <= $this->stock_minimo;
+    }
+
+    public function proximoAVencer($dias = 90)
+    {
+        if (!$this->fecha_vencimiento) return false;
+        
+        $fechaLimite = now()->addDays($dias);
+        return $this->fecha_vencimiento <= $fechaLimite && $this->fecha_vencimiento >= now();
     }
 }

@@ -81,6 +81,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
         // Vías de Administración  
         Route::resource('vias-administracion', ViasAdministracionController::class);
+        Route::post('vias-administracion/{viasAdministracion}/toggle-status', [ViasAdministracionController::class, 'toggleStatus'])
+             ->name('vias-administracion.toggle-status');
         
         // Unidades de Medida
         Route::resource('unidades-medida', UnidadesMedidaController::class);
@@ -90,6 +92,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // 💊 MEDICAMENTOS
     Route::resource('medicamentos', MedicamentosController::class);
+    Route::post('medicamentos/{medicamento}/toggle-status', [MedicamentosController::class, 'toggleStatus'])
+         ->name('medicamentos.toggle-status');
     Route::get('medicamentos/inventario/alertas', [MedicamentosController::class, 'inventario'])
          ->name('medicamentos.inventario');
     Route::get('api/medicamentos/activos', [MedicamentosController::class, 'getActivos'])
@@ -97,6 +101,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // 🩺 TRATAMIENTOS
     Route::resource('tratamientos', TratamientosController::class);
+    Route::post('tratamientos/{tratamiento}/toggle-status', [TratamientosController::class, 'toggleStatus'])
+         ->name('tratamientos.toggle-status');
+    Route::post('tratamientos/{tratamiento}/completar', [TratamientosController::class, 'completar'])
+         ->name('tratamientos.completar');
 
     // 👩‍⚕️ ADMINISTRACIONES (Para Cuidadores)
     Route::resource('administraciones', AdministracionesController::class);

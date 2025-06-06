@@ -245,10 +245,10 @@ export function AppSidebar() {
                 <SidebarGroupLabel asChild>
                   <button
                     onClick={() => toggleGroup(group.title)}
-                    className="flex items-center justify-between w-full text-left hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-md px-2 py-1"
+                    className="flex items-center justify-between w-full text-left hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-md px-2 py-1 text-base font-semibold"
                   >
                     <div className="flex items-center gap-2">
-                      {group.icon && React.createElement(group.icon, { className: "h-4 w-4" })}
+                      {group.icon && React.createElement(group.icon, { className: "h-5 w-5" })}
                       <span>{group.title}</span>
                     </div>
                     <ChevronRight 
@@ -277,7 +277,7 @@ export function AppSidebar() {
               </>
             ) : (
               <>
-                {group.title !== "Principal" && <SidebarGroupLabel>{group.title}</SidebarGroupLabel>}
+                {group.title !== "Principal" && <SidebarGroupLabel className="text-base font-semibold">{group.title}</SidebarGroupLabel>}
                 <SidebarGroupContent>
                   <SidebarMenu>
                     {group.items.map((item) => (

@@ -11,31 +11,33 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use Inertia\Inertia;
+use Carbon\Carbon;
 
 class MedicamentosController extends Controller
 {
     /**
-     * Display a listing of medications.
+     * Display a listing of the medications.
      */
     public function index(Request $request)
     {
         try {
             $query = Medicamento::with([
-                'principioActivo',
-                'formaFarmaceutica', 
-                'viaAdministracion',
-                'unidadConcentracion'
+                'principioActivo:id,nombre_generico,grupo_farmacologico',
+                'formaFarmaceutica:id,nombre',
+                'viaAdministracion:id,nombre',
+                'unidadConcentracion:id,nombre,simbolo'
             ]);
 
-            // Filtros de búsqueda
+            // Filtro de búsqueda
             if ($request->filled('search')) {
                 $search = $request->get('search');
                 $query->where(function($q) use ($search) {
                     $q->where('nombre_comercial', 'like', "%{$search}%")
-                      ->orWhere('laboratorio', 'like', "%{$search}%")
-                      ->orWhere('registro_sanitario', 'like', "%{$search}%")
-                      ->orWhereHas('principioActivo', function($subQ) use ($search) {
-                          $subQ->where('nombre_generico', 'like', "%{$search}%");
+                      ->orWhere('codigo_barras', 'like', "%{$search}%")
+                      ->orWhere('lote', 'like', "%{$search}%")
+                      ->orWhereHas('principioActivo', function($sq) use ($search) {
+                          $sq->where('nombre_generico', 'like', "%{$search}%");
                       });
                 });
             }
@@ -45,35 +47,42 @@ class MedicamentosController extends Controller
                 $query->where('principio_activo_id', $request->get('principio_activo_id'));
             }
 
-            // Filtro por laboratorio
-            if ($request->filled('laboratorio')) {
-                $query->where('laboratorio', $request->get('laboratorio'));
+            // Filtro por forma farmacéutica
+            if ($request->filled('forma_farmaceutica_id')) {
+                $query->where('forma_farmaceutica_id', $request->get('forma_farmaceutica_id'));
+            }
+
+            // Filtro por vía de administración
+            if ($request->filled('via_administracion_id')) {
+                $query->where('via_administracion_id', $request->get('via_administracion_id'));
+            }
+
+            // Filtro por stock bajo
+            if ($request->filled('stock_bajo')) {
+                if ($request->get('stock_bajo') === '1') {
+                    $query->whereRaw('stock_actual <= stock_minimo');
+                } elseif ($request->get('stock_bajo') === '0') {
+                    $query->whereRaw('stock_actual > stock_minimo');
+                }
+            }
+
+            // Filtro por vencimiento
+            if ($request->filled('vencidos')) {
+                $vencidos = $request->get('vencidos');
+                if ($vencidos === 'vencidos') {
+                    $query->where('fecha_vencimiento', '<', now());
+                } elseif ($vencidos === 'proximo') {
+                    // Próximos a vencer en 3 meses
+                    $query->whereBetween('fecha_vencimiento', [
+                        now(),
+                        now()->addMonths(3)
+                    ]);
+                }
             }
 
             // Filtro por estado
             if ($request->filled('activo')) {
                 $query->where('activo', $request->boolean('activo'));
-            }
-
-            // Filtro por medicamentos controlados
-            if ($request->filled('controlado')) {
-                $query->where('controlado', $request->boolean('controlado'));
-            }
-
-            // Filtro por vencimiento
-            if ($request->filled('vencimiento')) {
-                $vencimiento = $request->get('vencimiento');
-                switch ($vencimiento) {
-                    case 'vencidos':
-                        $query->where('fecha_vencimiento', '<', now());
-                        break;
-                    case 'proximo_30':
-                        $query->proximosAVencer(30);
-                        break;
-                    case 'proximo_90':
-                        $query->proximosAVencer(90);
-                        break;
-                }
             }
 
             // Ordenamiento
@@ -82,34 +91,35 @@ class MedicamentosController extends Controller
             $query->orderBy($sortBy, $sortDirection);
 
             // Paginación
-            $medicamentos = $query->paginate(20);
+            $medicamentos = $query->paginate(15);
 
-            // Datos para filtros
+            // Obtener datos para filtros
             $principiosActivos = PrincipioActivo::activos()
-                                              ->orderBy('nombre_generico')
-                                              ->pluck('nombre_generico', 'id');
+                                               ->select('id', 'nombre_generico', 'grupo_farmacologico')
+                                               ->orderBy('nombre_generico')
+                                               ->get();
 
-            $laboratorios = Medicamento::distinct()
-                                      ->pluck('laboratorio')
-                                      ->filter()
-                                      ->sort()
-                                      ->values();
+            $formasFarmaceuticas = FormaFarmaceutica::activas()
+                                                   ->select('id', 'nombre')
+                                                   ->orderBy('nombre')
+                                                   ->get();
 
-            // Estadísticas
-            $stats = [
-                'total' => Medicamento::count(),
-                'activos' => Medicamento::activos()->count(),
-                'vencidos' => Medicamento::where('fecha_vencimiento', '<', now())->count(),
-                'proximo_vencer' => Medicamento::proximosAVencer(30)->count(),
-                'controlados' => Medicamento::controlados()->count()
-            ];
+            $viasAdministracion = ViaAdministracion::activas()
+                                                  ->select('id', 'nombre')
+                                                  ->orderBy('nombre')
+                                                  ->get();
 
-            return view('medicamentos.index', compact(
-                'medicamentos',
-                'principiosActivos',
-                'laboratorios',
-                'stats'
-            ));
+            return Inertia::render('Medicamentos/Medicamentos/index', [
+                'medicamentos' => $medicamentos,
+                'principiosActivos' => $principiosActivos,
+                'formasFarmaceuticas' => $formasFarmaceuticas,
+                'viasAdministracion' => $viasAdministracion,
+                'filters' => $request->only([
+                    'search', 'principio_activo_id', 'forma_farmaceutica_id', 
+                    'via_administracion_id', 'stock_bajo', 'vencidos', 'activo',
+                    'sort_by', 'sort_direction'
+                ])
+            ]);
 
         } catch (\Exception $e) {
             Log::error('Error al cargar medicamentos: ' . $e->getMessage());
@@ -124,38 +134,34 @@ class MedicamentosController extends Controller
     {
         try {
             $principiosActivos = PrincipioActivo::activos()
-                                              ->orderBy('nombre_generico')
-                                              ->pluck('nombre_generico', 'id');
+                                               ->select('id', 'nombre_generico', 'grupo_farmacologico')
+                                               ->orderBy('nombre_generico')
+                                               ->get();
 
-            $formasFarmaceuticas = FormaFarmaceutica::activos()
+            $formasFarmaceuticas = FormaFarmaceutica::activas()
+                                                   ->select('id', 'nombre')
                                                    ->orderBy('nombre')
-                                                   ->pluck('nombre', 'id');
+                                                   ->get();
 
-            $viasAdministracion = ViaAdministracion::activos()
+            $viasAdministracion = ViaAdministracion::activas()
+                                                  ->select('id', 'nombre')
                                                   ->orderBy('nombre')
-                                                  ->pluck('nombre', 'id');
+                                                  ->get();
 
-            $unidadesMedida = UnidadMedida::activos()
-                                         ->whereIn('tipo_unidad', ['peso', 'volumen', 'concentracion'])
+            $unidadesMedida = UnidadMedida::activas()
+                                         ->select('id', 'nombre', 'simbolo', 'tipo')
                                          ->orderBy('nombre')
-                                         ->pluck('nombre', 'id');
+                                         ->get();
 
-            $laboratorios = Medicamento::distinct()
-                                      ->pluck('laboratorio')
-                                      ->filter()
-                                      ->sort()
-                                      ->values();
-
-            return view('medicamentos.create', compact(
-                'principiosActivos',
-                'formasFarmaceuticas',
-                'viasAdministracion',
-                'unidadesMedida',
-                'laboratorios'
-            ));
+            return Inertia::render('Medicamentos/Medicamentos/create', [
+                'principiosActivos' => $principiosActivos,
+                'formasFarmaceuticas' => $formasFarmaceuticas,
+                'viasAdministracion' => $viasAdministracion,
+                'unidadesMedida' => $unidadesMedida
+            ]);
 
         } catch (\Exception $e) {
-            Log::error('Error al cargar formulario de medicamento: ' . $e->getMessage());
+            Log::error('Error al cargar formulario de creación: ' . $e->getMessage());
             return back()->with('error', 'Error al cargar el formulario.');
         }
     }
@@ -165,30 +171,37 @@ class MedicamentosController extends Controller
      */
     public function store(Request $request)
     {
+        // Validación
         $validated = $request->validate([
+            'nombre_comercial' => [
+                'required',
+                'string',
+                'max:150',
+                'unique:medicamentos,nombre_comercial'
+            ],
             'principio_activo_id' => 'required|exists:principios_activos,id',
-            'nombre_comercial' => 'required|string|max:100',
             'forma_farmaceutica_id' => 'required|exists:formas_farmaceuticas,id',
-            'concentracion' => 'required|numeric|min:0|max:9999.999',
-            'unidad_concentracion_id' => 'required|exists:unidades_medida,id',
             'via_administracion_id' => 'required|exists:vias_administracion,id',
-            'laboratorio' => 'required|string|max:100',
-            'registro_sanitario' => 'nullable|string|max:50',
+            'unidad_concentracion_id' => 'required|exists:unidades_medida,id',
+            'concentracion' => 'required|numeric|min:0',
+            'codigo_barras' => 'nullable|string|max:50|unique:medicamentos,codigo_barras',
             'lote' => 'nullable|string|max:50',
             'fecha_vencimiento' => 'nullable|date|after:today',
-            'precio_unitario' => 'nullable|numeric|min:0|max:999999.99',
-            'requiere_receta' => 'boolean',
-            'controlado' => 'boolean',
-            'activo' => 'boolean',
-            'observaciones' => 'nullable|string|max:1000'
+            'precio_unitario' => 'nullable|numeric|min:0',
+            'stock_actual' => 'required|integer|min:0',
+            'stock_minimo' => 'required|integer|min:0',
+            'descripcion' => 'nullable|string|max:1000',
+            'activo' => 'boolean'
         ], [
-            'principio_activo_id.required' => 'El principio activo es obligatorio.',
             'nombre_comercial.required' => 'El nombre comercial es obligatorio.',
-            'forma_farmaceutica_id.required' => 'La forma farmacéutica es obligatoria.',
+            'nombre_comercial.unique' => 'Ya existe un medicamento con este nombre comercial.',
+            'principio_activo_id.required' => 'Debe seleccionar un principio activo.',
+            'forma_farmaceutica_id.required' => 'Debe seleccionar una forma farmacéutica.',
+            'via_administracion_id.required' => 'Debe seleccionar una vía de administración.',
+            'unidad_concentracion_id.required' => 'Debe seleccionar una unidad de concentración.',
             'concentracion.required' => 'La concentración es obligatoria.',
-            'unidad_concentracion_id.required' => 'La unidad de concentración es obligatoria.',
-            'via_administracion_id.required' => 'La vía de administración es obligatoria.',
-            'laboratorio.required' => 'El laboratorio es obligatorio.',
+            'stock_actual.required' => 'El stock actual es obligatorio.',
+            'stock_minimo.required' => 'El stock mínimo es obligatorio.',
             'fecha_vencimiento.after' => 'La fecha de vencimiento debe ser posterior a hoy.',
         ]);
 
@@ -196,21 +209,20 @@ class MedicamentosController extends Controller
             DB::beginTransaction();
 
             $medicamento = Medicamento::create([
-                'principio_activo_id' => $validated['principio_activo_id'],
                 'nombre_comercial' => $validated['nombre_comercial'],
+                'principio_activo_id' => $validated['principio_activo_id'],
                 'forma_farmaceutica_id' => $validated['forma_farmaceutica_id'],
-                'concentracion' => $validated['concentracion'],
-                'unidad_concentracion_id' => $validated['unidad_concentracion_id'],
                 'via_administracion_id' => $validated['via_administracion_id'],
-                'laboratorio' => $validated['laboratorio'],
-                'registro_sanitario' => $validated['registro_sanitario'],
-                'lote' => $validated['lote'],
-                'fecha_vencimiento' => $validated['fecha_vencimiento'],
-                'precio_unitario' => $validated['precio_unitario'],
-                'requiere_receta' => $validated['requiere_receta'] ?? false,
-                'controlado' => $validated['controlado'] ?? false,
-                'activo' => $validated['activo'] ?? true,
-                'observaciones' => $validated['observaciones']
+                'unidad_concentracion_id' => $validated['unidad_concentracion_id'],
+                'concentracion' => $validated['concentracion'],
+                'codigo_barras' => $validated['codigo_barras'] ?? null,
+                'lote' => $validated['lote'] ?? null,
+                'fecha_vencimiento' => $validated['fecha_vencimiento'] ?? null,
+                'precio_unitario' => $validated['precio_unitario'] ?? null,
+                'stock_actual' => $validated['stock_actual'],
+                'stock_minimo' => $validated['stock_minimo'],
+                'descripcion' => $validated['descripcion'] ?? null,
+                'activo' => $validated['activo'] ?? true
             ]);
 
             DB::commit();
@@ -244,36 +256,19 @@ class MedicamentosController extends Controller
             $medicamento->load([
                 'principioActivo',
                 'formaFarmaceutica',
-                'viaAdministracion', 
+                'viaAdministracion',
                 'unidadConcentracion',
-                'medicamentoTratamientos.tratamiento.paciente',
-                'medicamentoTratamientos.administraciones' => function($query) {
-                    $query->orderBy('fecha_hora_programada', 'desc')->limit(10);
+                'tratamientos' => function($query) {
+                    $query->with(['paciente:id,nombres,apellidos'])
+                          ->where('activo', true)
+                          ->orderBy('created_at', 'desc')
+                          ->limit(10);
                 }
             ]);
 
-            // Estadísticas de uso
-            $stats = [
-                'tratamientos_activos' => $medicamento->medicamentoTratamientos()
-                                                    ->whereHas('tratamiento', function($q) {
-                                                        $q->where('estado', 'Activo');
-                                                    })->count(),
-                'administraciones_mes' => $medicamento->medicamentoTratamientos()
-                                                    ->whereHas('administraciones', function($q) {
-                                                        $q->where('fecha_hora_programada', '>=', now()->subMonth())
-                                                          ->where('estado', 'administrado');
-                                                    })->count(),
-                'pacientes_usando' => $medicamento->medicamentoTratamientos()
-                                                 ->whereHas('tratamiento', function($q) {
-                                                     $q->where('estado', 'Activo');
-                                                 })
-                                                 ->distinct('tratamiento_id')
-                                                 ->count(),
-                'dias_para_vencer' => $medicamento->diasParaVencer(),
-                'esta_vencido' => $medicamento->estaVencido()
-            ];
-
-            return view('medicamentos.show', compact('medicamento', 'stats'));
+            return Inertia::render('Medicamentos/Medicamentos/show', [
+                'medicamento' => $medicamento
+            ]);
 
         } catch (\Exception $e) {
             Log::error('Error al mostrar medicamento: ' . $e->getMessage());
@@ -287,44 +282,33 @@ class MedicamentosController extends Controller
     public function edit(Medicamento $medicamento)
     {
         try {
-            $medicamento->load([
-                'principioActivo',
-                'formaFarmaceutica',
-                'viaAdministracion',
-                'unidadConcentracion'
-            ]);
-
             $principiosActivos = PrincipioActivo::activos()
-                                              ->orderBy('nombre_generico')
-                                              ->pluck('nombre_generico', 'id');
+                                               ->select('id', 'nombre_generico', 'grupo_farmacologico')
+                                               ->orderBy('nombre_generico')
+                                               ->get();
 
-            $formasFarmaceuticas = FormaFarmaceutica::activos()
+            $formasFarmaceuticas = FormaFarmaceutica::activas()
+                                                   ->select('id', 'nombre')
                                                    ->orderBy('nombre')
-                                                   ->pluck('nombre', 'id');
+                                                   ->get();
 
-            $viasAdministracion = ViaAdministracion::activos()
+            $viasAdministracion = ViaAdministracion::activas()
+                                                  ->select('id', 'nombre')
                                                   ->orderBy('nombre')
-                                                  ->pluck('nombre', 'id');
+                                                  ->get();
 
-            $unidadesMedida = UnidadMedida::activos()
-                                         ->whereIn('tipo_unidad', ['peso', 'volumen', 'concentracion'])
+            $unidadesMedida = UnidadMedida::activas()
+                                         ->select('id', 'nombre', 'simbolo', 'tipo')
                                          ->orderBy('nombre')
-                                         ->pluck('nombre', 'id');
+                                         ->get();
 
-            $laboratorios = Medicamento::distinct()
-                                      ->pluck('laboratorio')
-                                      ->filter()
-                                      ->sort()
-                                      ->values();
-
-            return view('medicamentos.edit', compact(
-                'medicamento',
-                'principiosActivos',
-                'formasFarmaceuticas',
-                'viasAdministracion',
-                'unidadesMedida',
-                'laboratorios'
-            ));
+            return Inertia::render('Medicamentos/Medicamentos/edit', [
+                'medicamento' => $medicamento,
+                'principiosActivos' => $principiosActivos,
+                'formasFarmaceuticas' => $formasFarmaceuticas,
+                'viasAdministracion' => $viasAdministracion,
+                'unidadesMedida' => $unidadesMedida
+            ]);
 
         } catch (\Exception $e) {
             Log::error('Error al cargar formulario de edición: ' . $e->getMessage());
@@ -337,28 +321,63 @@ class MedicamentosController extends Controller
      */
     public function update(Request $request, Medicamento $medicamento)
     {
+        // Validación
         $validated = $request->validate([
+            'nombre_comercial' => [
+                'required',
+                'string',
+                'max:150',
+                Rule::unique('medicamentos', 'nombre_comercial')->ignore($medicamento->id)
+            ],
             'principio_activo_id' => 'required|exists:principios_activos,id',
-            'nombre_comercial' => 'required|string|max:100',
             'forma_farmaceutica_id' => 'required|exists:formas_farmaceuticas,id',
-            'concentracion' => 'required|numeric|min:0|max:9999.999',
-            'unidad_concentracion_id' => 'required|exists:unidades_medida,id',
             'via_administracion_id' => 'required|exists:vias_administracion,id',
-            'laboratorio' => 'required|string|max:100',
-            'registro_sanitario' => 'nullable|string|max:50',
+            'unidad_concentracion_id' => 'required|exists:unidades_medida,id',
+            'concentracion' => 'required|numeric|min:0',
+            'codigo_barras' => [
+                'nullable',
+                'string',
+                'max:50',
+                Rule::unique('medicamentos', 'codigo_barras')->ignore($medicamento->id)
+            ],
             'lote' => 'nullable|string|max:50',
             'fecha_vencimiento' => 'nullable|date',
-            'precio_unitario' => 'nullable|numeric|min:0|max:999999.99',
-            'requiere_receta' => 'boolean',
-            'controlado' => 'boolean',
-            'activo' => 'boolean',
-            'observaciones' => 'nullable|string|max:1000'
+            'precio_unitario' => 'nullable|numeric|min:0',
+            'stock_actual' => 'required|integer|min:0',
+            'stock_minimo' => 'required|integer|min:0',
+            'descripcion' => 'nullable|string|max:1000',
+            'activo' => 'boolean'
+        ], [
+            'nombre_comercial.required' => 'El nombre comercial es obligatorio.',
+            'nombre_comercial.unique' => 'Ya existe otro medicamento con este nombre comercial.',
+            'principio_activo_id.required' => 'Debe seleccionar un principio activo.',
+            'forma_farmaceutica_id.required' => 'Debe seleccionar una forma farmacéutica.',
+            'via_administracion_id.required' => 'Debe seleccionar una vía de administración.',
+            'unidad_concentracion_id.required' => 'Debe seleccionar una unidad de concentración.',
+            'concentracion.required' => 'La concentración es obligatoria.',
+            'stock_actual.required' => 'El stock actual es obligatorio.',
+            'stock_minimo.required' => 'El stock mínimo es obligatorio.',
         ]);
 
         try {
             DB::beginTransaction();
 
-            $medicamento->update($validated);
+            $medicamento->update([
+                'nombre_comercial' => $validated['nombre_comercial'],
+                'principio_activo_id' => $validated['principio_activo_id'],
+                'forma_farmaceutica_id' => $validated['forma_farmaceutica_id'],
+                'via_administracion_id' => $validated['via_administracion_id'],
+                'unidad_concentracion_id' => $validated['unidad_concentracion_id'],
+                'concentracion' => $validated['concentracion'],
+                'codigo_barras' => $validated['codigo_barras'] ?? null,
+                'lote' => $validated['lote'] ?? null,
+                'fecha_vencimiento' => $validated['fecha_vencimiento'] ?? null,
+                'precio_unitario' => $validated['precio_unitario'] ?? null,
+                'stock_actual' => $validated['stock_actual'],
+                'stock_minimo' => $validated['stock_minimo'],
+                'descripcion' => $validated['descripcion'] ?? null,
+                'activo' => $validated['activo'] ?? true
+            ]);
 
             DB::commit();
 
@@ -383,19 +402,14 @@ class MedicamentosController extends Controller
     }
 
     /**
-     * Remove the specified medication from storage.
+     * Remove the specified medication.
      */
     public function destroy(Medicamento $medicamento)
     {
         try {
-            // Verificar si tiene tratamientos asociados
-            $tratamientosCount = $medicamento->medicamentoTratamientos()->count();
-            
-            if ($tratamientosCount > 0) {
-                return back()->with('error', 
-                    "No se puede eliminar el medicamento '{$medicamento->nombre_comercial}' " .
-                    "porque está siendo usado en {$tratamientosCount} tratamiento(s)."
-                );
+            // Verificar si el medicamento está siendo usado en tratamientos
+            if ($medicamento->tratamientos()->exists()) {
+                return back()->with('error', 'No se puede eliminar el medicamento porque está siendo utilizado en tratamientos.');
             }
 
             DB::beginTransaction();
@@ -423,97 +437,104 @@ class MedicamentosController extends Controller
     }
 
     /**
-     * Get medications for AJAX requests (for treatment prescriptions).
+     * Toggle the status of the specified medication.
      */
-    public function getActivos(Request $request)
+    public function toggleStatus(Medicamento $medicamento)
     {
         try {
-            $query = Medicamento::activos()->with(['principioActivo', 'formaFarmaceutica', 'unidadConcentracion']);
+            DB::beginTransaction();
 
-            if ($request->filled('search')) {
-                $search = $request->get('search');
-                $query->where(function($q) use ($search) {
-                    $q->where('nombre_comercial', 'like', "%{$search}%")
-                      ->orWhereHas('principioActivo', function($subQ) use ($search) {
-                          $subQ->where('nombre_generico', 'like', "%{$search}%");
-                      });
-                });
-            }
+            $medicamento->update([
+                'activo' => !$medicamento->activo
+            ]);
 
-            if ($request->filled('principio_activo_id')) {
-                $query->where('principio_activo_id', $request->get('principio_activo_id'));
-            }
+            DB::commit();
 
-            $medicamentos = $query->select('id', 'nombre_comercial', 'principio_activo_id', 'concentracion', 'unidad_concentracion_id')
-                                 ->orderBy('nombre_comercial')
-                                 ->limit(20)
-                                 ->get()
-                                 ->map(function($medicamento) {
-                                     return [
-                                         'id' => $medicamento->id,
-                                         'nombre_completo' => $medicamento->nombre_completo,
-                                         'nombre_comercial' => $medicamento->nombre_comercial,
-                                         'principio_activo' => $medicamento->principioActivo->nombre_generico,
-                                         'concentracion' => $medicamento->concentracion,
-                                         'unidad' => $medicamento->unidadConcentracion->simbolo
-                                     ];
-                                 });
+            $status = $medicamento->activo ? 'activado' : 'desactivado';
 
-            return response()->json($medicamentos);
+            Log::info('Estado de medicamento cambiado', [
+                'id' => $medicamento->id,
+                'nombre' => $medicamento->nombre_comercial,
+                'nuevo_estado' => $medicamento->activo,
+                'usuario' => auth()->id()
+            ]);
+
+            return back()->with('success', "Medicamento '{$medicamento->nombre_comercial}' {$status} exitosamente.");
 
         } catch (\Exception $e) {
-            Log::error('Error al obtener medicamentos: ' . $e->getMessage());
-            return response()->json(['error' => 'Error al cargar datos'], 500);
+            DB::rollBack();
+            Log::error('Error al cambiar estado de medicamento: ' . $e->getMessage());
+            
+            return back()->with('error', 'Error al cambiar el estado del medicamento.');
         }
     }
 
     /**
-     * Show inventory alerts dashboard.
+     * Show inventory alerts (low stock, expired, expiring soon).
      */
     public function inventario()
     {
         try {
-            $vencidos = Medicamento::where('fecha_vencimiento', '<', now())
-                                  ->with(['principioActivo', 'formaFarmaceutica'])
+            // Medicamentos con stock bajo
+            $stockBajo = Medicamento::with(['principioActivo', 'formaFarmaceutica'])
+                                   ->whereRaw('stock_actual <= stock_minimo')
+                                   ->where('activo', true)
+                                   ->orderBy('stock_actual')
+                                   ->get();
+
+            // Medicamentos vencidos
+            $vencidos = Medicamento::with(['principioActivo', 'formaFarmaceutica'])
+                                  ->where('fecha_vencimiento', '<', now())
+                                  ->where('activo', true)
                                   ->orderBy('fecha_vencimiento')
                                   ->get();
 
-            $proximosVencer30 = Medicamento::proximosAVencer(30)
-                                          ->with(['principioActivo', 'formaFarmaceutica'])
-                                          ->orderBy('fecha_vencimiento')
-                                          ->get();
+            // Medicamentos próximos a vencer (3 meses)
+            $proximosVencer = Medicamento::with(['principioActivo', 'formaFarmaceutica'])
+                                        ->whereBetween('fecha_vencimiento', [
+                                            now(),
+                                            now()->addMonths(3)
+                                        ])
+                                        ->where('activo', true)
+                                        ->orderBy('fecha_vencimiento')
+                                        ->get();
 
-            $proximosVencer90 = Medicamento::proximosAVencer(90)
-                                          ->with(['principioActivo', 'formaFarmaceutica'])
-                                          ->orderBy('fecha_vencimiento')
-                                          ->get();
-
-            $controlados = Medicamento::controlados()
-                                     ->activos()
-                                     ->with(['principioActivo', 'formaFarmaceutica'])
-                                     ->orderBy('nombre_comercial')
-                                     ->get();
-
-            $stats = [
-                'total_medicamentos' => Medicamento::count(),
-                'medicamentos_activos' => Medicamento::activos()->count(),
-                'vencidos' => $vencidos->count(),
-                'proximo_vencer_30' => $proximosVencer30->count(),
-                'proximo_vencer_90' => $proximosVencer90->count(),
-                'controlados' => $controlados->count()
-            ];
-
-            return view('medicamentos.inventario', compact(
-                'vencidos',
-                'proximosVencer30', 
-                'proximosVencer90',
-                'controlados',
-                'stats'
-            ));
+            return Inertia::render('Medicamentos/Medicamentos/inventario', [
+                'stockBajo' => $stockBajo,
+                'vencidos' => $vencidos,
+                'proximosVencer' => $proximosVencer
+            ]);
 
         } catch (\Exception $e) {
-            Log::error('Error al cargar inventario: ' . $e->getMessage());
-            return back()->with('error', 'Error al cargar el inventario de medicamentos.');
+            Log::error('Error al cargar alertas de inventario: ' . $e->getMessage());
+            return back()->with('error', 'Error al cargar las alertas de inventario.');
+        }
+    }
+
+    /**
+     * Get active medications for AJAX requests.
+     */
+    public function getActivos(Request $request)
+    {
+        try {
+            $query = Medicamento::with(['principioActivo', 'formaFarmaceutica', 'unidadConcentracion'])
+                                ->where('activo', true);
+
+            if ($request->filled('search')) {
+                $search = $request->get('search');
+                $query->where('nombre_comercial', 'like', "%{$search}%");
+            }
+
+            $medicamentos = $query->select('id', 'nombre_comercial', 'concentracion', 'principio_activo_id', 'forma_farmaceutica_id', 'unidad_concentracion_id')
+                                 ->orderBy('nombre_comercial')
+                                 ->limit(20)
+                                 ->get();
+
+            return response()->json($medicamentos);
+
+        } catch (\Exception $e) {
+            Log::error('Error al obtener medicamentos activos: ' . $e->getMessage());
+            return response()->json(['error' => 'Error al cargar datos'], 500);
         }
     }
 }
