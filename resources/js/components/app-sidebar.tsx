@@ -26,11 +26,6 @@ const mainNavItems: NavigationItem[] = [
     icon: Home,
   },
   {
-    title: 'Appointments',
-    href: '/appointments',
-    icon: Calendar,
-  },
-  {
     title: 'Pacientes',
     href: '/pacientes',
     icon: User,
@@ -39,11 +34,6 @@ const mainNavItems: NavigationItem[] = [
     title: 'Usuarios',
     href: '/usuarios',
     icon: Users,
-  },
-  {
-    title: 'Medical Records',
-    href: '/records',
-    icon: FileText,
   },
   {
     title: 'Medicines',
@@ -102,17 +92,8 @@ export function AppSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-
       <SidebarContent>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link href="/new-appointment" className="flex items-center gap-2">
-                <PlusCircle className="h-4 w-4" />
-                <span>New Appointment</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Link href="/usuarios/select-type" className="flex items-center gap-2">
