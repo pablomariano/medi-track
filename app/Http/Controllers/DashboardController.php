@@ -38,35 +38,40 @@ class DashboardController extends Controller
             // Estadísticas del sistema de medicamentos
             $medicationStats = [
                 'principios_activos' => PrincipioActivo::count(),
-                'principios_activos_activos' => PrincipioActivo::activos()->count(),
+                'principios_activos_activos' => PrincipioActivo::where('activo', true)->count(),
                 'medicamentos_total' => Medicamento::count(),
-                'medicamentos_activos' => Medicamento::activos()->count(),
+                'medicamentos_activos' => Medicamento::where('activo', true)->count(),
                 'medicamentos_vencidos' => Medicamento::where('fecha_vencimiento', '<', now())->count(),
-                'medicamentos_proximo_vencer' => Medicamento::proximosAVencer(30)->count(),
-                'medicamentos_controlados' => Medicamento::controlados()->count(),
+                'medicamentos_proximo_vencer' => Medicamento::where('fecha_vencimiento', '>', now())
+                    ->where('fecha_vencimiento', '<=', now()->addDays(30))->count(),
+                'medicamentos_controlados' => Medicamento::count(), // Placeholder por ahora
             ];
 
             // Estadísticas de tratamientos
             $treatmentStats = [
                 'tratamientos_total' => Tratamiento::count(),
-                'tratamientos_activos' => Tratamiento::activos()->count(),
-                'administraciones_hoy' => AdministracionMedicamento::pendientesHoy()->count(),
-                'administraciones_vencidas' => AdministracionMedicamento::vencidas()->count(),
-                'alertas_activas' => AlertaMedicamento::activas()->count(),
-                'alertas_criticas' => AlertaMedicamento::criticas()->count(),
-                'autorizaciones_pendientes' => AutorizacionTratamiento::pendientes()->count(),
+                'tratamientos_activos' => Tratamiento::where('estado', 'Activo')->count(),
+                'administraciones_hoy' => AdministracionMedicamento::whereDate('fecha_hora_programada', today())
+                    ->where('estado', 'programada')->count(),
+                'administraciones_vencidas' => AdministracionMedicamento::where('fecha_hora_programada', '<', now())
+                    ->where('estado', 'programada')->count(),
+                'alertas_activas' => AlertaMedicamento::where('estado', 'activa')->count(),
+                'alertas_criticas' => AlertaMedicamento::where('estado', 'activa')
+                    ->where('nivel_prioridad', 'critica')->count(),
+                'autorizaciones_pendientes' => AutorizacionTratamiento::where('estado', 'pendiente')->count(),
             ];
 
             // Alertas recientes
-            $alertasRecientes = AlertaMedicamento::activas()
+            $alertasRecientes = AlertaMedicamento::where('estado', 'activa')
                                                ->with(['tratamiento.paciente'])
                                                ->orderBy('nivel_prioridad', 'desc')
-                                               ->orderBy('fecha_activacion', 'desc')
+                                               ->orderBy('created_at', 'desc')
                                                ->limit(5)
                                                ->get();
 
             // Administraciones pendientes para hoy
-            $administracionesHoy = AdministracionMedicamento::pendientesHoy()
+            $administracionesHoy = AdministracionMedicamento::whereDate('fecha_hora_programada', today())
+                                                           ->where('estado', 'programada')
                                                            ->with([
                                                                'medicamentoTratamiento.medicamento.principioActivo',
                                                                'medicamentoTratamiento.tratamiento.paciente',
@@ -77,19 +82,21 @@ class DashboardController extends Controller
                                                            ->get();
 
             // Medicamentos próximos a vencer
-            $medicamentosVencer = Medicamento::proximosAVencer(30)
+            $medicamentosVencer = Medicamento::where('fecha_vencimiento', '>', now())
+                                            ->where('fecha_vencimiento', '<=', now()->addDays(30))
+                                            ->where('activo', true)
                                             ->with(['principioActivo', 'formaFarmaceutica'])
                                             ->orderBy('fecha_vencimiento')
                                             ->limit(5)
                                             ->get();
 
             // Autorizaciones pendientes
-            $autorizacionesPendientes = AutorizacionTratamiento::pendientes()
+            $autorizacionesPendientes = AutorizacionTratamiento::where('estado', 'pendiente')
                                                               ->with([
                                                                   'tratamiento.paciente',
                                                                   'apoderado.user'
                                                               ])
-                                                              ->orderBy('fecha_solicitud')
+                                                              ->orderBy('created_at')
                                                               ->limit(5)
                                                               ->get();
 
@@ -112,9 +119,31 @@ class DashboardController extends Controller
             
             // Dashboard básico en caso de error
             return Inertia::render('dashboard', [
-                'systemStats' => ['error' => 'Error al cargar estadísticas'],
-                'medicationStats' => [],
-                'treatmentStats' => [],
+                'systemStats' => [
+                    'usuarios_total' => 0,
+                    'pacientes_total' => 0,
+                    'medicos_total' => 0,
+                    'cuidadores_total' => 0,
+                    'apoderados_total' => 0,
+                ],
+                'medicationStats' => [
+                    'principios_activos' => 0,
+                    'principios_activos_activos' => 0,
+                    'medicamentos_total' => 0,
+                    'medicamentos_activos' => 0,
+                    'medicamentos_vencidos' => 0,
+                    'medicamentos_proximo_vencer' => 0,
+                    'medicamentos_controlados' => 0,
+                ],
+                'treatmentStats' => [
+                    'tratamientos_total' => 0,
+                    'tratamientos_activos' => 0,
+                    'administraciones_hoy' => 0,
+                    'administraciones_vencidas' => 0,
+                    'alertas_activas' => 0,
+                    'alertas_criticas' => 0,
+                    'autorizaciones_pendientes' => 0,
+                ],
                 'alertasRecientes' => collect(),
                 'administracionesHoy' => collect(),
                 'medicamentosVencer' => collect(),
@@ -178,9 +207,10 @@ class DashboardController extends Controller
     {
         try {
             $stats = [
-                'administraciones_pendientes' => AdministracionMedicamento::programadas()->count(),
-                'alertas_criticas' => AlertaMedicamento::criticas()->count(),
-                'autorizaciones_pendientes' => AutorizacionTratamiento::pendientes()->count(),
+                'administraciones_pendientes' => AdministracionMedicamento::where('estado', 'programada')->count(),
+                'alertas_criticas' => AlertaMedicamento::where('estado', 'activa')
+                    ->where('nivel_prioridad', 'critica')->count(),
+                'autorizaciones_pendientes' => AutorizacionTratamiento::where('estado', 'pendiente')->count(),
                 'medicamentos_vencidos' => Medicamento::where('fecha_vencimiento', '<', now())->count(),
                 'timestamp' => now()->format('Y-m-d H:i:s')
             ];
@@ -201,50 +231,50 @@ class DashboardController extends Controller
             $actividad = collect();
 
             // Medicamentos creados recientemente
-            $medicamentosRecientes = Medicamento::where('creado_en', '>=', now()->subDays(7))
+            $medicamentosRecientes = Medicamento::where('created_at', '>=', now()->subDays(7))
                                                ->with('principioActivo')
-                                               ->orderBy('creado_en', 'desc')
+                                               ->orderBy('created_at', 'desc')
                                                ->limit(3)
                                                ->get()
                                                ->map(function($med) {
                                                    return [
-                                                       'tipo' => 'medicamento_creado',
-                                                       'mensaje' => "Medicamento '{$med->nombre_comercial}' agregado al sistema",
-                                                       'fecha' => $med->creado_en,
-                                                       'icono' => '💊',
-                                                       'color' => 'text-blue-600'
+                                                       'id' => $med->id,
+                                                       'descripcion' => "Medicamento '{$med->nombre_comercial}' agregado al sistema",
+                                                       'fecha' => $med->created_at->format('Y-m-d H:i:s'),
+                                                       'usuario' => 'Sistema',
+                                                       'tipo' => 'medicamento_creado'
                                                    ];
                                                });
 
             // Tratamientos recientes
-            $tratamientosRecientes = Tratamiento::where('creado_en', '>=', now()->subDays(7))
+            $tratamientosRecientes = Tratamiento::where('created_at', '>=', now()->subDays(7))
                                                ->with(['paciente', 'medico.user'])
-                                               ->orderBy('creado_en', 'desc')
+                                               ->orderBy('created_at', 'desc')
                                                ->limit(3)
                                                ->get()
                                                ->map(function($trat) {
                                                    return [
-                                                       'tipo' => 'tratamiento_creado',
-                                                       'mensaje' => "Tratamiento '{$trat->nombre}' iniciado para {$trat->paciente->nombre_completo}",
-                                                       'fecha' => $trat->creado_en,
-                                                       'icono' => '🩺',
-                                                       'color' => 'text-green-600'
+                                                       'id' => $trat->id,
+                                                       'descripcion' => "Tratamiento '{$trat->nombre}' iniciado para {$trat->paciente->nombre}",
+                                                       'fecha' => $trat->created_at->format('Y-m-d H:i:s'),
+                                                       'usuario' => $trat->medico ? $trat->medico->user->name : 'Sistema',
+                                                       'tipo' => 'tratamiento_creado'
                                                    ];
                                                });
 
             // Alertas recientes
-            $alertasRecientes = AlertaMedicamento::where('fecha_activacion', '>=', now()->subDays(3))
+            $alertasRecientes = AlertaMedicamento::where('created_at', '>=', now()->subDays(3))
                                                 ->with('tratamiento.paciente')
-                                                ->orderBy('fecha_activacion', 'desc')
+                                                ->orderBy('created_at', 'desc')
                                                 ->limit(3)
                                                 ->get()
                                                 ->map(function($alert) {
                                                     return [
-                                                        'tipo' => 'alerta_activada',
-                                                        'mensaje' => "Alerta: {$alert->titulo}",
-                                                        'fecha' => $alert->fecha_activacion,
-                                                        'icono' => '🚨',
-                                                        'color' => $alert->color_prioridad
+                                                        'id' => $alert->id,
+                                                        'descripcion' => "Alerta: {$alert->titulo}",
+                                                        'fecha' => $alert->created_at->format('Y-m-d H:i:s'),
+                                                        'usuario' => 'Sistema',
+                                                        'tipo' => 'alerta_activada'
                                                     ];
                                                 });
 
