@@ -48,6 +48,51 @@ class Paciente extends Model
         return $this->belongsTo(Genero::class, 'genero_id');
     }
 
+    // Relaciones con sistema de medicamentos
+    public function tratamientos()
+    {
+        return $this->hasMany(Tratamiento::class);
+    }
+
+    public function tratamientosActivos()
+    {
+        return $this->hasMany(Tratamiento::class)
+                   ->where('estado', Tratamiento::ESTADO_ACTIVO);
+    }
+
+    public function administracionesMedicamentos()
+    {
+        return $this->hasManyThrough(
+            AdministracionMedicamento::class,
+            Tratamiento::class,
+            'paciente_id',
+            'medicamento_tratamiento_id',
+            'id',
+            'id'
+        )->join('medicamentos_tratamientos', 'medicamentos_tratamientos.id', '=', 'administraciones_medicamentos.medicamento_tratamiento_id')
+         ->where('medicamentos_tratamientos.tratamiento_id', '=', 'tratamientos.id');
+    }
+
+    public function alertasMedicamentos()
+    {
+        return $this->hasManyThrough(
+            AlertaMedicamento::class,
+            Tratamiento::class,
+            'paciente_id',
+            'tratamiento_id'
+        );
+    }
+
+    public function autorizacionesTratamiento()
+    {
+        return $this->hasManyThrough(
+            AutorizacionTratamiento::class,
+            Tratamiento::class,
+            'paciente_id',
+            'tratamiento_id'
+        );
+    }
+
     // Método para calcular la edad
     public function getEdadAttribute()
     {

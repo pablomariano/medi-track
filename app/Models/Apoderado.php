@@ -32,6 +32,30 @@ class Apoderado extends Model
         return $this->belongsTo(User::class, 'usuario_id');
     }
 
+    // Relaciones con sistema de medicamentos
+    public function autorizacionesTratamiento()
+    {
+        return $this->hasMany(AutorizacionTratamiento::class, 'apoderado_usuario_id', 'usuario_id');
+    }
+
+    public function autorizacionesPendientes()
+    {
+        return $this->hasMany(AutorizacionTratamiento::class, 'apoderado_usuario_id', 'usuario_id')
+                   ->where('estado', AutorizacionTratamiento::ESTADO_PENDIENTE);
+    }
+
+    public function tratamientosBajoCuidado()
+    {
+        return $this->hasManyThrough(
+            Tratamiento::class,
+            AutorizacionTratamiento::class,
+            'apoderado_usuario_id',
+            'id',
+            'usuario_id',
+            'tratamiento_id'
+        )->distinct();
+    }
+
     // Método para obtener el nombre del apoderado
     public function getNombreAttribute()
     {

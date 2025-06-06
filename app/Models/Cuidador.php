@@ -35,6 +35,28 @@ class Cuidador extends Model
         return $this->belongsTo(User::class, 'usuario_id');
     }
 
+    // Relaciones con sistema de medicamentos
+    public function administracionesMedicamentos()
+    {
+        return $this->hasMany(AdministracionMedicamento::class, 'cuidador_usuario_id', 'usuario_id');
+    }
+
+    public function administracionesHoy()
+    {
+        return $this->hasMany(AdministracionMedicamento::class, 'cuidador_usuario_id', 'usuario_id')
+                   ->whereBetween('fecha_hora_programada', [
+                       now()->startOfDay(),
+                       now()->endOfDay()
+                   ]);
+    }
+
+    public function administracionesPendientes()
+    {
+        return $this->hasMany(AdministracionMedicamento::class, 'cuidador_usuario_id', 'usuario_id')
+                   ->where('estado', AdministracionMedicamento::ESTADO_PROGRAMADO)
+                   ->where('fecha_hora_programada', '<=', now()->addHours(2));
+    }
+
     // Método para obtener el nombre del cuidador
     public function getNombreAttribute()
     {

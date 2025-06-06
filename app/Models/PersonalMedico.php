@@ -34,6 +34,30 @@ class PersonalMedico extends Model
         return $this->belongsTo(User::class, 'usuario_id');
     }
 
+    // Relaciones con sistema de medicamentos
+    public function tratamientosPrescritos()
+    {
+        return $this->hasMany(Tratamiento::class, 'medico_usuario_id', 'usuario_id');
+    }
+
+    public function tratamientosActivos()
+    {
+        return $this->hasMany(Tratamiento::class, 'medico_usuario_id', 'usuario_id')
+                   ->where('estado', Tratamiento::ESTADO_ACTIVO);
+    }
+
+    public function pacientesEnTratamiento()
+    {
+        return $this->hasManyThrough(
+            Paciente::class,
+            Tratamiento::class,
+            'medico_usuario_id',
+            'id',
+            'usuario_id',
+            'paciente_id'
+        )->distinct();
+    }
+
     // Método para obtener el nombre del médico
     public function getNombreAttribute()
     {
