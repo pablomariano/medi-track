@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
+use Inertia\Inertia;
 
 class PrincipiosActivosController extends Controller
 {
@@ -44,7 +45,7 @@ class PrincipiosActivosController extends Controller
             $query->orderBy($sortBy, $sortDirection);
 
             // Paginación
-            $principiosActivos = $query->paginate(15);
+            $principiosActivos = $query->withCount('medicamentos')->paginate(15);
 
             // Obtener grupos farmacológicos únicos para el filtro
             $grupos = PrincipioActivo::distinct()
@@ -53,10 +54,11 @@ class PrincipiosActivosController extends Controller
                         ->sort()
                         ->values();
 
-            return view('medicamentos.principios-activos.index', compact(
-                'principiosActivos', 
-                'grupos'
-            ));
+            return Inertia::render('Medicamentos/PrincipiosActivos/index', [
+                'principiosActivos' => $principiosActivos,
+                'grupos' => $grupos,
+                'filters' => $request->only(['search', 'grupo_farmacologico', 'activo', 'sort_by', 'sort_direction'])
+            ]);
 
         } catch (\Exception $e) {
             Log::error('Error al cargar principios activos: ' . $e->getMessage());
@@ -77,7 +79,9 @@ class PrincipiosActivosController extends Controller
                         ->sort()
                         ->values();
 
-            return view('medicamentos.principios-activos.create', compact('grupos'));
+            return Inertia::render('Medicamentos/PrincipiosActivos/create', [
+                'grupos' => $grupos
+            ]);
 
         } catch (\Exception $e) {
             Log::error('Error al cargar formulario de creación: ' . $e->getMessage());

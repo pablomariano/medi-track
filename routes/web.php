@@ -76,12 +76,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Formas Farmacéuticas
         Route::resource('formas-farmaceuticas', FormasFarmaceuticasController::class);
+        Route::post('formas-farmaceuticas/{formasFarmaceutica}/toggle-status', [FormasFarmaceuticasController::class, 'toggleStatus'])
+             ->name('formas-farmaceuticas.toggle-status');
         
         // Vías de Administración  
         Route::resource('vias-administracion', ViasAdministracionController::class);
         
         // Unidades de Medida
         Route::resource('unidades-medida', UnidadesMedidaController::class);
+        Route::post('unidades-medida/{unidadesMedida}/toggle-status', [UnidadesMedidaController::class, 'toggleStatus'])
+             ->name('unidades-medida.toggle-status');
     });
 
     // 💊 MEDICAMENTOS
