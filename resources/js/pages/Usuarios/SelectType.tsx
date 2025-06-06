@@ -104,31 +104,6 @@ export default function SelectType({ userTypes }: Props) {
                         );
                     })}
                 </div>
-
-                <div className="mt-8 max-w-4xl">
-                    <Card className="bg-blue-50 border-blue-200">
-                        <CardContent className="pt-6">
-                            <div className="flex items-start gap-3">
-                                <div className="p-2 bg-blue-100 rounded-full">
-                                    <svg className="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <h3 className="font-medium text-blue-900 mb-1">Flujo Unificado de Creación</h3>
-                                    <p className="text-sm text-blue-700">
-                                        Este nuevo sistema crea usuarios directamente con su rol y campos específicos en un solo paso. 
-                                        Los roles se asignan automáticamente según el tipo seleccionado, garantizando la coherencia del sistema.
-                                    </p>
-                                    <div className="mt-2 text-xs text-blue-600">
-                                        <strong>Nota:</strong> Los pacientes pueden crearse con o sin usuario de acceso al sistema.
-                                    </div>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
             </div>
         </AppSidebarLayout>
     );
