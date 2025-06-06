@@ -82,7 +82,7 @@ export default function Index({ usuarios }: Props) {
                                     Gestiona los usuarios del sistema
                                 </CardDescription>
                             </div>
-                            <Link href={route('usuarios.create')}>
+                            <Link href={route('usuarios.create-by-type')}>
                                 <Button>
                                     <Plus className="h-4 w-4 mr-2" />
                                     Nuevo Usuario
