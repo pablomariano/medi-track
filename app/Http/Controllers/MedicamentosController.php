@@ -99,12 +99,12 @@ class MedicamentosController extends Controller
                                                ->orderBy('nombre_generico')
                                                ->get();
 
-            $formasFarmaceuticas = FormaFarmaceutica::activas()
+            $formasFarmaceuticas = FormaFarmaceutica::activos()
                                                    ->select('id', 'nombre')
                                                    ->orderBy('nombre')
                                                    ->get();
 
-            $viasAdministracion = ViaAdministracion::activas()
+            $viasAdministracion = ViaAdministracion::activos()
                                                   ->select('id', 'nombre')
                                                   ->orderBy('nombre')
                                                   ->get();
@@ -138,17 +138,17 @@ class MedicamentosController extends Controller
                                                ->orderBy('nombre_generico')
                                                ->get();
 
-            $formasFarmaceuticas = FormaFarmaceutica::activas()
+            $formasFarmaceuticas = FormaFarmaceutica::activos()
                                                    ->select('id', 'nombre')
                                                    ->orderBy('nombre')
                                                    ->get();
 
-            $viasAdministracion = ViaAdministracion::activas()
+            $viasAdministracion = ViaAdministracion::activos()
                                                   ->select('id', 'nombre')
                                                   ->orderBy('nombre')
                                                   ->get();
 
-            $unidadesMedida = UnidadMedida::activas()
+            $unidadesMedida = UnidadMedida::activos()
                                          ->select('id', 'nombre', 'simbolo', 'tipo')
                                          ->orderBy('nombre')
                                          ->get();
@@ -287,17 +287,17 @@ class MedicamentosController extends Controller
                                                ->orderBy('nombre_generico')
                                                ->get();
 
-            $formasFarmaceuticas = FormaFarmaceutica::activas()
+            $formasFarmaceuticas = FormaFarmaceutica::activos()
                                                    ->select('id', 'nombre')
                                                    ->orderBy('nombre')
                                                    ->get();
 
-            $viasAdministracion = ViaAdministracion::activas()
+            $viasAdministracion = ViaAdministracion::activos()
                                                   ->select('id', 'nombre')
                                                   ->orderBy('nombre')
                                                   ->get();
 
-            $unidadesMedida = UnidadMedida::activas()
+            $unidadesMedida = UnidadMedida::activos()
                                          ->select('id', 'nombre', 'simbolo', 'tipo')
                                          ->orderBy('nombre')
                                          ->get();

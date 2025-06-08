@@ -23,6 +23,14 @@ use App\Http\Controllers\TratamientosController;
 use App\Http\Controllers\AdministracionesController;
 use App\Http\Controllers\DashboardController;
 
+// Rutas del Sistema de Seguimiento de Tratamientos
+use App\Http\Controllers\SeguimientoController;
+use App\Http\Controllers\AutorizacionesController;
+use App\Http\Controllers\MonitoreoController;
+
+// Sistema de Reportes y Gráficos
+use App\Http\Controllers\ReportesController;
+
 Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
@@ -108,6 +116,73 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // 👩‍⚕️ ADMINISTRACIONES (Para Cuidadores)
     Route::resource('administraciones', AdministracionesController::class);
+
+    // ========================================
+    // 📊 SISTEMA DE REPORTES Y GRÁFICOS
+    // ========================================
+    Route::prefix('reportes')->name('reportes.')->group(function () {
+        // Dashboard principal de reportes con gráficos generales
+        Route::get('dashboard', [ReportesController::class, 'dashboard'])
+            ->name('dashboard');
+        
+        // Reportes específicos por paciente
+        Route::get('paciente/{paciente}', [ReportesController::class, 'reportePaciente'])
+            ->name('paciente');
+        
+        // Reportes específicos por medicamento
+        Route::get('medicamento/{medicamento}', [ReportesController::class, 'reporteMedicamento'])
+            ->name('medicamento');
+    });
+
+    // ========================================
+    // 🏥 SISTEMA DE MEDICAMENTOS PROFESIONAL
+    // ========================================
+
+    // Dashboard de Seguimiento para Cuidadores
+    Route::prefix('seguimiento')->name('seguimiento.')->group(function () {
+        Route::get('/cuidador', [SeguimientoController::class, 'dashboardCuidador'])
+            ->name('cuidador.dashboard');
+        Route::get('/cuidador/paciente/{paciente}', [SeguimientoController::class, 'verPaciente'])
+            ->name('cuidador.paciente');
+        Route::post('/administracion/{administracion}/confirmar', [SeguimientoController::class, 'confirmarAdministracion'])
+            ->name('administracion.confirmar');
+        Route::post('/administracion/{administracion}/reportar-problema', [SeguimientoController::class, 'reportarProblema'])
+            ->name('administracion.problema');
+        Route::get('/historial-administraciones', [SeguimientoController::class, 'historialAdministraciones'])
+            ->name('historial');
+    });
+
+    // Portal de Autorizaciones para Apoderados
+    Route::prefix('autorizaciones')->name('autorizaciones.')->group(function () {
+        Route::get('/dashboard', [AutorizacionesController::class, 'dashboardApoderado'])
+            ->name('dashboard');
+        Route::get('/solicitud/{solicitud}', [AutorizacionesController::class, 'mostrarSolicitud'])
+            ->name('solicitud.mostrar');
+        Route::post('/solicitud/{solicitud}/procesar', [AutorizacionesController::class, 'procesarSolicitud'])
+            ->name('solicitud.procesar');
+        Route::get('/historial', [AutorizacionesController::class, 'historial'])
+            ->name('historial');
+    });
+
+    // Dashboard de Monitoreo para Médicos
+    Route::prefix('monitoreo')->name('monitoreo.')->group(function () {
+        Route::get('/dashboard', [MonitoreoController::class, 'dashboardMedico'])
+            ->name('dashboard');
+        Route::get('/paciente/{paciente}', [MonitoreoController::class, 'verPaciente'])
+            ->name('paciente');
+        Route::get('/reportes', [MonitoreoController::class, 'reportes'])
+            ->name('reportes');
+    });
+
+    // API endpoints para el sistema de seguimiento
+    Route::prefix('api/seguimiento')->name('api.seguimiento.')->group(function () {
+        Route::get('/alertas-pendientes', [SeguimientoController::class, 'alertasPendientes'])
+            ->name('alertas.pendientes');
+        Route::get('/administraciones-hoy', [SeguimientoController::class, 'administracionesHoy'])
+            ->name('administraciones.hoy');
+        Route::post('/marcar-alerta-leida/{alerta}', [SeguimientoController::class, 'marcarAlertaLeida'])
+            ->name('alerta.marcar-leida');
+    });
 });
 
 require __DIR__.'/settings.php';

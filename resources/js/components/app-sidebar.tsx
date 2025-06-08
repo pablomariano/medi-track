@@ -37,7 +37,8 @@ import {
   ClipboardList,
   Syringe,
   ChevronRight,
-  LucideIcon
+  LucideIcon,
+  BarChart3
 } from 'lucide-react';
 
 interface NavigationItem {
@@ -121,6 +122,20 @@ export function AppSidebar() {
           title: 'Administraciones',
           href: '/administraciones',
           icon: Syringe,
+        }
+      ]
+    },
+
+    // Sistema de Reportes y Gráficos
+    {
+      title: "Reportes",
+      icon: BarChart3,
+      collapsible: true,
+      items: [
+        {
+          title: 'Dashboard de Reportes',
+          href: '/reportes/dashboard',
+          icon: BarChart3,
         }
       ]
     },
