@@ -12,6 +12,9 @@ use App\Http\Controllers\ApoderadoController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UnifiedUserController;
+use App\Http\Controllers\TratamientoController;
+use App\Http\Controllers\MedicamentoController;
+use App\Http\Controllers\AdministracionController;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -41,6 +44,29 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Resource de usuarios DESPUÉS de las rutas específicas
     Route::resource('usuarios', UserController::class);
+
+    // === SISTEMA DE MEDICAMENTOS ===
+    
+    // Rutas de Medicamentos
+    Route::resource('medicamentos', MedicamentoController::class);
+    Route::get('medicamentos-search', [MedicamentoController::class, 'search'])->name('medicamentos.search');
+
+    // Rutas de Tratamientos
+    Route::resource('tratamientos', TratamientoController::class);
+    Route::patch('tratamientos/{tratamiento}/activar', [TratamientoController::class, 'activar'])->name('tratamientos.activar');
+    Route::patch('tratamientos/{tratamiento}/pausar', [TratamientoController::class, 'pausar'])->name('tratamientos.pausar');
+    Route::patch('tratamientos/{tratamiento}/finalizar', [TratamientoController::class, 'finalizar'])->name('tratamientos.finalizar');
+
+    // Rutas de Administraciones
+    Route::prefix('administraciones')->name('administraciones.')->group(function () {
+        Route::get('/', [AdministracionController::class, 'index'])->name('index');
+        Route::get('pendientes', [AdministracionController::class, 'pendientes'])->name('pendientes');
+        Route::get('historial', [AdministracionController::class, 'historial'])->name('historial');
+        Route::post('/', [AdministracionController::class, 'store'])->name('store');
+        Route::patch('{administracion}/administrar', [AdministracionController::class, 'administrar'])->name('administrar');
+        Route::patch('{administracion}/omitir', [AdministracionController::class, 'omitir'])->name('omitir');
+        Route::patch('{administracion}/rechazar', [AdministracionController::class, 'rechazar'])->name('rechazar');
+    });
 });
 
 require __DIR__.'/settings.php';
