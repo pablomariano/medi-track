@@ -17,7 +17,7 @@ class IndicacionesPrnSeeder extends Seeder
         $medicamentosTratamientos = DB::table('medicamentos_tratamientos')
             ->join('medicamentos', 'medicamentos_tratamientos.medicamento_id', '=', 'medicamentos.id')
             ->join('tratamientos', 'medicamentos_tratamientos.tratamiento_id', '=', 'tratamientos.id')
-            ->where('tipo_esquema', 'PRN')
+            ->where('tratamientos.tipo', 'PRN')
             ->select('medicamentos_tratamientos.id as mt_id', 'medicamentos.nombre as medicamento', 'tratamientos.nombre as tratamiento')
             ->get();
             

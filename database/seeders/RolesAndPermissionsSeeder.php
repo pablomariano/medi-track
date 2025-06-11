@@ -41,7 +41,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ];
 
         foreach ($roles as $rol) {
-            Role::create($rol);
+            Role::firstOrCreate(['nombre' => $rol['nombre']], $rol);
         }
 
         // Crear permisos por módulos
@@ -91,7 +91,7 @@ class RolesAndPermissionsSeeder extends Seeder
         ];
 
         foreach ($permisos as $permiso) {
-            Permiso::create($permiso);
+            Permiso::firstOrCreate(['nombre' => $permiso['nombre']], $permiso);
         }
 
         // Asignar permisos a roles
@@ -109,7 +109,7 @@ class RolesAndPermissionsSeeder extends Seeder
         // Admin: todos los permisos
         $todosLosPermisos = Permiso::all()->pluck('id');
         foreach ($todosLosPermisos as $permisoId) {
-            DB::table('rol_permisos')->insert([
+            DB::table('rol_permisos')->insertOrIgnore([
                 'rol_id' => $admin->id,
                 'permiso_id' => $permisoId
             ]);
@@ -149,7 +149,7 @@ class RolesAndPermissionsSeeder extends Seeder
         foreach ($permisoNombres as $nombre) {
             $permiso = Permiso::where('nombre', $nombre)->first();
             if ($permiso) {
-                DB::table('rol_permisos')->insert([
+                DB::table('rol_permisos')->insertOrIgnore([
                     'rol_id' => $rolId,
                     'permiso_id' => $permiso->id
                 ]);

@@ -143,13 +143,12 @@ class TratamientosSeeder extends Seeder
         foreach ($tratamientos as $tratamiento) {
             DB::table('tratamientos')->insertOrIgnore([
                 'paciente_id' => $tratamiento['paciente_id'],
-                'medico_usuario_id' => $tratamiento['medico_usuario_id'],
                 'nombre' => $tratamiento['nombre'],
                 'diagnostico' => $tratamiento['diagnostico'],
                 'tipo' => $tratamiento['tipo'],
                 'estado' => $tratamiento['estado'],
                 'fecha_inicio' => $tratamiento['fecha_inicio'],
-                'fecha_fin_estimada' => $tratamiento['fecha_fin_estimada'],
+                'fecha_fin' => $tratamiento['fecha_fin_estimada'], // Map to the correct column
                 'observaciones' => $tratamiento['observaciones'],
                 'created_at' => now(),
                 'updated_at' => now(),

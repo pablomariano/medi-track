@@ -45,15 +45,17 @@ class TestUsersSeeder extends Seeder
     {
         $adminRole = Role::where('nombre', 'admin')->first();
         
-        $admin = User::create([
-            'name' => 'Administrador Sistema',
-            'email' => 'admin@meditrack.com',
-            'password' => Hash::make('password'),
-            'telefono' => '+56 9 1111 1111',
-            'rol_id' => $adminRole->id,
-            'activo' => true,
-            'email_verified_at' => now(),
-        ]);
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@meditrack.com'],
+            [
+                'name' => 'Administrador Sistema',
+                'password' => Hash::make('password'),
+                'telefono' => '+56 9 1111 1111',
+                'rol_id' => $adminRole->id,
+                'activo' => true,
+                'email_verified_at' => now(),
+            ]
+        );
 
         echo "✅ Usuario admin creado: {$admin->email}\n";
     }
@@ -62,24 +64,28 @@ class TestUsersSeeder extends Seeder
     {
         $medicoRole = Role::where('nombre', 'medico')->first();
         
-        $medico = User::create([
-            'name' => 'Dr. Juan Pérez',
-            'email' => 'medico@meditrack.com',
-            'password' => Hash::make('password'),
-            'telefono' => '+56 9 2222 2222',
-            'rol_id' => $medicoRole->id,
-            'activo' => true,
-            'email_verified_at' => now(),
-        ]);
+        $medico = User::firstOrCreate(
+            ['email' => 'medico@meditrack.com'],
+            [
+                'name' => 'Dr. Juan Pérez',
+                'password' => Hash::make('password'),
+                'telefono' => '+56 9 2222 2222',
+                'rol_id' => $medicoRole->id,
+                'activo' => true,
+                'email_verified_at' => now(),
+            ]
+        );
 
         // Crear registro en personal_medico
-        PersonalMedico::create([
-            'usuario_id' => $medico->id,
-            'especialidad' => 'Medicina Interna',
-            'numero_colegiatura' => 'MED-12345',
-            'institucion' => 'Hospital Central',
-            'anos_experiencia' => 10,
-        ]);
+        PersonalMedico::firstOrCreate(
+            ['usuario_id' => $medico->id],
+            [
+                'especialidad' => 'Medicina Interna',
+                'numero_colegiatura' => 'MED-12345',
+                'institucion' => 'Hospital Central',
+                'anos_experiencia' => 10,
+            ]
+        );
 
         echo "✅ Usuario médico creado: {$medico->email}\n";
     }
@@ -88,24 +94,28 @@ class TestUsersSeeder extends Seeder
     {
         $cuidadorRole = Role::where('nombre', 'cuidador')->first();
         
-        $cuidador = User::create([
-            'name' => 'María González',
-            'email' => 'cuidador@meditrack.com',
-            'password' => Hash::make('password'),
-            'telefono' => '+56 9 3333 3333',
-            'rol_id' => $cuidadorRole->id,
-            'activo' => true,
-            'email_verified_at' => now(),
-        ]);
+        $cuidador = User::firstOrCreate(
+            ['email' => 'cuidador@meditrack.com'],
+            [
+                'name' => 'María González',
+                'password' => Hash::make('password'),
+                'telefono' => '+56 9 3333 3333',
+                'rol_id' => $cuidadorRole->id,
+                'activo' => true,
+                'email_verified_at' => now(),
+            ]
+        );
 
         // Crear registro en cuidadores
-        Cuidador::create([
-            'usuario_id' => $cuidador->id,
-            'certificaciones' => 'Certificado en primeros auxilios, Curso de cuidado de adultos mayores',
-            'experiencia_anos' => 5,
-            'disponibilidad_horaria' => 'Lunes a Viernes 8:00-18:00',
-            'tarifa_hora' => 15000,
-        ]);
+        Cuidador::firstOrCreate(
+            ['usuario_id' => $cuidador->id],
+            [
+                'certificaciones' => 'Certificado en primeros auxilios, Curso de cuidado de adultos mayores',
+                'experiencia_anos' => 5,
+                'disponibilidad_horaria' => 'Lunes a Viernes 8:00-18:00',
+                'tarifa_hora' => 15000,
+            ]
+        );
 
         echo "✅ Usuario cuidador creado: {$cuidador->email}\n";
     }
@@ -114,22 +124,26 @@ class TestUsersSeeder extends Seeder
     {
         $apoderadoRole = Role::where('nombre', 'apoderado')->first();
         
-        $apoderado = User::create([
-            'name' => 'Carlos Silva',
-            'email' => 'apoderado@meditrack.com',
-            'password' => Hash::make('password'),
-            'telefono' => '+56 9 4444 4444',
-            'rol_id' => $apoderadoRole->id,
-            'activo' => true,
-            'email_verified_at' => now(),
-        ]);
+        $apoderado = User::firstOrCreate(
+            ['email' => 'apoderado@meditrack.com'],
+            [
+                'name' => 'Carlos Silva',
+                'password' => Hash::make('password'),
+                'telefono' => '+56 9 4444 4444',
+                'rol_id' => $apoderadoRole->id,
+                'activo' => true,
+                'email_verified_at' => now(),
+            ]
+        );
 
         // Crear registro en apoderados
-        Apoderado::create([
-            'usuario_id' => $apoderado->id,
-            'relacion_paciente' => 'padre',
-            'es_contacto_emergencia' => true,
-        ]);
+        Apoderado::firstOrCreate(
+            ['usuario_id' => $apoderado->id],
+            [
+                'relacion_paciente' => 'padre',
+                'es_contacto_emergencia' => true,
+            ]
+        );
 
         echo "✅ Usuario apoderado creado: {$apoderado->email}\n";
     }
@@ -138,31 +152,35 @@ class TestUsersSeeder extends Seeder
     {
         $pacienteRole = Role::where('nombre', 'paciente')->first();
         
-        $paciente = User::create([
-            'name' => 'Ana López',
-            'email' => 'paciente@meditrack.com',
-            'password' => Hash::make('password'),
-            'telefono' => '+56 9 5555 5555',
-            'rol_id' => $pacienteRole->id,
-            'activo' => true,
-            'email_verified_at' => now(),
-        ]);
+        $paciente = User::firstOrCreate(
+            ['email' => 'paciente@meditrack.com'],
+            [
+                'name' => 'Ana López',
+                'password' => Hash::make('password'),
+                'telefono' => '+56 9 5555 5555',
+                'rol_id' => $pacienteRole->id,
+                'activo' => true,
+                'email_verified_at' => now(),
+            ]
+        );
 
         // Crear registro en pacientes (con usuario)
-        Paciente::create([
-            'usuario_id' => $paciente->id,
-            'nombre' => 'Ana López',
-            'fecha_nacimiento' => '1985-03-15',
-            'genero_id' => 'F',
-            'numero_documento' => '12.345.678-9',
-            'tipo_documento' => 'rut',
-            'tipo_sangre' => 'O+',
-            'altura' => 165.5,
-            'direccion' => 'Av. Principal 123, Santiago',
-            'telefono_emergencia' => '+56 9 6666 6666',
-            'observaciones_medicas' => 'Alérgica a la penicilina',
-            'activo' => true,
-        ]);
+        Paciente::firstOrCreate(
+            ['numero_documento' => '12.345.678-9'],
+            [
+                'usuario_id' => $paciente->id,
+                'nombre' => 'Ana López',
+                'fecha_nacimiento' => '1985-03-15',
+                'genero_id' => 'F',
+                'tipo_documento' => 'rut',
+                'tipo_sangre' => 'O+',
+                'altura' => 165.5,
+                'direccion' => 'Av. Principal 123, Santiago',
+                'telefono_emergencia' => '+56 9 6666 6666',
+                'observaciones_medicas' => 'Alérgica a la penicilina',
+                'activo' => true,
+            ]
+        );
 
         echo "✅ Usuario paciente con cuenta creado: {$paciente->email}\n";
     }
@@ -170,20 +188,22 @@ class TestUsersSeeder extends Seeder
     private function createPacienteSinUsuario(): void
     {
         // Crear paciente sin cuenta de usuario (menor de edad)
-        Paciente::create([
-            'usuario_id' => null,
-            'nombre' => 'Pedro Silva Menor',
-            'fecha_nacimiento' => '2010-08-22',
-            'genero_id' => 'M',
-            'numero_documento' => '25.987.654-3',
-            'tipo_documento' => 'rut',
-            'tipo_sangre' => 'A+',
-            'altura' => 140.0,
-            'direccion' => 'Calle Secundaria 456, Valparaíso',
-            'telefono_emergencia' => '+56 9 4444 4444', // Mismo del apoderado
-            'observaciones_medicas' => 'Asma leve, inhalador de rescate',
-            'activo' => true,
-        ]);
+        Paciente::firstOrCreate(
+            ['numero_documento' => '25.987.654-3'],
+            [
+                'usuario_id' => null,
+                'nombre' => 'Pedro Silva Menor',
+                'fecha_nacimiento' => '2010-08-22',
+                'genero_id' => 'M',
+                'tipo_documento' => 'rut',
+                'tipo_sangre' => 'A+',
+                'altura' => 140.0,
+                'direccion' => 'Calle Secundaria 456, Valparaíso',
+                'telefono_emergencia' => '+56 9 4444 4444', // Mismo del apoderado
+                'observaciones_medicas' => 'Asma leve, inhalador de rescate',
+                'activo' => true,
+            ]
+        );
 
         echo "✅ Paciente sin cuenta de usuario creado: Pedro Silva Menor\n";
     }

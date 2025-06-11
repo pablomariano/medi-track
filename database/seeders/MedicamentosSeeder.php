@@ -17,29 +17,23 @@ class MedicamentosSeeder extends Seeder
             // Analgésicos y Antipiréticos (PRN comunes)
             [
                 'nombre' => 'Paracetamol 500mg',
-                'nombre_comercial' => 'Paracetamol',
                 'principio_activo' => 'Paracetamol',
-                'concentracion' => 500.00,
                 'forma_farmaceutica' => 'Comprimido',
                 'via_administracion' => 'Oral',
-                'laboratorio' => 'Laboratorio Nacional',
+                'medida' => '500',
+                'unidad_medida' => 'mg',
                 'descripcion' => 'Analgésico y antipirético para dolor y fiebre',
-                'activo' => true,
-                'requiere_receta' => false,
-                'controlado' => false
+                'activo' => true
             ],
             [
                 'nombre' => 'Ibuprofeno 400mg',
-                'nombre_comercial' => 'Ibuprofeno',
                 'principio_activo' => 'Ibuprofeno',
-                'concentracion' => 400.00,
                 'forma_farmaceutica' => 'Comprimido',
                 'via_administracion' => 'Oral',
-                'laboratorio' => 'Pharma Plus',
+                'medida' => '400',
+                'unidad_medida' => 'mg',
                 'descripcion' => 'Antiinflamatorio no esteroideo para dolor e inflamación',
-                'activo' => true,
-                'requiere_receta' => false,
-                'controlado' => false
+                'activo' => true
             ],
             [
                 'nombre' => 'Ketorolaco 10mg',
@@ -223,54 +217,29 @@ class MedicamentosSeeder extends Seeder
         ];
 
         foreach ($medicamentos as $medicamento) {
+            // Extract medida and unidad_medida from concentration
+            $medida = '0';
+            $unidad_medida = 'mg';
+            
+            if (isset($medicamento['concentracion'])) {
+                $medida = (string) $medicamento['concentracion'];
+                $unidad_medida = $medicamento['concentracion'] < 1 ? 'mcg' : 'mg';
+            }
+            
             DB::table('medicamentos')->insertOrIgnore([
                 'nombre' => $medicamento['nombre'],
-                'nombre_comercial' => $medicamento['nombre_comercial'],
-                'principio_activo' => $medicamento['principio_activo'],
-                'principio_activo_id' => 1, // Valor por defecto
-                'concentracion' => $medicamento['concentracion'],
-                'unidad_concentracion_id' => 1, // mg por defecto
-                'forma_farmaceutica' => $medicamento['forma_farmaceutica'],
-                'forma_farmaceutica_id' => $this->getFormaFarmaceuticaId($medicamento['forma_farmaceutica']),
-                'via_administracion' => $medicamento['via_administracion'],
-                'via_administracion_id' => $this->getViaAdministracionId($medicamento['via_administracion']),
-                'laboratorio' => $medicamento['laboratorio'],
-                'descripcion' => $medicamento['descripcion'],
-                'activo' => $medicamento['activo'],
-                'requiere_receta' => $medicamento['requiere_receta'],
-                'controlado' => $medicamento['controlado'],
+                'medida' => $medida,
+                'unidad_medida' => $unidad_medida,
+                'principio_activo' => $medicamento['principio_activo'] ?? null,
+                'forma_farmaceutica' => $medicamento['forma_farmaceutica'] ?? null,
+                'via_administracion' => $medicamento['via_administracion'] ?? null,
+                'descripcion' => $medicamento['descripcion'] ?? null,
+                'activo' => $medicamento['activo'] ?? true,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
         }
     }
 
-    private function getFormaFarmaceuticaId($forma)
-    {
-        $formas = [
-            'Comprimido' => 1,
-            'Tableta' => 1,
-            'Cápsula' => 2,
-            'Jarabe' => 3,
-            'Inhalador' => 1, // Default to tableta
-            'Crema' => 1, // Default to tableta
-        ];
-        
-        return $formas[$forma] ?? 1;
-    }
 
-    private function getViaAdministracionId($via)
-    {
-        $vias = [
-            'Oral' => 1,
-            'Intravenosa' => 2,
-            'Intramuscular' => 3,
-            'Subcutánea' => 4,
-            'Tópica' => 5,
-            'Inhalatoria' => 6,
-            'Sublingual' => 1, // Default to oral
-        ];
-        
-        return $vias[$via] ?? 1;
-    }
 }
