@@ -24,6 +24,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
+    
+    Route::get('dashboard/medicamentos', function () {
+        return Inertia::render('Dashboard/Medicamentos');
+    })->name('dashboard.medicamentos');
 
     Route::resource('medicines', MedicineController::class);
     Route::resource('roles', RoleController::class);
