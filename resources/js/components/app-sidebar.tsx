@@ -11,7 +11,7 @@ import {
   SidebarFooter
 } from '@/components/ui/sidebar';
 import { Link } from '@inertiajs/react';
-import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, UserCheck, Stethoscope, Heart, UserX, User, LucideIcon, UserPlus } from 'lucide-react';
+import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, UserCheck, Stethoscope, Heart, UserX, User, LucideIcon, UserPlus, Activity, Clock, BarChart3 } from 'lucide-react';
 
 interface NavigationItem {
   title: string;
@@ -19,27 +19,66 @@ interface NavigationItem {
   icon: LucideIcon;
 }
 
-const mainNavItems: NavigationItem[] = [
+const dashboardItems: NavigationItem[] = [
   {
-    title: 'Dashboard',
+    title: 'Dashboard Principal',
     href: '/dashboard',
     icon: Home,
   },
+  {
+    title: 'Dashboard Medicamentos',
+    href: '/dashboard/medicamentos',
+    icon: BarChart3,
+  },
+];
+
+const medicamentosItems: NavigationItem[] = [
+  {
+    title: 'Medicamentos',
+    href: '/medicamentos',
+    icon: Pill,
+  },
+  {
+    title: 'Tratamientos',
+    href: '/tratamientos',
+    icon: Activity,
+  },
+  {
+    title: 'Pendientes',
+    href: '/administraciones/pendientes',
+    icon: Clock,
+  },
+];
+
+const usuariosItems: NavigationItem[] = [
   {
     title: 'Pacientes',
     href: '/pacientes',
     icon: User,
   },
   {
+    title: 'Personal Médico',
+    href: '/personal-medico',
+    icon: Stethoscope,
+  },
+  {
+    title: 'Cuidadores',
+    href: '/cuidadores',
+    icon: Heart,
+  },
+  {
+    title: 'Apoderados',
+    href: '/apoderados',
+    icon: UserX,
+  },
+  {
     title: 'Usuarios',
     href: '/usuarios',
     icon: Users,
   },
-  {
-    title: 'Medicines',
-    href: '/medicines',
-    icon: Pill,
-  },
+];
+
+const configuracionItems: NavigationItem[] = [
   {
     title: 'Roles',
     href: '/roles',
@@ -56,19 +95,9 @@ const mainNavItems: NavigationItem[] = [
     icon: UserCheck,
   },
   {
-    title: 'Personal Médico',
-    href: '/personal-medico',
-    icon: Stethoscope,
-  },
-  {
-    title: 'Cuidadores',
-    href: '/cuidadores',
-    icon: Heart,
-  },
-  {
-    title: 'Apoderados',
-    href: '/apoderados',
-    icon: UserX,
+    title: 'Medicines (Legacy)',
+    href: '/medicines',
+    icon: Pill,
   },
   {
     title: 'Settings',
@@ -102,7 +131,57 @@ export function AppSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
-          {mainNavItems.map((item) => (
+          
+          {/* Dashboard */}
+          <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            Dashboard
+          </div>
+          {dashboardItems.map((item: NavigationItem) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton asChild tooltip={item.title}>
+                <Link href={item.href} className="flex items-center gap-2">
+                  {React.createElement(item.icon, { className: "h-4 w-4" })}
+                  <span>{item.title}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+
+          {/* Sistema de Medicamentos */}
+          <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            Medicamentos
+          </div>
+          {medicamentosItems.map((item: NavigationItem) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton asChild tooltip={item.title}>
+                <Link href={item.href} className="flex items-center gap-2">
+                  {React.createElement(item.icon, { className: "h-4 w-4" })}
+                  <span>{item.title}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+
+          {/* Gestión de Usuarios */}
+          <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            Usuarios
+          </div>
+          {usuariosItems.map((item: NavigationItem) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton asChild tooltip={item.title}>
+                <Link href={item.href} className="flex items-center gap-2">
+                  {React.createElement(item.icon, { className: "h-4 w-4" })}
+                  <span>{item.title}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+
+          {/* Configuración */}
+          <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            Configuración
+          </div>
+          {configuracionItems.map((item: NavigationItem) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild tooltip={item.title}>
                 <Link href={item.href} className="flex items-center gap-2">

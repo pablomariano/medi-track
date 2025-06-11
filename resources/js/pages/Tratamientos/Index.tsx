@@ -60,16 +60,16 @@ export default function Index({ tratamientos }: Props) {
 
     const getEstadoBadge = (estado: string) => {
         const variants = {
-            activo: 'default',
-            pausado: 'secondary',
-            finalizado: 'outline',
-            cancelado: 'destructive'
+            'Activo': 'default',
+            'Pausado': 'secondary',
+            'Completado': 'outline',
+            'Suspendido': 'destructive'
         };
         return variants[estado as keyof typeof variants] || 'secondary';
     };
 
     const getTipoBadge = (tipo: string) => {
-        return tipo === 'programado' ? 'default' : 'outline';
+        return tipo === 'Programado' ? 'default' : 'outline';
     };
 
     return (
@@ -111,7 +111,7 @@ export default function Index({ tratamientos }: Props) {
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
-                                {tratamientos.data.filter(t => t.estado === 'activo').length}
+                                {tratamientos.data.filter(t => t.estado === 'Activo').length}
                             </div>
                             <p className="text-xs text-muted-foreground">en curso</p>
                         </CardContent>
@@ -124,7 +124,7 @@ export default function Index({ tratamientos }: Props) {
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
-                                {tratamientos.data.filter(t => t.tipo === 'programado').length}
+                                {tratamientos.data.filter(t => t.tipo === 'Programado').length}
                             </div>
                             <p className="text-xs text-muted-foreground">con horarios</p>
                         </CardContent>
@@ -137,7 +137,7 @@ export default function Index({ tratamientos }: Props) {
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
-                                {tratamientos.data.filter(t => t.tipo === 'prn').length}
+                                {tratamientos.data.filter(t => t.tipo === 'PRN').length}
                             </div>
                             <p className="text-xs text-muted-foreground">según necesidad</p>
                         </CardContent>
@@ -166,10 +166,10 @@ export default function Index({ tratamientos }: Props) {
                                 className="px-3 py-2 border rounded-md"
                             >
                                 <option value="">Todos los estados</option>
-                                <option value="activo">Activo</option>
-                                <option value="pausado">Pausado</option>
-                                <option value="finalizado">Finalizado</option>
-                                <option value="cancelado">Cancelado</option>
+                                <option value="Activo">Activo</option>
+                                <option value="Pausado">Pausado</option>
+                                <option value="Completado">Completado</option>
+                                <option value="Suspendido">Suspendido</option>
                             </select>
                             <Button type="submit" variant="outline">
                                 <Search className="h-4 w-4 mr-2" />
@@ -240,7 +240,7 @@ export default function Index({ tratamientos }: Props) {
                                                     {tratamiento.estado.charAt(0).toUpperCase() + tratamiento.estado.slice(1)}
                                                 </Badge>
                                                 <Badge variant={getTipoBadge(tratamiento.tipo) as any}>
-                                                    {tratamiento.tipo === 'programado' ? 'Programado' : 'PRN'}
+                                                    {tratamiento.tipo}
                                                 </Badge>
                                             </div>
                                         </div>

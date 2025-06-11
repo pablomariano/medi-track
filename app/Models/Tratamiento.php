@@ -27,14 +27,14 @@ class Tratamiento extends Model
     ];
 
     // Constantes para tipos de tratamiento
-    const TIPO_PROGRAMADO = 'programado';
-    const TIPO_PRN = 'prn';
+    const TIPO_PROGRAMADO = 'Programado';
+    const TIPO_PRN = 'PRN';
 
     // Constantes para estados
-    const ESTADO_ACTIVO = 'activo';
-    const ESTADO_PAUSADO = 'pausado';
-    const ESTADO_FINALIZADO = 'finalizado';
-    const ESTADO_CANCELADO = 'cancelado';
+    const ESTADO_ACTIVO = 'Activo';
+    const ESTADO_PAUSADO = 'Pausado';
+    const ESTADO_FINALIZADO = 'Completado';
+    const ESTADO_CANCELADO = 'Suspendido';
 
     // Relación con paciente
     public function paciente()
@@ -53,12 +53,18 @@ class Tratamiento extends Model
     {
         return $this->belongsToMany(Medicamento::class, 'medicamentos_tratamientos')
                     ->withPivot([
-                        'dosis',
+                        'dosis_cantidad',
                         'unidad_dosis',
                         'frecuencia_horas',
-                        'duracion_dias',
+                        'tolerancia_antes_minutos',
+                        'tolerancia_despues_minutos',
+                        'intervalo_minimo_horas',
+                        'dosis_maxima_dia',
+                        'dosis_maxima_consecutiva',
                         'instrucciones_especiales',
-                        'activo'
+                        'estado',
+                        'motivo_suspension',
+                        'orden'
                     ])
                     ->withTimestamps();
     }

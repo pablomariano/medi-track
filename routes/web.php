@@ -71,7 +71,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('{administracion}/omitir', [AdministracionController::class, 'omitir'])->name('omitir');
         Route::patch('{administracion}/rechazar', [AdministracionController::class, 'rechazar'])->name('rechazar');
     });
-});
+  });
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
