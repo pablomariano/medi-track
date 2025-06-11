@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('resumen_adherencia_paciente', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('paciente_id')->constrained('pacientes')->onDelete('cascade');
+            $table->unsignedBigInteger('paciente_id');
             $table->date('fecha');
             
             // Resumen general del día

@@ -25,6 +25,9 @@ return new class extends Migration
             if (!Schema::hasColumn('medicamentos', 'descripcion')) {
                 $table->text('descripcion')->nullable();
             }
+            if (!Schema::hasColumn('medicamentos', 'activo')) {
+                $table->boolean('activo')->default(true)->after('descripcion');
+            }
             if (!Schema::hasColumn('medicamentos', 'created_at')) {
                 $table->timestamps();
             }
@@ -54,6 +57,9 @@ return new class extends Migration
             }
             if (Schema::hasColumn('medicamentos', 'descripcion')) {
                 $table->dropColumn('descripcion');
+            }
+            if (Schema::hasColumn('medicamentos', 'activo')) {
+                $table->dropColumn('activo');
             }
         });
     }

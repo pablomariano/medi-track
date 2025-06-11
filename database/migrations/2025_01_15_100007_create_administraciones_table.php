@@ -10,10 +10,10 @@ return new class extends Migration
     {
         Schema::create('administraciones', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('medicamento_tratamiento_id')->constrained('medicamentos_tratamientos')->onDelete('cascade');
-            $table->foreignId('horario_programado_id')->nullable()->constrained('horarios_programados')->onDelete('set null')->comment('NULL para PRN');
-            $table->foreignId('paciente_id')->constrained('pacientes')->onDelete('cascade');
-            $table->foreignId('cuidador_usuario_id')->nullable()->constrained('cuidadores', 'usuario_id')->onDelete('set null');
+            $table->unsignedBigInteger('medicamento_tratamiento_id');
+            $table->unsignedBigInteger('horario_programado_id')->nullable()->comment('NULL para PRN');
+            $table->unsignedBigInteger('paciente_id');
+            $table->unsignedBigInteger('cuidador_usuario_id')->nullable();
             
             // Tiempos
             $table->timestamp('fecha_hora_programada')->nullable()->comment('NULL para PRN');
@@ -26,7 +26,7 @@ return new class extends Migration
             $table->integer('minutos_diferencia')->nullable()->comment('Diferencia respecto al horario programado');
             
             // Datos específicos PRN
-            $table->foreignId('sintoma_reportado_id')->nullable()->constrained('sintomas_prn')->onDelete('set null')->comment('Síntoma que motivó la administración PRN');
+            $table->unsignedBigInteger('sintoma_reportado_id')->nullable()->comment('Síntoma que motivó la administración PRN');
             $table->string('intensidad_sintoma', 20)->nullable()->comment('Escala del síntoma: leve, moderado, severo o valor numérico');
             $table->text('criterio_cumplido')->nullable()->comment('Descripción del criterio cumplido para PRN');
             

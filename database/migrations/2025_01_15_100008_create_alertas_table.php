@@ -31,7 +31,7 @@ return new class extends Migration
                 }
                 
                 if (!Schema::hasColumn('alertas', 'revisada_por')) {
-                    $table->foreignId('revisada_por')->nullable()->constrained('users')->onDelete('set null')->after('revisada');
+                    $table->unsignedBigInteger('revisada_por')->nullable()->after('revisada');
                 }
                 
                 if (!Schema::hasColumn('alertas', 'fecha_revision')) {
@@ -51,9 +51,9 @@ return new class extends Migration
             // Si no existe, crear la tabla completa
             Schema::create('alertas', function (Blueprint $table) {
                 $table->id();
-                $table->foreignId('paciente_id')->constrained('pacientes')->onDelete('cascade');
-                $table->foreignId('tratamiento_id')->nullable()->constrained('tratamientos')->onDelete('cascade');
-                $table->foreignId('administracion_id')->nullable()->constrained('administraciones')->onDelete('cascade');
+                $table->unsignedBigInteger('paciente_id');
+                $table->unsignedBigInteger('tratamiento_id')->nullable();
+                $table->unsignedBigInteger('administracion_id')->nullable();
                 $table->enum('tipo', [
                     'Dosis_Omitida', 
                     'Fuera_Ventana', 
@@ -65,7 +65,7 @@ return new class extends Migration
                 $table->text('mensaje');
                 $table->timestamp('fecha_generada');
                 $table->boolean('revisada')->default(false);
-                $table->foreignId('revisada_por')->nullable()->constrained('users')->onDelete('set null');
+                $table->unsignedBigInteger('revisada_por')->nullable();
                 $table->timestamp('fecha_revision')->nullable();
                 $table->timestamps();
                 
@@ -83,7 +83,6 @@ return new class extends Migration
         if (Schema::hasTable('alertas')) {
             Schema::table('alertas', function (Blueprint $table) {
                 if (Schema::hasColumn('alertas', 'revisada_por')) {
-                    $table->dropForeign(['revisada_por']);
                     $table->dropColumn('revisada_por');
                 }
                 if (Schema::hasColumn('alertas', 'fecha_revision')) {

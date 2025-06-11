@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('horarios_programados', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('medicamento_tratamiento_id')->constrained('medicamentos_tratamientos')->onDelete('cascade');
-            $table->foreignId('paciente_id')->constrained('pacientes')->onDelete('cascade');
+            $table->unsignedBigInteger('medicamento_tratamiento_id');
+            $table->unsignedBigInteger('paciente_id');
             $table->time('hora_programada');
             $table->string('dias_semana', 20)->comment('L,M,X,J,V,S,D o Daily');
             $table->date('fecha_inicio');
@@ -23,6 +23,8 @@ return new class extends Migration
             $table->index(['paciente_id', 'activo']);
             $table->index(['medicamento_tratamiento_id', 'activo']);
             $table->index(['fecha_inicio', 'fecha_fin']);
+            
+            // Note: Foreign key constraints will be added later
         });
     }
 

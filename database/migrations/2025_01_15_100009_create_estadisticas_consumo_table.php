@@ -10,8 +10,8 @@ return new class extends Migration
     {
         Schema::create('estadisticas_consumo', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('paciente_id')->constrained('pacientes')->onDelete('cascade');
-            $table->foreignId('medicamento_id')->constrained('medicamentos')->onDelete('cascade');
+            $table->unsignedBigInteger('paciente_id');
+            $table->unsignedBigInteger('medicamento_id');
             $table->date('periodo_inicio');
             $table->date('periodo_fin');
             $table->enum('tipo_periodo', ['Diario', 'Semanal', 'Mensual']);
