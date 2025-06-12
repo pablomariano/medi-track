@@ -27,10 +27,12 @@ class TratamientoController extends Controller
         $medicos = User::whereHas('role', function($query) {
             $query->where('nombre', 'medico');
         })->get();
+        $medicamentos = \App\Models\Medicamento::where('activo', true)->get();
 
         return Inertia::render('Tratamientos/Create', [
             'pacientes' => $pacientes,
-            'medicos' => $medicos
+            'medicos' => $medicos,
+            'medicamentos' => $medicamentos
         ]);
     }
 
@@ -40,8 +42,10 @@ class TratamientoController extends Controller
             'paciente_id' => 'required|exists:pacientes,id',
             'medico_usuario_id' => 'required|exists:users,id',
             'nombre' => 'required|string|max:255',
-            'tipo' => 'required|in:programado,prn',
-            'objetivo' => 'required|string',
+            'tipo' => 'required|in:Programado,PRN',
+            'estado' => 'required|in:Activo,Pausado,Suspendido',
+            'objetivo' => 'nullable|string',
+            'diagnostico' => 'nullable|string',
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'nullable|date|after:fecha_inicio',
             'observaciones' => 'nullable|string'
@@ -49,7 +53,7 @@ class TratamientoController extends Controller
 
         $tratamiento = Tratamiento::create($request->all());
 
-        return redirect()->route('tratamientos.show', $tratamiento)
+        return redirect()->route('tratamientos.index')
             ->with('success', 'Tratamiento creado exitosamente.');
     }
 
@@ -91,11 +95,12 @@ class TratamientoController extends Controller
             'paciente_id' => 'required|exists:pacientes,id',
             'medico_usuario_id' => 'required|exists:users,id',
             'nombre' => 'required|string|max:255',
-            'tipo' => 'required|in:programado,prn',
-            'objetivo' => 'required|string',
+            'tipo' => 'required|in:Programado,PRN',
+            'estado' => 'required|in:Activo,Pausado,Completado,Suspendido',
+            'objetivo' => 'nullable|string',
+            'diagnostico' => 'nullable|string',
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'nullable|date|after:fecha_inicio',
-            'estado' => 'required|in:activo,pausado,finalizado,cancelado',
             'observaciones' => 'nullable|string'
         ]);
 
