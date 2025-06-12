@@ -39,6 +39,13 @@ class AdministracionController extends Controller
             ->orderBy('fecha_hora_programada')
             ->get();
 
+        // Asegurar que los accessors se cargan correctamente
+        $administraciones->each(function ($administracion) {
+            // Esto fuerza la carga de los accessors tratamiento y medicamento
+            $administracion->tratamiento;
+            $administracion->medicamento;
+        });
+
         return Inertia::render('Administraciones/Pendientes', [
             'administraciones' => $administraciones
         ]);

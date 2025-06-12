@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use DB;
 
 class Administracion extends Model
 {
@@ -35,6 +36,8 @@ class Administracion extends Model
         'es_dentro_ventana_tolerancia' => 'boolean'
     ];
 
+    protected $appends = ['tratamiento', 'medicamento'];
+
     const ESTADO_PENDIENTE = 'Pendiente';
     const ESTADO_ADMINISTRADA = 'Administrada';
     const ESTADO_OMITIDA = 'Omitida';
@@ -43,13 +46,13 @@ class Administracion extends Model
     // Relación a través de la tabla pivot para obtener tratamiento y medicamento
     public function getTratamientoAttribute()
     {
-        $pivot = \DB::table('medicamentos_tratamientos')->where('id', $this->medicamento_tratamiento_id)->first();
-        return $pivot ? Tratamiento::find($pivot->tratamiento_id) : null;
+        $pivot = DB::table('medicamentos_tratamientos')->where('id', $this->medicamento_tratamiento_id)->first();
+        return $pivot ? Tratamiento::with('paciente')->find($pivot->tratamiento_id) : null;
     }
 
     public function getMedicamentoAttribute()
     {
-        $pivot = \DB::table('medicamentos_tratamientos')->where('id', $this->medicamento_tratamiento_id)->first();
+        $pivot = DB::table('medicamentos_tratamientos')->where('id', $this->medicamento_tratamiento_id)->first();
         return $pivot ? Medicamento::find($pivot->medicamento_id) : null;
     }
 
