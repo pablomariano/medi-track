@@ -47,7 +47,7 @@ export default function MedicamentosDashboard() {
         <AppLayout>
             <Head title="Dashboard - Medicamentos" />
 
-            <div className="space-y-6">
+            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 {/* Header */}
                 <div className="flex flex-col space-y-2 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
                     <div className="space-y-1">

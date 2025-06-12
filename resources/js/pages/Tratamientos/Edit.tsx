@@ -131,7 +131,7 @@ export default function EditTratamiento({ tratamiento, pacientes, medicos, medic
         <AppLayout>
             <Head title={`Editar Tratamiento - ${tratamiento.nombre}`} />
             
-            <div className="space-y-6">
+            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                         <Link href={route('tratamientos.show', tratamiento.id)}>

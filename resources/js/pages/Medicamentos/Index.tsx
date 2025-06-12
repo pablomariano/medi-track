@@ -45,7 +45,7 @@ export default function Index({ medicamentos }: Props) {
         <AppLayout>
             <Head title="Medicamentos" />
 
-            <div className="p-6 space-y-6">
+            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
