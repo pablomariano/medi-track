@@ -71,6 +71,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('{administracion}/omitir', [AdministracionController::class, 'omitir'])->name('omitir');
         Route::patch('{administracion}/rechazar', [AdministracionController::class, 'rechazar'])->name('rechazar');
     });
+
+    // Rutas de Cronograma (Horarios de Medicamentos)
+    Route::prefix('cronograma')->name('cronograma.')->group(function () {
+        Route::get('/', [App\Http\Controllers\CronogramaController::class, 'index'])->name('index');
+        Route::get('resumen-semanal', [App\Http\Controllers\CronogramaController::class, 'resumenSemanal'])->name('resumen-semanal');
+        Route::patch('{administracion}/administrar', [App\Http\Controllers\CronogramaController::class, 'administrar'])->name('administrar');
+        Route::patch('{administracion}/omitir', [App\Http\Controllers\CronogramaController::class, 'omitir'])->name('omitir');
+        Route::post('prn', [App\Http\Controllers\CronogramaController::class, 'registrarPrn'])->name('prn');
+    });
   });
 
 require __DIR__.'/settings.php';

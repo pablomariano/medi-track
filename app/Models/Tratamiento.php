@@ -13,6 +13,7 @@ class Tratamiento extends Model
         'paciente_id',
         'medico_usuario_id',
         'nombre',
+        'diagnostico',
         'tipo',
         'objetivo',
         'fecha_inicio',
@@ -69,22 +70,25 @@ class Tratamiento extends Model
                     ->withTimestamps();
     }
 
-    // Relación con horarios programados
+    // Obtener horarios programados de este tratamiento
     public function horarios()
     {
-        return $this->hasMany(HorarioProgramado::class);
+        $medicamentoTratamientoIds = $this->medicamentos()->pluck('medicamentos_tratamientos.id');
+        return HorarioProgramado::whereIn('medicamento_tratamiento_id', $medicamentoTratamientoIds);
     }
 
-    // Relación con indicaciones PRN
+    // Obtener indicaciones PRN de este tratamiento a través de la tabla pivot
     public function indicacionesPrn()
     {
-        return $this->hasMany(IndicacionPrn::class);
+        $medicamentoTratamientoIds = $this->medicamentos()->pluck('medicamentos_tratamientos.id');
+        return \App\Models\IndicacionPrn::whereIn('medicamento_tratamiento_id', $medicamentoTratamientoIds);
     }
 
-    // Relación con administraciones
+    // Obtener administraciones de este tratamiento  
     public function administraciones()
     {
-        return $this->hasMany(Administracion::class);
+        $medicamentoTratamientoIds = $this->medicamentos()->pluck('medicamentos_tratamientos.id');
+        return \App\Models\Administracion::whereIn('medicamento_tratamiento_id', $medicamentoTratamientoIds);
     }
 
     // Scope para tratamientos activos

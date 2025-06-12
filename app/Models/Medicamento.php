@@ -11,6 +11,9 @@ class Medicamento extends Model
 
     protected $fillable = [
         'nombre',
+        'medida',
+        'unidad_medida',
+        'descripcion',
         'principio_activo',
         'concentracion',
         'unidad_concentracion',

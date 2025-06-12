@@ -13,7 +13,7 @@ class AdministracionController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Administracion::with(['tratamiento.paciente', 'medicamento', 'administradoPor']);
+        $query = Administracion::with(['horarioProgramado', 'paciente', 'cuidador']);
 
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
@@ -34,7 +34,7 @@ class AdministracionController extends Controller
     public function pendientes()
     {
         $administraciones = Administracion::pendientes()
-            ->with(['tratamiento.paciente', 'medicamento'])
+            ->with(['horarioProgramado', 'paciente'])
             ->where('fecha_hora_programada', '<=', now()->addHours(2))
             ->orderBy('fecha_hora_programada')
             ->get();
@@ -47,19 +47,21 @@ class AdministracionController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'tratamiento_id' => 'required|exists:tratamientos,id',
-            'medicamento_id' => 'required|exists:medicamentos,id',
+            'medicamento_tratamiento_id' => 'required|exists:medicamentos_tratamientos,id',
+            'paciente_id' => 'required|exists:pacientes,id',
             'fecha_hora_programada' => 'required|date',
-            'dosis_administrada' => 'required|numeric|min:0',
-            'unidad_dosis' => 'required|string|max:20'
+            'dosis_administrada' => 'required|numeric|min:0'
         ]);
 
         $administracion = Administracion::create(array_merge(
             $request->all(),
-            ['estado' => Administracion::ESTADO_PENDIENTE]
+            [
+                'fecha_hora_administrada' => $request->fecha_hora_programada,
+                'estado' => Administracion::ESTADO_PENDIENTE
+            ]
         ));
 
-        return response()->json($administracion->load(['tratamiento.paciente', 'medicamento']));
+        return response()->json($administracion->load(['horarioProgramado', 'paciente']));
     }
 
     public function administrar(Request $request, Administracion $administracion)
@@ -67,16 +69,16 @@ class AdministracionController extends Controller
         $request->validate([
             'dosis_administrada' => 'required|numeric|min:0',
             'observaciones' => 'nullable|string',
-            'efectos_observados' => 'nullable|string'
+            'efectos_adversos' => 'nullable|string'
         ]);
 
         $administracion->update([
             'fecha_hora_administrada' => now(),
             'dosis_administrada' => $request->dosis_administrada,
-            'administrado_por_usuario_id' => auth()->id(),
-            'estado' => Administracion::ESTADO_ADMINISTRADO,
+            'cuidador_usuario_id' => auth()->id(),
+            'estado' => Administracion::ESTADO_ADMINISTRADA,
             'observaciones' => $request->observaciones,
-            'efectos_observados' => $request->efectos_observados
+            'efectos_adversos' => $request->efectos_adversos
         ]);
 
         return back()->with('success', 'Medicamento administrado exitosamente.');
@@ -85,29 +87,33 @@ class AdministracionController extends Controller
     public function omitir(Request $request, Administracion $administracion)
     {
         $request->validate([
-            'motivo_no_administracion' => 'required|string|max:255',
+            'motivo' => 'required|string|max:255',
             'observaciones' => 'nullable|string'
         ]);
 
         $administracion->update([
-            'estado' => Administracion::ESTADO_OMITIDO,
-            'motivo_no_administracion' => $request->motivo_no_administracion,
-            'observaciones' => $request->observaciones,
-            'administrado_por_usuario_id' => auth()->id()
+            'estado' => Administracion::ESTADO_OMITIDA,
+            'observaciones' => $request->observaciones . (isset($request->motivo) ? " Motivo: {$request->motivo}" : ""),
+            'cuidador_usuario_id' => auth()->id()
         ]);
 
         // Crear alerta por dosis omitida
-        Alerta::create([
-            'paciente_id' => $administracion->tratamiento->paciente_id,
-            'tratamiento_id' => $administracion->tratamiento_id,
-            'medicamento_id' => $administracion->medicamento_id,
-            'tipo' => Alerta::TIPO_DOSIS_OMITIDA,
-            'prioridad' => Alerta::PRIORIDAD_MEDIA,
-            'titulo' => 'Dosis omitida',
-            'mensaje' => "Se omitió la dosis de {$administracion->medicamento->nombre}. Motivo: {$request->motivo_no_administracion}",
-            'fecha_hora' => now(),
-            'leida' => false
-        ]);
+        $tratamiento = $administracion->tratamiento;
+        $medicamento = $administracion->medicamento;
+        
+        if ($tratamiento && $medicamento) {
+            Alerta::create([
+                'paciente_id' => $administracion->paciente_id,
+                'tratamiento_id' => $tratamiento->id,
+                'medicamento_id' => $medicamento->id,
+                'tipo' => Alerta::TIPO_DOSIS_OMITIDA,
+                'prioridad' => Alerta::PRIORIDAD_MEDIA,
+                'titulo' => 'Dosis omitida',
+                'mensaje' => "Se omitió la dosis de {$medicamento->nombre}. Motivo: {$request->motivo}",
+                'fecha_hora' => now(),
+                'leida' => false
+            ]);
+        }
 
         return back()->with('warning', 'Dosis marcada como omitida.');
     }
@@ -115,15 +121,14 @@ class AdministracionController extends Controller
     public function rechazar(Request $request, Administracion $administracion)
     {
         $request->validate([
-            'motivo_no_administracion' => 'required|string|max:255',
+            'motivo' => 'required|string|max:255',
             'observaciones' => 'nullable|string'
         ]);
 
         $administracion->update([
-            'estado' => Administracion::ESTADO_RECHAZADO,
-            'motivo_no_administracion' => $request->motivo_no_administracion,
-            'observaciones' => $request->observaciones,
-            'administrado_por_usuario_id' => auth()->id()
+            'estado' => Administracion::ESTADO_OMITIDA, // Usamos omitida como rechazo
+            'observaciones' => $request->observaciones . " Rechazada: {$request->motivo}",
+            'cuidador_usuario_id' => auth()->id()
         ]);
 
         return back()->with('info', 'Administración rechazada.');
@@ -131,13 +136,11 @@ class AdministracionController extends Controller
 
     public function historial(Request $request)
     {
-        $query = Administracion::with(['tratamiento.paciente', 'medicamento', 'administradoPor'])
+        $query = Administracion::with(['horarioProgramado', 'paciente', 'cuidador'])
             ->administradas();
 
         if ($request->filled('paciente_id')) {
-            $query->whereHas('tratamiento', function($q) use ($request) {
-                $q->where('paciente_id', $request->paciente_id);
-            });
+            $query->where('paciente_id', $request->paciente_id);
         }
 
         if ($request->filled('fecha_desde')) {

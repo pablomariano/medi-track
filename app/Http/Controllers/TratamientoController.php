@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Tratamiento;
 use App\Models\Paciente;
 use App\Models\User;
+use App\Services\HorarioService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -93,8 +94,19 @@ class TratamientoController extends Controller
             }
         }
 
+        // Generar horarios automáticamente si es tratamiento programado
+        if ($tratamiento->tipo === 'Programado') {
+            // Recargar medicamentos con pivot data antes de generar horarios
+            $tratamiento->load('medicamentos');
+            
+            $horarioService = new HorarioService();
+            $horarioService->generarHorariosProgramados($tratamiento);
+            $horarioService->generarAdministracionesProgramadas($tratamiento, 7);
+        }
+
         return redirect()->route('tratamientos.index')
-            ->with('success', 'Tratamiento creado exitosamente con ' . count($request->medicamentos ?? []) . ' medicamento(s).');
+            ->with('success', 'Tratamiento creado exitosamente con ' . count($request->medicamentos ?? []) . ' medicamento(s). ' . 
+                   ($tratamiento->tipo === 'Programado' ? 'Se generaron los horarios automáticamente.' : ''));
     }
 
     public function show(Tratamiento $tratamiento)
@@ -102,13 +114,25 @@ class TratamientoController extends Controller
         $tratamiento->load([
             'paciente',
             'medico',
-            'medicamentos.pivot',
-            'horarios',
-            'indicacionesPrn.sintoma',
-            'administraciones' => function($query) {
-                $query->latest()->limit(20);
-            }
+            'medicamentos'
         ]);
+
+        // Cargar horarios, administraciones e indicaciones PRN manualmente para evitar errores de relación
+        $medicamentoTratamientoIds = $tratamiento->medicamentos()->pluck('medicamentos_tratamientos.id');
+        
+        $horarios = \App\Models\HorarioProgramado::whereIn('medicamento_tratamiento_id', $medicamentoTratamientoIds)->get();
+        $tratamiento->horarios_programados = $horarios;
+        
+        $administraciones = \App\Models\Administracion::whereIn('medicamento_tratamiento_id', $medicamentoTratamientoIds)
+            ->latest()
+            ->limit(20)
+            ->get();
+        $tratamiento->administraciones_recientes = $administraciones;
+
+        $indicacionesPrn = \App\Models\IndicacionPrn::with('sintoma')
+            ->whereIn('medicamento_tratamiento_id', $medicamentoTratamientoIds)
+            ->get();
+        $tratamiento->indicaciones_prn = $indicacionesPrn;
 
         return Inertia::render('Tratamientos/Show', [
             'tratamiento' => $tratamiento
@@ -123,7 +147,7 @@ class TratamientoController extends Controller
         })->get();
         $medicamentos = \App\Models\Medicamento::where('activo', true)->get();
 
-        // Cargar medicamentos actuales del tratamiento
+        // Cargar medicamentos actuales del tratamiento con datos del pivot
         $tratamiento->load('medicamentos');
 
         return Inertia::render('Tratamientos/Edit', [

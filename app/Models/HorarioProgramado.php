@@ -12,21 +12,34 @@ class HorarioProgramado extends Model
     protected $table = 'horarios_programados';
 
     protected $fillable = [
-        'tratamiento_id',
-        'hora',
+        'medicamento_tratamiento_id',
+        'paciente_id', 
+        'hora_programada',
         'dias_semana',
+        'fecha_inicio',
+        'fecha_fin',
         'activo'
     ];
 
     protected $casts = [
-        'hora' => 'datetime:H:i',
-        'dias_semana' => 'array',
+        'hora_programada' => 'datetime:H:i',
+        'fecha_inicio' => 'date',
+        'fecha_fin' => 'date',
         'activo' => 'boolean'
     ];
 
-    public function tratamiento()
+    // Obtener tratamiento a través de medicamento_tratamiento
+    public function getTratamientoAttribute()
     {
-        return $this->belongsTo(Tratamiento::class);
+        $pivot = \DB::table('medicamentos_tratamientos')->where('id', $this->medicamento_tratamiento_id)->first();
+        return $pivot ? Tratamiento::find($pivot->tratamiento_id) : null;
+    }
+
+    // Obtener medicamento a través de medicamento_tratamiento  
+    public function getMedicamentoAttribute()
+    {
+        $pivot = \DB::table('medicamentos_tratamientos')->where('id', $this->medicamento_tratamiento_id)->first();
+        return $pivot ? \App\Models\Medicamento::find($pivot->medicamento_id) : null;
     }
 
     public function scopeActivos($query)

@@ -12,29 +12,33 @@ class IndicacionPrn extends Model
     protected $table = 'indicaciones_prn';
 
     protected $fillable = [
-        'tratamiento_id',
+        'medicamento_tratamiento_id',
         'sintoma_id',
         'criterio_id',
-        'medicamento_id',
-        'dosis',
-        'unidad_dosis',
-        'via_administracion',
-        'intervalo_minimo_horas',
-        'dosis_maxima_24h',
-        'instrucciones_administracion',
-        'observaciones_importantes',
-        'activo'
+        'descripcion_personalizada',
+        'es_criterio_principal'
     ];
 
     protected $casts = [
-        'intervalo_minimo_horas' => 'integer',
-        'dosis_maxima_24h' => 'integer',
-        'activo' => 'boolean'
+        'es_criterio_principal' => 'boolean'
     ];
 
-    public function tratamiento()
+    // Relación con medicamento_tratamiento (pivot table)
+    public function medicamentoTratamiento()
     {
-        return $this->belongsTo(Tratamiento::class);
+        return $this->belongsTo(\App\Models\MedicamentoTratamiento::class, 'medicamento_tratamiento_id');
+    }
+
+    // Accessor para obtener el tratamiento a través de la relación pivot
+    public function getTratamientoAttribute()
+    {
+        return $this->medicamentoTratamiento?->tratamiento;
+    }
+
+    // Accessor para obtener el medicamento a través de la relación pivot
+    public function getMedicamentoAttribute()
+    {
+        return $this->medicamentoTratamiento?->medicamento;
     }
 
     public function sintoma()
@@ -47,13 +51,8 @@ class IndicacionPrn extends Model
         return $this->belongsTo(CriterioPrn::class, 'criterio_id');
     }
 
-    public function medicamento()
-    {
-        return $this->belongsTo(Medicamento::class);
-    }
-
     public function scopeActivas($query)
     {
-        return $query->where('activo', true);
+        return $query->where('es_criterio_principal', true);
     }
 } 

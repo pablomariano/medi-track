@@ -21,7 +21,7 @@ return new class extends Migration
             
             // Datos de administración
             $table->decimal('dosis_administrada', 10, 3);
-            $table->enum('estado', ['Administrada', 'Omitida', 'Tardía'])->default('Administrada');
+            $table->enum('estado', ['Pendiente', 'Administrada', 'Omitida', 'Tardía'])->default('Pendiente');
             $table->boolean('es_dentro_ventana_tolerancia')->default(true);
             $table->integer('minutos_diferencia')->nullable()->comment('Diferencia respecto al horario programado');
             

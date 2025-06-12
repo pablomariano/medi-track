@@ -62,7 +62,7 @@ interface TratamientoData {
         nombre: string;
         concentracion: string;
         unidad_concentracion: string;
-        pivot: {
+        pivot?: {
             dosis_cantidad: number;
             unidad_dosis: string;
             frecuencia_horas: number;
@@ -103,16 +103,16 @@ export default function EditTratamiento({ tratamiento, pacientes, medicos, medic
     useEffect(() => {
         const medicamentosExistentes: MedicamentoFormData[] = tratamiento.medicamentos.map(med => ({
             medicamento_id: med.id.toString(),
-            dosis_cantidad: med.pivot.dosis_cantidad.toString(),
-            unidad_dosis: med.pivot.unidad_dosis || 'tableta',
-            frecuencia_horas: med.pivot.frecuencia_horas?.toString() || '',
-            tolerancia_antes_minutos: med.pivot.tolerancia_antes_minutos?.toString() || '',
-            tolerancia_despues_minutos: med.pivot.tolerancia_despues_minutos?.toString() || '',
-            intervalo_minimo_horas: med.pivot.intervalo_minimo_horas?.toString() || '',
-            dosis_maxima_dia: med.pivot.dosis_maxima_dia?.toString() || '',
-            dosis_maxima_consecutiva: med.pivot.dosis_maxima_consecutiva?.toString() || '',
-            instrucciones_especiales: med.pivot.instrucciones_especiales || '',
-            orden: med.pivot.orden?.toString() || '1'
+            dosis_cantidad: med.pivot?.dosis_cantidad?.toString() || '1',
+            unidad_dosis: med.pivot?.unidad_dosis || 'tableta',
+            frecuencia_horas: med.pivot?.frecuencia_horas?.toString() || '',
+            tolerancia_antes_minutos: med.pivot?.tolerancia_antes_minutos?.toString() || '',
+            tolerancia_despues_minutos: med.pivot?.tolerancia_despues_minutos?.toString() || '',
+            intervalo_minimo_horas: med.pivot?.intervalo_minimo_horas?.toString() || '',
+            dosis_maxima_dia: med.pivot?.dosis_maxima_dia?.toString() || '',
+            dosis_maxima_consecutiva: med.pivot?.dosis_maxima_consecutiva?.toString() || '',
+            instrucciones_especiales: med.pivot?.instrucciones_especiales || '',
+            orden: med.pivot?.orden?.toString() || '1'
         }));
         
         setData('medicamentos', medicamentosExistentes as any);
