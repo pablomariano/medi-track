@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Heart } from 'lucide-react';
+import { ArrowLeft, Heart, PencilIcon } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 import MedicamentoForm from '@/components/ui/medicamento-form';
 
@@ -45,57 +45,103 @@ interface MedicamentoFormData {
     orden: string;
 }
 
+interface TratamientoData {
+    id: number;
+    paciente_id: number;
+    medico_usuario_id: number;
+    nombre: string;
+    objetivo: string;
+    diagnostico: string;
+    tipo: 'Programado' | 'PRN';
+    estado: string;
+    fecha_inicio: string;
+    fecha_fin: string;
+    observaciones: string;
+    medicamentos: Array<{
+        id: number;
+        nombre: string;
+        concentracion: string;
+        unidad_concentracion: string;
+        pivot: {
+            dosis_cantidad: number;
+            unidad_dosis: string;
+            frecuencia_horas: number;
+            tolerancia_antes_minutos: number;
+            tolerancia_despues_minutos: number;
+            intervalo_minimo_horas: number;
+            dosis_maxima_dia: number;
+            dosis_maxima_consecutiva: number;
+            instrucciones_especiales: string;
+            orden: number;
+        };
+    }>;
+}
+
 interface Props {
+    tratamiento: TratamientoData;
     pacientes: Paciente[];
     medicos: Medico[];
     medicamentos: Medicamento[];
 }
 
-export default function Create({ pacientes, medicos, medicamentos }: Props) {
-    const { data, setData, post, processing, errors, reset } = useForm({
-        paciente_id: '',
-        medico_usuario_id: '',
-        nombre: '',
-        objetivo: '',
-        diagnostico: '',
-        tipo: 'Programado' as 'Programado' | 'PRN',
-        estado: 'Activo',
-        fecha_inicio: new Date().toISOString().split('T')[0],
-        fecha_fin: '',
-        observaciones: '',
-        medicamentos: [] as any
+export default function EditTratamiento({ tratamiento, pacientes, medicos, medicamentos }: Props) {
+    const { data, setData, patch, processing, errors } = useForm({
+        paciente_id: tratamiento.paciente_id.toString(),
+        medico_usuario_id: tratamiento.medico_usuario_id.toString(),
+        nombre: tratamiento.nombre,
+        objetivo: tratamiento.objetivo || '',
+        diagnostico: tratamiento.diagnostico || '',
+        tipo: tratamiento.tipo,
+        estado: tratamiento.estado,
+        fecha_inicio: tratamiento.fecha_inicio,
+        fecha_fin: tratamiento.fecha_fin || '',
+        observaciones: tratamiento.observaciones || '',
+        medicamentos: [] as any[]
     });
+
+    // Cargar medicamentos existentes al montar el componente
+    useEffect(() => {
+        const medicamentosExistentes: MedicamentoFormData[] = tratamiento.medicamentos.map(med => ({
+            medicamento_id: med.id.toString(),
+            dosis_cantidad: med.pivot.dosis_cantidad.toString(),
+            unidad_dosis: med.pivot.unidad_dosis || 'tableta',
+            frecuencia_horas: med.pivot.frecuencia_horas?.toString() || '',
+            tolerancia_antes_minutos: med.pivot.tolerancia_antes_minutos?.toString() || '',
+            tolerancia_despues_minutos: med.pivot.tolerancia_despues_minutos?.toString() || '',
+            intervalo_minimo_horas: med.pivot.intervalo_minimo_horas?.toString() || '',
+            dosis_maxima_dia: med.pivot.dosis_maxima_dia?.toString() || '',
+            dosis_maxima_consecutiva: med.pivot.dosis_maxima_consecutiva?.toString() || '',
+            instrucciones_especiales: med.pivot.instrucciones_especiales || '',
+            orden: med.pivot.orden?.toString() || '1'
+        }));
+        
+        setData('medicamentos', medicamentosExistentes as any);
+    }, [tratamiento]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('tratamientos.store'), {
-            onSuccess: () => {
-                reset();
-            }
-        });
+        patch(route('tratamientos.update', tratamiento.id));
     };
 
     const handleMedicamentosChange = (medicamentos: MedicamentoFormData[]) => {
         setData('medicamentos', medicamentos as any);
     };
 
-    const medicamentosArray = Array.isArray(data.medicamentos) ? data.medicamentos as MedicamentoFormData[] : [];
-
     return (
         <AppLayout>
-            <Head title="Crear Tratamiento" />
+            <Head title={`Editar Tratamiento - ${tratamiento.nombre}`} />
             
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
-                        <Link href={route('tratamientos.index')}>
+                        <Link href={route('tratamientos.show', tratamiento.id)}>
                             <Button variant="outline" size="sm">
                                 <ArrowLeft className="h-4 w-4 mr-2" />
                                 Volver
                             </Button>
                         </Link>
-                        <Heart className="h-6 w-6 text-green-600" />
-                        <h1 className="text-2xl font-bold text-gray-900">Crear Nuevo Tratamiento</h1>
+                        <PencilIcon className="h-6 w-6 text-blue-600" />
+                        <h1 className="text-2xl font-bold text-gray-900">Editar Tratamiento</h1>
                     </div>
                 </div>
 
@@ -107,7 +153,7 @@ export default function Create({ pacientes, medicos, medicamentos }: Props) {
                                 <span>Información del Tratamiento</span>
                             </CardTitle>
                             <CardDescription>
-                                Datos básicos del tratamiento médico
+                                Editar los datos básicos del tratamiento médico
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
@@ -158,7 +204,6 @@ export default function Create({ pacientes, medicos, medicamentos }: Props) {
                                     type="text"
                                     value={data.nombre}
                                     onChange={(e) => setData('nombre', e.target.value)}
-                                    placeholder="Ej: Control de Hipertensión"
                                     required
                                 />
                                 {errors.nombre && <p className="text-red-600 text-sm mt-1">{errors.nombre}</p>}
@@ -191,6 +236,7 @@ export default function Create({ pacientes, medicos, medicamentos }: Props) {
                                     >
                                         <option value="Activo">Activo</option>
                                         <option value="Pausado">Pausado</option>
+                                        <option value="Completado">Completado</option>
                                         <option value="Suspendido">Suspendido</option>
                                     </select>
                                     {errors.estado && <p className="text-red-600 text-sm mt-1">{errors.estado}</p>}
@@ -228,7 +274,6 @@ export default function Create({ pacientes, medicos, medicamentos }: Props) {
                                     id="objetivo"
                                     value={data.objetivo}
                                     onChange={(e) => setData('objetivo', e.target.value)}
-                                    placeholder="Describe los objetivos terapéuticos..."
                                     rows={3}
                                 />
                                 {errors.objetivo && <p className="text-red-600 text-sm mt-1">{errors.objetivo}</p>}
@@ -241,7 +286,6 @@ export default function Create({ pacientes, medicos, medicamentos }: Props) {
                                     type="text"
                                     value={data.diagnostico}
                                     onChange={(e) => setData('diagnostico', e.target.value)}
-                                    placeholder="Diagnóstico médico"
                                 />
                                 {errors.diagnostico && <p className="text-red-600 text-sm mt-1">{errors.diagnostico}</p>}
                             </div>
@@ -252,7 +296,6 @@ export default function Create({ pacientes, medicos, medicamentos }: Props) {
                                     id="observaciones"
                                     value={data.observaciones}
                                     onChange={(e) => setData('observaciones', e.target.value)}
-                                    placeholder="Observaciones adicionales..."
                                     rows={3}
                                 />
                                 {errors.observaciones && <p className="text-red-600 text-sm mt-1">{errors.observaciones}</p>}
@@ -262,72 +305,29 @@ export default function Create({ pacientes, medicos, medicamentos }: Props) {
 
                     <MedicamentoForm
                         medicamentos={medicamentos}
-                        medicamentosSeleccionados={medicamentosArray}
+                        medicamentosSeleccionados={data.medicamentos as MedicamentoFormData[]}
                         onMedicamentosChange={handleMedicamentosChange}
                         tipoTratamiento={data.tipo}
                         errors={errors}
                     />
 
-                    {medicamentosArray.length > 0 && (
-                        <Card className="bg-green-50 border-green-200">
-                            <CardHeader>
-                                <CardTitle className="text-green-800">
-                                    📋 Resumen del Tratamiento
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                    <div>
-                                        <p><strong>Tipo:</strong> {data.tipo}</p>
-                                        <p><strong>Estado:</strong> {data.estado}</p>
-                                        <p><strong>Medicamentos:</strong> {medicamentosArray.length}</p>
-                                    </div>
-                                    <div>
-                                        <p><strong>Fecha inicio:</strong> {data.fecha_inicio}</p>
-                                        <p><strong>Fecha fin:</strong> {data.fecha_fin || 'Sin fecha fin'}</p>
-                                    </div>
-                                </div>
-                                <div className="mt-4">
-                                    <strong>Medicamentos incluidos:</strong>
-                                    <ul className="list-disc list-inside mt-2 space-y-1">
-                                        {medicamentosArray.map((med, index) => {
-                                            const medicamento = medicamentos.find(m => m.id.toString() === med.medicamento_id);
-                                            return medicamento ? (
-                                                <li key={index} className="text-green-700">
-                                                    <strong>{medicamento.nombre}</strong> - {med.dosis_cantidad} {med.unidad_dosis}
-                                                    {data.tipo === 'Programado' && med.frecuencia_horas && 
-                                                        ` cada ${med.frecuencia_horas} horas`
-                                                    }
-                                                    {data.tipo === 'PRN' && med.intervalo_minimo_horas && 
-                                                        ` (mín. ${med.intervalo_minimo_horas}h entre dosis)`
-                                                    }
-                                                </li>
-                                            ) : null;
-                                        })}
-                                    </ul>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    )}
-
                     <div className="flex items-center justify-end space-x-4">
-                        <Link href={route('tratamientos.index')}>
+                        <Link href={route('tratamientos.show', tratamiento.id)}>
                             <Button variant="outline">
                                 Cancelar
                             </Button>
                         </Link>
                         <Button 
                             type="submit" 
-                            disabled={processing || medicamentosArray.length === 0}
-                            className={medicamentosArray.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}
+                            disabled={processing || data.medicamentos.length === 0}
                         >
-                            {processing ? 'Creando...' : 'Crear Tratamiento'}
+                            {processing ? 'Actualizando...' : 'Actualizar Tratamiento'}
                         </Button>
                     </div>
                     
-                    {medicamentosArray.length === 0 && (
+                    {data.medicamentos.length === 0 && (
                         <p className="text-yellow-600 text-sm text-center">
-                            ⚠️ Debe agregar al menos un medicamento para crear el tratamiento
+                            ⚠️ Debe agregar al menos un medicamento para el tratamiento
                         </p>
                     )}
                 </form>
