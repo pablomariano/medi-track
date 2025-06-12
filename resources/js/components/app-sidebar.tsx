@@ -10,6 +10,7 @@ import {
   SidebarMenuButton,
   SidebarFooter
 } from '@/components/ui/sidebar';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Link } from '@inertiajs/react';
 import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, UserCheck, Stethoscope, Heart, UserX, User, LucideIcon, UserPlus, Activity, Clock, BarChart3 } from 'lucide-react';
 
@@ -110,7 +111,6 @@ export function AppSidebar() {
   return (
     <Sidebar variant="inset" collapsible="icon">
       <SidebarHeader className="px-2">
-        <SidebarTrigger />
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
@@ -122,76 +122,78 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link href="/usuarios/select-type" className="flex items-center gap-2">
-                <UserPlus className="h-4 w-4" />
-                <span>Crear Usuario</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          
-          {/* Dashboard */}
-          <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-            Dashboard
-          </div>
-          {dashboardItems.map((item: NavigationItem) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild tooltip={item.title}>
-                <Link href={item.href} className="flex items-center gap-2">
-                  {React.createElement(item.icon, { className: "h-4 w-4" })}
-                  <span>{item.title}</span>
+        <ScrollArea className="h-full">
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <Link href="/usuarios/select-type" className="flex items-center gap-2">
+                  <UserPlus className="h-4 w-4" />
+                  <span>Crear Usuario</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-          ))}
+            
+            {/* Dashboard */}
+            <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              Dashboard
+            </div>
+            {dashboardItems.map((item: NavigationItem) => (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton asChild tooltip={item.title}>
+                  <Link href={item.href} className="flex items-center gap-2">
+                    {React.createElement(item.icon, { className: "h-4 w-4" })}
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
 
-          {/* Sistema de Medicamentos */}
-          <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-            Medicamentos
-          </div>
-          {medicamentosItems.map((item: NavigationItem) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild tooltip={item.title}>
-                <Link href={item.href} className="flex items-center gap-2">
-                  {React.createElement(item.icon, { className: "h-4 w-4" })}
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+            {/* Sistema de Medicamentos */}
+            <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              Medicamentos
+            </div>
+            {medicamentosItems.map((item: NavigationItem) => (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton asChild tooltip={item.title}>
+                  <Link href={item.href} className="flex items-center gap-2">
+                    {React.createElement(item.icon, { className: "h-4 w-4" })}
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
 
-          {/* Gestión de Usuarios */}
-          <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-            Usuarios
-          </div>
-          {usuariosItems.map((item: NavigationItem) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild tooltip={item.title}>
-                <Link href={item.href} className="flex items-center gap-2">
-                  {React.createElement(item.icon, { className: "h-4 w-4" })}
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+            {/* Gestión de Usuarios */}
+            <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              Usuarios
+            </div>
+            {usuariosItems.map((item: NavigationItem) => (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton asChild tooltip={item.title}>
+                  <Link href={item.href} className="flex items-center gap-2">
+                    {React.createElement(item.icon, { className: "h-4 w-4" })}
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
 
-          {/* Configuración */}
-          <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-            Configuración
-          </div>
-          {configuracionItems.map((item: NavigationItem) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild tooltip={item.title}>
-                <Link href={item.href} className="flex items-center gap-2">
-                  {React.createElement(item.icon, { className: "h-4 w-4" })}
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
+            {/* Configuración */}
+            <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              Configuración
+            </div>
+            {configuracionItems.map((item: NavigationItem) => (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton asChild tooltip={item.title}>
+                  <Link href={item.href} className="flex items-center gap-2">
+                    {React.createElement(item.icon, { className: "h-4 w-4" })}
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </ScrollArea>
       </SidebarContent>
 
       <SidebarFooter>

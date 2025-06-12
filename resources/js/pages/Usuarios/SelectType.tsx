@@ -58,8 +58,8 @@ const iconMap: Record<string, React.ComponentType<any>> = {
 export default function SelectType({ userTypes }: Props) {
     return (
         <AppSidebarLayout>
-            <div className="container mx-auto py-6">
-                <div className="flex items-center gap-4 mb-6">
+            <div className="p-6 space-y-6">
+                <div className="flex items-center gap-4">
                     <Link href={route('dashboard')}>
                         <Button variant="ghost" size="icon">
                             <ArrowLeft className="h-4 w-4" />
@@ -105,7 +105,7 @@ export default function SelectType({ userTypes }: Props) {
                     })}
                 </div>
 
-                <div className="mt-8 max-w-4xl">
+                {/* <div className="mt-8 max-w-4xl">
                     <Card className="bg-blue-50 border-blue-200">
                         <CardContent className="pt-6">
                             <div className="flex items-start gap-3">
@@ -128,7 +128,7 @@ export default function SelectType({ userTypes }: Props) {
                             </div>
                         </CardContent>
                     </Card>
-                </div>
+                </div> */}
             </div>
         </AppSidebarLayout>
     );

@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
+import AppLayout from '@/layouts/app-layout';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 import {
@@ -603,9 +603,9 @@ export default function CreateByType({ tipo, tipoInfo, generos }: Props) {
     };
 
     return (
-        <AppSidebarLayout>
-            <div className="container mx-auto py-6">
-                <div className="flex items-center gap-4 mb-6">
+        <AppLayout>
+            <div className="container mx-auto p-6 space-y-6 max-w-none">
+                <div className="flex items-center gap-4">
                     <Link href={route('usuarios.select-type')}>
                         <Button variant="ghost" size="icon">
                             <ArrowLeft className="h-4 w-4" />
@@ -619,7 +619,7 @@ export default function CreateByType({ tipo, tipoInfo, generos }: Props) {
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl">
+                <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-6xl mx-auto">
                     {renderUserDataFields()}
                     {renderSpecificFields()}
 
@@ -635,6 +635,6 @@ export default function CreateByType({ tipo, tipoInfo, generos }: Props) {
                     </div>
                 </form>
             </div>
-        </AppSidebarLayout>
+        </AppLayout>
     );
 } 
