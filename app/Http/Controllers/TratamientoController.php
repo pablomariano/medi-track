@@ -218,8 +218,19 @@ class TratamientoController extends Controller
             }
         }
 
+        // Regenerar horarios automáticamente si es tratamiento programado
+        if ($tratamiento->tipo === 'Programado') {
+            // Recargar medicamentos con pivot data antes de generar horarios
+            $tratamiento->load('medicamentos');
+            
+            $horarioService = new HorarioService();
+            $horarioService->generarHorariosProgramados($tratamiento);
+            $horarioService->generarAdministracionesProgramadas($tratamiento, 7);
+        }
+
         return redirect()->route('tratamientos.show', $tratamiento)
-            ->with('success', 'Tratamiento actualizado exitosamente con ' . count($request->medicamentos ?? []) . ' medicamento(s).');
+            ->with('success', 'Tratamiento actualizado exitosamente con ' . count($request->medicamentos ?? []) . ' medicamento(s). ' . 
+                   ($tratamiento->tipo === 'Programado' ? 'Se regeneraron los horarios automáticamente.' : ''));
     }
 
     public function destroy(Tratamiento $tratamiento)
