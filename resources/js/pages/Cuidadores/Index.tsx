@@ -59,7 +59,7 @@ export default function Index({ cuidadores }: Props) {
 
     return (
         <AppSidebarLayout>
-            <div className="container mx-auto py-6">
+            <div className="container mx-auto py-6 px-6">
                 <Card>
                     <CardHeader>
                         <div className="flex justify-between items-center">
@@ -77,7 +77,7 @@ export default function Index({ cuidadores }: Props) {
                             </Link>
                         </div>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-6">
                         <Table>
                             <TableHeader>
                                 <TableRow>

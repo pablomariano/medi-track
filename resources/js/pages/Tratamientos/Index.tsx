@@ -191,7 +191,7 @@ export default function Index({ tratamientos }: Props) {
                         <div className="space-y-4">
                             {tratamientos.data.map((tratamiento) => (
                                 <div key={tratamiento.id} 
-                                     className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                                     className="flex items-center justify-between p-4 border rounded-lg hover:bg-blue-50 hover:border-blue-200 transition-colors duration-200 cursor-pointer">
                                     <div className="flex-1">
                                         <div className="flex items-start justify-between">
                                             <div className="flex-1">

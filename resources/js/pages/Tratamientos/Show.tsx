@@ -243,7 +243,7 @@ export default function ShowTratamiento({ tratamiento }: Props) {
                         {tratamiento.diagnostico && (
                             <div>
                                 <p className="text-sm font-medium mb-1">Diagnóstico</p>
-                                <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
+                                <p className="text-sm text-gray-700 bg-blue-50 border border-blue-100 p-3 rounded">
                                     {tratamiento.diagnostico}
                                 </p>
                             </div>
@@ -252,7 +252,7 @@ export default function ShowTratamiento({ tratamiento }: Props) {
                         {tratamiento.observaciones && (
                             <div>
                                 <p className="text-sm font-medium mb-1">Observaciones</p>
-                                <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
+                                <p className="text-sm text-gray-700 bg-amber-50 border border-amber-100 p-3 rounded">
                                     {tratamiento.observaciones}
                                 </p>
                             </div>
@@ -347,7 +347,7 @@ export default function ShowTratamiento({ tratamiento }: Props) {
                                                 {medicamento.pivot.instrucciones_especiales && (
                                                     <div className="col-span-full">
                                                         <span className="font-medium">Instrucciones:</span>
-                                                        <p className="text-gray-600 mt-1 bg-gray-50 p-2 rounded">
+                                                        <p className="text-gray-700 mt-1 bg-green-50 border border-green-100 p-2 rounded">
                                                             {medicamento.pivot.instrucciones_especiales}
                                                         </p>
                                                     </div>
@@ -393,7 +393,7 @@ export default function ShowTratamiento({ tratamiento }: Props) {
                                                 Categoría: {indicacion.sintoma.categoria}
                                             </p>
                                             {indicacion.descripcion_personalizada && (
-                                                <p className="text-sm text-gray-700 mt-2 bg-yellow-50 p-2 rounded">
+                                                <p className="text-sm text-gray-700 mt-2 bg-orange-50 border border-orange-100 p-2 rounded">
                                                     {indicacion.descripcion_personalizada}
                                                 </p>
                                             )}
@@ -487,8 +487,8 @@ export default function ShowTratamiento({ tratamiento }: Props) {
                                                 <p>Programada: {formatDateTime(admin.fecha_hora_programada)}</p>
                                             )}
                                             {admin.observaciones && (
-                                                <p className="mt-1 bg-gray-50 p-2 rounded">
-                                                    Obs: {admin.observaciones}
+                                                <p className="mt-1 bg-indigo-50 border border-indigo-100 p-2 rounded">
+                                                    <span className="font-medium text-indigo-700">Obs:</span> {admin.observaciones}
                                                 </p>
                                             )}
                                         </div>
