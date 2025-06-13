@@ -19,6 +19,17 @@ class MedicamentoController extends Controller
         ]);
     }
 
+    public function dataTable()
+    {
+        $medicamentos = Medicamento::activos()
+            ->orderBy('nombre')
+            ->paginate(20);
+
+        return Inertia::render('Medicamentos/DataTable', [
+            'medicamentos' => $medicamentos
+        ]);
+    }
+
     public function create()
     {
         return Inertia::render('Medicamentos/Create');
@@ -53,7 +64,7 @@ class MedicamentoController extends Controller
 
     public function show(Medicamento $medicamento)
     {
-        $medicamento->load(['tratamientos.paciente', 'administraciones.administradoPor']);
+        $medicamento->load(['tratamientos.paciente', 'administraciones.cuidador']);
 
         return Inertia::render('Medicamentos/Show', [
             'medicamento' => $medicamento

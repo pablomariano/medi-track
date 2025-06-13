@@ -40,6 +40,11 @@ const medicamentosItems: NavigationItem[] = [
     icon: Pill,
   },
   {
+    title: 'Data Table',
+    href: '/medicamentos-datatable',
+    icon: BarChart3,
+  },
+  {
     title: 'Tratamientos',
     href: '/tratamientos',
     icon: Activity,
@@ -48,6 +53,11 @@ const medicamentosItems: NavigationItem[] = [
     title: 'Pendientes',
     href: '/administraciones/pendientes',
     icon: Clock,
+  },
+  {
+    title: 'Historial',
+    href: '/administraciones/historial',
+    icon: FileText,
   },
 ];
 

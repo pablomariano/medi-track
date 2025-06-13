@@ -43,20 +43,33 @@ class Medicamento extends Model
     {
         return $this->belongsToMany(Tratamiento::class, 'medicamentos_tratamientos')
                     ->withPivot([
-                        'dosis',
+                        'dosis_cantidad',
                         'unidad_dosis',
                         'frecuencia_horas',
-                        'duracion_dias',
+                        'tolerancia_antes_minutos',
+                        'tolerancia_despues_minutos',
+                        'intervalo_minimo_horas',
+                        'dosis_maxima_dia',
+                        'dosis_maxima_consecutiva',
                         'instrucciones_especiales',
-                        'activo'
+                        'estado',
+                        'motivo_suspension',
+                        'orden'
                     ])
                     ->withTimestamps();
     }
 
-    // Relación con administraciones
+    // Relación con administraciones (a través de la tabla pivot medicamentos_tratamientos)
     public function administraciones()
     {
-        return $this->hasMany(Administracion::class);
+        return $this->hasManyThrough(
+            Administracion::class,
+            \App\Models\MedicamentoTratamiento::class,
+            'medicamento_id', // Foreign key en medicamentos_tratamientos
+            'medicamento_tratamiento_id', // Foreign key en administraciones
+            'id', // Local key en medicamentos
+            'id' // Local key en medicamentos_tratamientos
+        );
     }
 
     // Scope para medicamentos activos

@@ -54,6 +54,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Rutas de Medicamentos
     Route::resource('medicamentos', MedicamentoController::class);
     Route::get('medicamentos-search', [MedicamentoController::class, 'search'])->name('medicamentos.search');
+    Route::get('medicamentos-datatable', [MedicamentoController::class, 'dataTable'])->name('medicamentos.datatable');
 
     // Rutas de Tratamientos
     Route::resource('tratamientos', TratamientoController::class);

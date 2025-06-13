@@ -43,7 +43,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
             <Card className="w-full max-w-md mx-auto">
                 <CardHeader>
                     <div className="flex flex-col items-center gap-2">
-                        <Activity className="h-8 w-8 text-blue-600" />
+                        <Activity className="h-8 w-8 text-sky-600" />
                         <h2 className="text-2xl font-bold text-center">MediTrack</h2>
                         <p className="text-muted-foreground text-center">Inicia sesión en tu cuenta</p>
                     </div>

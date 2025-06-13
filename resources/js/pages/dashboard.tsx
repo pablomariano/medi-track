@@ -139,8 +139,8 @@ export default function Dashboard() { // Define the Dashboard component
                                     axisLine={false}
                                     tickFormatter={(value) => value.slice(0, 3)}
                                     />
-                                <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-                                <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+                                <Bar dataKey="desktop" fill="var(--chart-1)" radius={4} />
+                                <Bar dataKey="mobile" fill="var(--chart-2)" radius={4} />
                             </BarChart>
                         </ChartContainer>
                     </Card>
@@ -165,8 +165,8 @@ export default function Dashboard() { // Define the Dashboard component
                                     <XAxis dataKey="month" />
                                     <YAxis />
                                     <Tooltip />
-                                    <Line type="monotone" dataKey="desktop" stroke="var(--primary)" strokeWidth={2} />
-                                    <Line type="monotone" dataKey="mobile" stroke="var(--secondary)" strokeWidth={2} />
+                                    <Line type="monotone" dataKey="desktop" stroke="var(--chart-1)" strokeWidth={2} />
+                                    <Line type="monotone" dataKey="mobile" stroke="var(--chart-2)" strokeWidth={2} />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
