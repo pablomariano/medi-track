@@ -353,7 +353,7 @@ export default function Dashboard({ estadisticasGenerales, adherenciaUltimos7Dia
                 </div>
 
                 {/* Recent Activity */}
-                <Card className="p-4">
+                {/* <Card className="p-4">
                     <h3 className="mb-4 text-lg font-semibold">Actividad Reciente</h3>
                     <div className="space-y-4">
                         {recentActivity.length > 0 ? (
@@ -372,7 +372,7 @@ export default function Dashboard({ estadisticasGenerales, adherenciaUltimos7Dia
                             </div>
                         )}
                     </div>
-                </Card>
+                </Card> */}
             </div>
         </AppLayout>
     );

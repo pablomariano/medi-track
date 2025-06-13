@@ -188,6 +188,7 @@ class DashboardDataSeeder extends Seeder
                 'dosis_programadas' => $total,
                 'dosis_administradas' => $administradas,
                 'dosis_omitidas' => $total - $administradas,
+                'calculated_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -222,13 +223,13 @@ class DashboardDataSeeder extends Seeder
     
     private function obtenerTipoAlerta()
     {
-        $tipos = ['Adherencia baja', 'Medicamento vencido', 'Dosis omitida'];
+        $tipos = ['Dosis_Omitida', 'Fuera_Ventana', 'Efecto_Adverso'];
         return $tipos[array_rand($tipos)];
     }
     
     private function obtenerNivelAlerta()
     {
-        $niveles = ['Baja', 'Media', 'Alta'];
+        $niveles = ['Info', 'Advertencia', 'Critica'];
         return $niveles[array_rand($niveles)];
     }
     
