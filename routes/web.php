@@ -15,15 +15,15 @@ use App\Http\Controllers\UnifiedUserController;
 use App\Http\Controllers\TratamientoController;
 use App\Http\Controllers\MedicamentoController;
 use App\Http\Controllers\AdministracionController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('dashboard/refresh', [DashboardController::class, 'refresh'])->name('dashboard.refresh');
     
     Route::get('dashboard/medicamentos', function () {
         return Inertia::render('Dashboard/Medicamentos');

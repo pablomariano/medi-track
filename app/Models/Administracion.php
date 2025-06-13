@@ -71,6 +71,11 @@ class Administracion extends Model
         return $this->belongsTo(User::class, 'cuidador_usuario_id');
     }
 
+    public function medicamentoTratamiento()
+    {
+        return $this->belongsTo(MedicamentoTratamiento::class);
+    }
+
     public function scopePendientes($query)
     {
         return $query->where('estado', self::ESTADO_PENDIENTE);

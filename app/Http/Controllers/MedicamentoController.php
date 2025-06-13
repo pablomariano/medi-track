@@ -172,7 +172,7 @@ class MedicamentoController extends Controller
     public function destroy(Medicamento $medicamento)
     {
         // Verificar que no tenga tratamientos activos
-        if ($medicamento->tratamientos()->whereIn('estado', ['activo', 'pausado'])->exists()) {
+        if ($medicamento->tratamientos()->whereIn('tratamientos.estado', ['Activo', 'Pausado'])->exists()) {
             return back()->withErrors(['error' => 'No se puede eliminar un medicamento con tratamientos activos.']);
         }
 

@@ -1,55 +1,60 @@
 import AppLayout from '@/layouts/app-layout'; // Import the AppLayout component
 import { type BreadcrumbItem } from '@/types'; // Import the BreadcrumbItem type
-import { Head } from '@inertiajs/react'; // Import the Head component
+import { Head, router } from '@inertiajs/react'; // Import the Head component
 
 import { ChartContainer, ChartConfig, ChartLegend, ChartTooltip, ChartLegendContent, ChartTooltipContent } from '@/components/ui/chart'; // Import the ChartContainer, ChartConfig, ChartLegend, ChartTooltip, ChartLegendContent, and ChartTooltipContent components
-import { Bar,  BarChart, Line, LineChart, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'; // Import the Bar, BarChart, Line, LineChart, XAxis, YAxis, Tooltip, and ResponsiveContainer components
+import { Bar,  BarChart, Line, LineChart, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'; // Import the Bar, BarChart, Line, LineChart, XAxis, YAxis, Tooltip, and ResponsiveContainer components
 import { Card } from '@/components/ui/card'; // Import the Card component
 import { Badge } from '@/components/ui/badge'; // Import the Badge component
 import { useState, useEffect } from 'react'; // Import the useState and useEffect hooks
 import { Button } from '@/components/ui/button'; // Import the Button component
-import { RefreshCw } from 'lucide-react'; // Import the RefreshCw icon from Lucide      
+import { RefreshCw, TrendingUp, TrendingDown, Minus } from 'lucide-react'; // Import the RefreshCw icon from Lucide      
 
+// Tipos para los datos del backend
+interface EstadisticasGenerales {
+    pacientes_activos: number;
+    tratamientos_activos: number;
+    adherencia_media: number;
+    alertas_pendientes: number;
+}
 
-const initialChartData = [ // Define the initial chart data
-    { month: 'Enero', desktop: 172, mobile: 440 },
-    { month: 'Febrero', desktop: 212, mobile: 378 },
-    { month: 'Marzo', desktop: 189, mobile: 300 },
-    { month: 'Abril', desktop: 120, mobile: 280 },
-    { month: 'Mayo', desktop: 110, mobile: 210 },
-    { month: 'Junio', desktop: 100, mobile: 245 },
-    { month: 'Julio', desktop: 145, mobile: 289 },
-    { month: 'Agosto', desktop: 180, mobile: 270 },
-    { month: 'Septiembre', desktop: 170, mobile: 260 },
-    { month: 'Octubre', desktop: 160, mobile: 250 },
-    { month: 'Noviembre', desktop: 150, mobile: 240 },
-    { month: 'Diciembre', desktop: 140, mobile: 260 },
-];
+interface AdherenciaDia {
+    day: string;
+    fullDate: string;
+    adherencia: number;
+    dosis_administradas: number;
+    dosis_programadas: number;
+    dosis_omitidas?: number;
+    dosis_tardias?: number;
+}
 
-const chartConfig = { // Define the chart configuration
-    desktop: {
-      label: "Desktop",
-      color: "var(--primary)",
+interface ActividadReciente {
+    id: number | string;
+    user: string;
+    action: string;
+    time: string;
+}
+
+interface DashboardProps {
+    estadisticasGenerales: EstadisticasGenerales;
+    adherenciaUltimos7Dias: AdherenciaDia[];
+    actividadReciente: ActividadReciente[];
+}
+
+const adherenceChartConfig = { // Define the adherence chart configuration
+    adherencia: {
+      label: "Adherencia (%)",
+      color: "hsl(var(--chart-1))",
     },
-    mobile: {
-      label: "Mobile",
-      color: "var(--secondary)",
+    dosis_administradas: {
+      label: "Dosis Administradas",
+      color: "hsl(var(--chart-2))",
+    },
+    dosis_programadas: {
+      label: "Dosis Programadas", 
+      color: "hsl(var(--muted-foreground))",
     },
   } satisfies ChartConfig
-
-const statisticsData = [ // Define the statistics data
-    { title: 'Total Users', value: '2,543', change: '+12%', trend: 'up' },
-    { title: 'Active Sessions', value: '1,234', change: '+5%', trend: 'up' },
-    { title: 'Conversion Rate', value: '3.2%', change: '-2%', trend: 'down' },
-    { title: 'Avg. Session', value: '4m 32s', change: '+8%', trend: 'up' },
-];
-
-const recentActivity = [ // Define the recent activity data
-    { id: 1, user: 'John Doe', action: 'Completed profile', time: '2 minutes ago' },
-    { id: 2, user: 'Jane Smith', action: 'Started new session', time: '5 minutes ago' },
-    { id: 3, user: 'Mike Johnson', action: 'Updated settings', time: '10 minutes ago' },
-    { id: 4, user: 'Sarah Wilson', action: 'Logged in', time: '15 minutes ago' },
-];
 
 const breadcrumbs: BreadcrumbItem[] = [ // Define the breadcrumbs
     {
@@ -58,36 +63,96 @@ const breadcrumbs: BreadcrumbItem[] = [ // Define the breadcrumbs
     },
 ];
 
-// Function to generate random data
-const generateRandomData = (min: number, max: number) => {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+// Función para obtener el color según el nivel de adherencia
+const getAdherenceColor = (adherencia: number): string => {
+    if (adherencia >= 90) return "hsl(142, 76%, 36%)"; // Verde excelente
+    if (adherencia >= 80) return "hsl(47, 96%, 53%)"; // Amarillo bueno
+    if (adherencia >= 70) return "hsl(25, 95%, 53%)"; // Naranja regular
+    return "hsl(0, 84%, 60%)"; // Rojo malo
 };
 
-// Function to update chart data
-const updateChartData = (data: typeof initialChartData) => {
-    return data.map(item => ({
-        ...item,
-        desktop: generateRandomData(100, 300),
-        mobile: generateRandomData(200, 500)
-    }));
+// Función para obtener icono de tendencia
+const getTrendIcon = (adherencia: number) => {
+    if (adherencia >= 90) return <TrendingUp className="h-4 w-4 text-green-600" />;
+    if (adherencia >= 70) return <Minus className="h-4 w-4 text-yellow-600" />;
+    return <TrendingDown className="h-4 w-4 text-red-600" />;
 };
 
-export default function Dashboard() { // Define the Dashboard component
-    const [chartData, setChartData] = useState(initialChartData); // Define the chart data state
+export default function Dashboard({ estadisticasGenerales, adherenciaUltimos7Dias, actividadReciente }: DashboardProps) { // Define the Dashboard component
+    const [adherenceData, setAdherenceData] = useState<AdherenciaDia[]>(adherenciaUltimos7Dias); // Define the adherence data state
+    const [statsData, setStatsData] = useState<EstadisticasGenerales>(estadisticasGenerales); // Define the stats data state
+    const [recentActivity, setRecentActivity] = useState<ActividadReciente[]>(actividadReciente); // Define the recent activity state
     const [isLoading, setIsLoading] = useState(false); // Define the isLoading state
 
-    const refreshData = () => { // Define the refreshData function
+    const refreshData = async () => { // Define the refreshData function
         setIsLoading(true); // Set the isLoading state to true
-        setTimeout(() => { // Set a timeout to update the chart data
-            setChartData(prevData => updateChartData(prevData)); // Update the chart data
+        
+        try {
+            const response = await fetch('/dashboard/refresh', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                setAdherenceData(data.adherenciaUltimos7Dias);
+                setStatsData(data.estadisticasGenerales);
+                setRecentActivity(data.actividadReciente);
+            }
+        } catch (error) {
+            console.error('Error refreshing dashboard data:', error);
+            // Fallback: recargar la página
+            router.reload();
+        } finally {
             setIsLoading(false); // Set the isLoading state to false
-        }, 1000); // Set a timeout of 1 second
+        }
     };
 
     useEffect(() => { // Use the useEffect hook to refresh the data every 30 seconds
-        const interval = setInterval(refreshData, 12000); // Set an interval to refresh the data every 12 seconds
+        const interval = setInterval(refreshData, 30000); // Set an interval to refresh the data every 30 seconds
         return () => clearInterval(interval); // Return a cleanup function to clear the interval
     }, []); // Empty dependency array
+
+    // Calcular adherencia promedio de la semana
+    const adherenciaPromedio = adherenceData.length > 0 
+        ? adherenceData.reduce((acc, day) => acc + day.adherencia, 0) / adherenceData.length
+        : 0;
+
+    // Estadísticas de la semana
+    const totalDosisAdministradas = adherenceData.reduce((acc, day) => acc + day.dosis_administradas, 0);
+    const totalDosisProgramadas = adherenceData.reduce((acc, day) => acc + day.dosis_programadas, 0);
+    const totalDosisOmitidas = adherenceData.reduce((acc, day) => acc + (day.dosis_omitidas || 0), 0);
+
+    // Preparar estadísticas para mostrar
+    const statisticsData = [
+        { 
+            title: 'Pacientes Activos', 
+            value: statsData.pacientes_activos.toString(), 
+            change: '', 
+            trend: 'up' as const 
+        },
+        { 
+            title: 'Tratamientos', 
+            value: statsData.tratamientos_activos.toString(), 
+            change: '', 
+            trend: 'up' as const 
+        },
+        { 
+            title: 'Adherencia Media', 
+            value: statsData.adherencia_media.toFixed(1) + '%', 
+            change: '', 
+            trend: statsData.adherencia_media >= 80 ? 'up' as const : 'down' as const
+        },
+        { 
+            title: 'Alertas Pendientes', 
+            value: statsData.alertas_pendientes.toString(), 
+            change: '', 
+            trend: statsData.alertas_pendientes === 0 ? 'up' as const : 'down' as const 
+        },
+    ];
 
     return ( // Return the Dashboard component
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -100,11 +165,13 @@ export default function Dashboard() { // Define the Dashboard component
                             <div className="flex flex-col">
                                 <span className="text-sm text-gray-500">{stat.title}</span>
                                 <span className="text-2xl font-bold">{stat.value}</span>
-                                <div className="flex items-center gap-2">
-                                    <Badge variant={stat.trend === 'up' ? 'default' : 'destructive'}>
-                                        {stat.change}
-                                    </Badge>
-                                </div>
+                                {stat.change && (
+                                    <div className="flex items-center gap-2">
+                                        <Badge variant={stat.trend === 'up' ? 'default' : 'destructive'}>
+                                            {stat.change}
+                                        </Badge>
+                                    </div>
+                                )}
                             </div>
                         </Card>
                     ))}
@@ -112,11 +179,17 @@ export default function Dashboard() { // Define the Dashboard component
 
                 {/* Charts Section */}
                 <div className="grid gap-4 md:grid-cols-2">
-                    {/* Bar Chart */}
+                    {/* Enhanced Adherence Chart */}
                     <Card className="p-4">
                         {/* Header */}
                         <div className="mb-4 flex items-center justify-between">
-                            <h3 className="text-lg font-semibold">Device Usage</h3>
+                            <div>
+                                <h3 className="text-lg font-semibold">Adherencia - Últimos 7 Días</h3>
+                                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                    <span>Promedio: {adherenciaPromedio.toFixed(1)}%</span>
+                                    {getTrendIcon(adherenciaPromedio)}
+                                </div>
+                            </div>
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -127,20 +200,105 @@ export default function Dashboard() { // Define the Dashboard component
                                 Refresh
                             </Button>
                         </div>
-                        {/* Bar Chart */}
-                        <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-                            <BarChart data={chartData}>
-                                <ChartTooltip content={<ChartTooltipContent />} />
-                                <ChartLegend content={<ChartLegendContent />} />
+
+                        {/* Estadísticas Rápidas */}
+                        <div className="grid grid-cols-3 gap-2 mb-4 text-xs">
+                            <div className="bg-green-50 p-2 rounded">
+                                <div className="font-semibold text-green-700">{totalDosisAdministradas}</div>
+                                <div className="text-green-600">Administradas</div>
+                            </div>
+                            <div className="bg-blue-50 p-2 rounded">
+                                <div className="font-semibold text-blue-700">{totalDosisProgramadas}</div>
+                                <div className="text-blue-600">Programadas</div>
+                            </div>
+                            <div className="bg-red-50 p-2 rounded">
+                                <div className="font-semibold text-red-700">{totalDosisOmitidas}</div>
+                                <div className="text-red-600">Omitidas</div>
+                            </div>
+                        </div>
+                        
+                        {/* Enhanced Bar Chart for Adherence */}
+                        <ChartContainer config={adherenceChartConfig} className="min-h-[200px] w-full">
+                            <BarChart data={adherenceData}>
+                                <ChartTooltip 
+                                    content={({ active, payload, label }) => {
+                                        if (active && payload && payload.length) {
+                                            const data = payload[0].payload;
+                                            const adherenciaColor = getAdherenceColor(data.adherencia);
+                                            return (
+                                                <div className="rounded-lg border bg-background p-3 shadow-lg">
+                                                    <div className="font-semibold mb-2 flex items-center gap-2">
+                                                        <span>{label}</span>
+                                                        {getTrendIcon(data.adherencia)}
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[0.70rem] uppercase text-muted-foreground">
+                                                                Adherencia
+                                                            </span>
+                                                            <span className="font-bold text-lg" style={{ color: adherenciaColor }}>
+                                                                {data.adherencia}%
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[0.70rem] uppercase text-muted-foreground">
+                                                                Estado
+                                                            </span>
+                                                            <span className="font-semibold text-sm">
+                                                                {data.adherencia >= 90 ? "Excelente" : 
+                                                                 data.adherencia >= 80 ? "Bueno" :
+                                                                 data.adherencia >= 70 ? "Regular" : "Mejorar"}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[0.70rem] uppercase text-muted-foreground">
+                                                                Administradas
+                                                            </span>
+                                                            <span className="font-bold text-green-700">
+                                                                {data.dosis_administradas}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[0.70rem] uppercase text-muted-foreground">
+                                                                Programadas
+                                                            </span>
+                                                            <span className="font-bold text-blue-700">
+                                                                {data.dosis_programadas}
+                                                            </span>
+                                                        </div>
+                                                        {data.dosis_omitidas !== undefined && data.dosis_omitidas > 0 && (
+                                                            <div className="flex flex-col col-span-2">
+                                                                <span className="text-[0.70rem] uppercase text-muted-foreground">
+                                                                    Omitidas
+                                                                </span>
+                                                                <span className="font-bold text-red-700">
+                                                                    {data.dosis_omitidas}
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            );
+                                        }
+                                        return null;
+                                    }} 
+                                />
                                 <XAxis
-                                    dataKey="month"
+                                    dataKey="day"
                                     tickLine={false}
                                     tickMargin={10}
                                     axisLine={false}
-                                    tickFormatter={(value) => value.slice(0, 3)}
-                                    />
-                                <Bar dataKey="desktop" fill="var(--chart-1)" radius={4} />
-                                <Bar dataKey="mobile" fill="var(--chart-2)" radius={4} />
+                                />
+                                <YAxis domain={[0, 100]} />
+                                <Bar 
+                                    dataKey="adherencia" 
+                                    radius={4}
+                                    name="Adherencia (%)"
+                                >
+                                    {adherenceData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={getAdherenceColor(entry.adherencia)} />
+                                    ))}
+                                </Bar>
                             </BarChart>
                         </ChartContainer>
                     </Card>
@@ -148,7 +306,7 @@ export default function Dashboard() { // Define the Dashboard component
                     {/* Line Chart */}
                     <Card className="p-4">
                         <div className="mb-4 flex items-center justify-between">
-                            <h3 className="text-lg font-semibold">Trend Analysis</h3>
+                            <h3 className="text-lg font-semibold">Tendencia de Dosis</h3>
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -161,12 +319,33 @@ export default function Dashboard() { // Define the Dashboard component
                         </div>
                         <div className="h-[300px] w-full">
                             <ResponsiveContainer width="90%" height="100%">
-                                <LineChart data={chartData}>
-                                    <XAxis dataKey="month" />
+                                <LineChart data={adherenceData}>
+                                    <XAxis dataKey="day" />
                                     <YAxis />
-                                    <Tooltip />
-                                    <Line type="monotone" dataKey="desktop" stroke="var(--chart-1)" strokeWidth={2} />
-                                    <Line type="monotone" dataKey="mobile" stroke="var(--chart-2)" strokeWidth={2} />
+                                    <Tooltip 
+                                        formatter={(value, name) => [
+                                            value,
+                                            name === 'dosis_administradas' ? 'Administradas' : 'Programadas'
+                                        ]}
+                                        labelFormatter={(label) => `Día: ${label}`}
+                                    />
+                                    <Line 
+                                        type="monotone" 
+                                        dataKey="dosis_administradas" 
+                                        stroke="hsl(142, 76%, 36%)" 
+                                        strokeWidth={3}
+                                        name="Dosis Administradas"
+                                        dot={{ fill: "hsl(142, 76%, 36%)", strokeWidth: 2, r: 4 }}
+                                    />
+                                    <Line 
+                                        type="monotone" 
+                                        dataKey="dosis_programadas" 
+                                        stroke="hsl(217, 91%, 59%)" 
+                                        strokeWidth={3}
+                                        strokeDasharray="5 5"
+                                        name="Dosis Programadas"
+                                        dot={{ fill: "hsl(217, 91%, 59%)", strokeWidth: 2, r: 4 }}
+                                    />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
@@ -175,17 +354,23 @@ export default function Dashboard() { // Define the Dashboard component
 
                 {/* Recent Activity */}
                 <Card className="p-4">
-                    <h3 className="mb-4 text-lg font-semibold">Recent Activity</h3>
+                    <h3 className="mb-4 text-lg font-semibold">Actividad Reciente</h3>
                     <div className="space-y-4">
-                        {recentActivity.map((activity) => (
-                            <div key={activity.id} className="flex items-center justify-between border-b pb-2">
-                                <div>
-                                    <span className="font-medium">{activity.user}</span>
-                                    <span className="text-gray-500"> {activity.action}</span>
+                        {recentActivity.length > 0 ? (
+                            recentActivity.map((activity) => (
+                                <div key={activity.id} className="flex items-center justify-between border-b pb-2">
+                                    <div>
+                                        <span className="font-medium">{activity.user}</span>
+                                        <span className="text-gray-500"> {activity.action}</span>
+                                    </div>
+                                    <span className="text-sm text-gray-500">{activity.time}</span>
                                 </div>
-                                <span className="text-sm text-gray-500">{activity.time}</span>
+                            ))
+                        ) : (
+                            <div className="text-center text-gray-500 py-4">
+                                No hay actividad reciente
                             </div>
-                        ))}
+                        )}
                     </div>
                 </Card>
             </div>
