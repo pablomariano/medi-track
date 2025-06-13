@@ -190,7 +190,7 @@ export default function Dashboard({ estadisticasGenerales, adherenciaUltimos7Dia
                                     {getTrendIcon(adherenciaPromedio)}
                                 </div>
                             </div>
-                            <Button
+                            {/* <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={refreshData}
@@ -198,7 +198,7 @@ export default function Dashboard({ estadisticasGenerales, adherenciaUltimos7Dia
                             >
                                 <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
                                 Refresh
-                            </Button>
+                            </Button> */}
                         </div>
 
                         {/* Estadísticas Rápidas */}
@@ -307,7 +307,7 @@ export default function Dashboard({ estadisticasGenerales, adherenciaUltimos7Dia
                     <Card className="p-4">
                         <div className="mb-4 flex items-center justify-between">
                             <h3 className="text-lg font-semibold">Tendencia de Dosis</h3>
-                            <Button
+                            {/* <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={refreshData}
@@ -315,7 +315,7 @@ export default function Dashboard({ estadisticasGenerales, adherenciaUltimos7Dia
                             >
                                 <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
                                 Refresh
-                            </Button>
+                            </Button> */}
                         </div>
                         <div className="h-[300px] w-full">
                             <ResponsiveContainer width="90%" height="100%">
