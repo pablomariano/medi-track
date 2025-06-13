@@ -267,7 +267,7 @@ export default function Create({ pacientes, medicos, medicamentos }: Props) {
                         tipoTratamiento={data.tipo}
                         errors={errors}
                     />
-
+{/* 
                     {medicamentosArray.length > 0 && (
                         <Card className="bg-green-50 border-green-200">
                             <CardHeader>
@@ -308,7 +308,7 @@ export default function Create({ pacientes, medicos, medicamentos }: Props) {
                                 </div>
                             </CardContent>
                         </Card>
-                    )}
+                    )} */}
 
                     <div className="flex items-center justify-end space-x-4">
                         <Link href={route('tratamientos.index')}>
