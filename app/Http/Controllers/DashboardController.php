@@ -96,10 +96,22 @@ class DashboardController extends Controller
                 ? round((($dosisAdministradas + $dosisTardias) / $dosisProgamadas) * 100, 1)
                 : 0;
             
-            $dayName = $fecha->locale('es')->format('D');
+            // Traducir manualmente los nombres de los días a español
+            $diasSemana = [
+                'Monday' => 'Lun',
+                'Tuesday' => 'Mar', 
+                'Wednesday' => 'Mié',
+                'Thursday' => 'Jue',
+                'Friday' => 'Vie',
+                'Saturday' => 'Sáb',
+                'Sunday' => 'Dom'
+            ];
+            
+            $dayNameEn = $fecha->format('l'); // Nombre completo en inglés
+            $dayName = $diasSemana[$dayNameEn] ?? $dayNameEn;
             
             $datos[] = [
-                'day' => ucfirst($dayName),
+                'day' => $dayName,
                 'fullDate' => $fechaStr,
                 'adherencia' => $adherencia,
                 'dosis_administradas' => $dosisAdministradas + $dosisTardias,
