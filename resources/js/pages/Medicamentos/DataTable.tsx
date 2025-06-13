@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -40,7 +40,9 @@ import {
   RefreshCw,
   AlertTriangle,
   CheckCircle,
-  X
+  X,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 interface Medicamento {
@@ -74,6 +76,16 @@ interface Props {
     from: number;
     to: number;
   };
+  filters: {
+    search: string;
+    estado: string;
+    receta: string;
+    categoria: string;
+    sort: string;
+    direction: string;
+    per_page: number;
+    page?: number;
+  };
 }
 
 // Definición de columnas
@@ -96,17 +108,17 @@ type VisibleColumns = {
   [K in typeof allColumns[number]['key']]: boolean;
 };
 
-export default function DataTable({ medicamentos }: Props) {
+export default function DataTable({ medicamentos, filters }: Props) {
   // Estados para filtros
-  const [searchTerm, setSearchTerm] = useState('');
-  const [estadoFilter, setEstadoFilter] = useState('todos');
-  const [recetaFilter, setRecetaFilter] = useState('todos');
-  const [categoriaFilter, setCategoriaFilter] = useState('todos');
+  const [searchTerm, setSearchTerm] = useState(filters.search);
+  const [estadoFilter, setEstadoFilter] = useState(filters.estado);
+  const [recetaFilter, setRecetaFilter] = useState(filters.receta);
+  const [categoriaFilter, setCategoriaFilter] = useState(filters.categoria);
   
   // Estados para tabla
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
-  const [sortColumn, setSortColumn] = useState<string>('nombre');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [sortColumn, setSortColumn] = useState<string>(filters.sort);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>(filters.direction as 'asc' | 'desc');
   const [currentPage, setCurrentPage] = useState(medicamentos.current_page);
   const [itemsPerPage, setItemsPerPage] = useState(medicamentos.per_page);
   
@@ -118,7 +130,18 @@ export default function DataTable({ medicamentos }: Props) {
     }), {} as VisibleColumns)
   );
 
-  // Obtener categorías únicas para el filtro
+  // Debounced search para evitar demasiadas requests
+  const [searchDebounced, setSearchDebounced] = useState(searchTerm);
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearchDebounced(searchTerm);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Obtener categorías únicas para el filtro (del servidor)
   const categorias = useMemo(() => {
     const cats = medicamentos.data
       .map(m => m.categoria_terapeutica)
@@ -127,57 +150,42 @@ export default function DataTable({ medicamentos }: Props) {
     return cats.sort();
   }, [medicamentos.data]);
 
-  // Filtrar datos
-  const filteredData = useMemo(() => {
-    return medicamentos.data.filter(medicamento => {
-      const matchesSearch = searchTerm === '' || 
-        medicamento.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        medicamento.principio_activo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        medicamento.laboratorio?.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesEstado = estadoFilter === 'todos' || 
-        (estadoFilter === 'activo' && medicamento.activo) ||
-        (estadoFilter === 'inactivo' && !medicamento.activo);
-      
-      const matchesReceta = recetaFilter === 'todos' ||
-        (recetaFilter === 'si' && medicamento.requiere_receta) ||
-        (recetaFilter === 'no' && !medicamento.requiere_receta);
-      
-      const matchesCategoria = categoriaFilter === 'todos' ||
-        medicamento.categoria_terapeutica === categoriaFilter;
-      
-      return matchesSearch && matchesEstado && matchesReceta && matchesCategoria;
+  // Función para actualizar filtros en el servidor
+  const updateFilters = (newFilters: Partial<typeof filters>) => {
+    const params = {
+      ...filters,
+      ...newFilters,
+      page: newFilters.search !== filters.search || 
+            newFilters.estado !== filters.estado ||
+            newFilters.receta !== filters.receta ||
+            newFilters.categoria !== filters.categoria ? 1 : currentPage
+    };
+    
+    router.get(route('medicamentos.datatable'), params, {
+      preserveState: true,
+      preserveScroll: true,
     });
-  }, [medicamentos.data, searchTerm, estadoFilter, recetaFilter, categoriaFilter]);
+  };
 
-  // Ordenar datos
-  const sortedData = useMemo(() => {
-    return [...filteredData].sort((a, b) => {
-      const aValue = a[sortColumn as keyof Medicamento];
-      const bValue = b[sortColumn as keyof Medicamento];
-      
-      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
-      return 0;
-    });
-  }, [filteredData, sortColumn, sortDirection]);
+  // Efecto para buscar cuando cambie el término de búsqueda
+  useEffect(() => {
+    if (searchDebounced !== filters.search) {
+      updateFilters({ search: searchDebounced });
+    }
+  }, [searchDebounced]);
 
-  // Paginación
-  const paginatedData = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    return sortedData.slice(startIndex, startIndex + itemsPerPage);
-  }, [sortedData, currentPage, itemsPerPage]);
-
-  const totalPages = Math.ceil(sortedData.length / itemsPerPage);
+  // Los datos ya vienen filtrados y paginados del servidor
+  const paginatedData = medicamentos.data;
 
   // Funciones de manejo
   const handleSort = (column: string) => {
-    if (sortColumn === column) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortColumn(column);
-      setSortDirection('asc');
-    }
+    const newDirection = sortColumn === column && sortDirection === 'asc' ? 'desc' : 'asc';
+    setSortColumn(column);
+    setSortDirection(newDirection);
+    updateFilters({ 
+      sort: column, 
+      direction: newDirection 
+    });
   };
 
   const handleSelectRow = (id: number) => {
@@ -201,6 +209,12 @@ export default function DataTable({ medicamentos }: Props) {
     setEstadoFilter('todos');
     setRecetaFilter('todos');
     setCategoriaFilter('todos');
+    updateFilters({
+      search: '',
+      estado: 'todos',
+      receta: 'todos',
+      categoria: 'todos'
+    });
   };
 
   const handleDelete = (id: number) => {
@@ -238,7 +252,7 @@ export default function DataTable({ medicamentos }: Props) {
           </div>
           <div className="flex items-center space-x-2">
             <Badge variant="outline" className="text-primary border-primary/20">
-              {filteredData.length} medicamentos
+              {medicamentos.total} medicamentos
             </Badge>
             {selectedRows.length > 0 && (
               <Badge variant="outline" className="text-primary border-primary/20">
@@ -282,7 +296,10 @@ export default function DataTable({ medicamentos }: Props) {
               {/* Filtro por estado */}
               <div className="space-y-2">
                 <Label>Estado</Label>
-                <Select value={estadoFilter} onValueChange={setEstadoFilter}>
+                <Select value={estadoFilter} onValueChange={(value) => {
+                  setEstadoFilter(value);
+                  updateFilters({ estado: value });
+                }}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -297,7 +314,10 @@ export default function DataTable({ medicamentos }: Props) {
               {/* Filtro por receta */}
               <div className="space-y-2">
                 <Label>Requiere Receta</Label>
-                <Select value={recetaFilter} onValueChange={setRecetaFilter}>
+                <Select value={recetaFilter} onValueChange={(value) => {
+                  setRecetaFilter(value);
+                  updateFilters({ receta: value });
+                }}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -312,7 +332,10 @@ export default function DataTable({ medicamentos }: Props) {
               {/* Filtro por categoría */}
               <div className="space-y-2">
                 <Label>Categoría Terapéutica</Label>
-                <Select value={categoriaFilter} onValueChange={setCategoriaFilter}>
+                <Select value={categoriaFilter} onValueChange={(value) => {
+                  setCategoriaFilter(value);
+                  updateFilters({ categoria: value });
+                }}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -366,7 +389,7 @@ export default function DataTable({ medicamentos }: Props) {
               <div>
                 <CardTitle>Lista de Medicamentos</CardTitle>
                 <CardDescription>
-                  {filteredData.length} de {medicamentos.total} medicamentos
+                  {medicamentos.from} - {medicamentos.to} de {medicamentos.total} medicamentos
                 </CardDescription>
               </div>
               
@@ -634,10 +657,9 @@ export default function DataTable({ medicamentos }: Props) {
               <div className="flex items-center space-x-2">
                 <Label>Elementos por página:</Label>
                 <Select 
-                  value={itemsPerPage.toString()} 
+                  value={filters.per_page.toString()} 
                   onValueChange={(value) => {
-                    setItemsPerPage(Number(value));
-                    setCurrentPage(1);
+                    updateFilters({ per_page: Number(value) });
                   }}
                 >
                   <SelectTrigger className="w-20">
@@ -654,30 +676,32 @@ export default function DataTable({ medicamentos }: Props) {
 
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-muted-foreground">
-                  Mostrando {((currentPage - 1) * itemsPerPage) + 1} a {Math.min(currentPage * itemsPerPage, sortedData.length)} de {sortedData.length} resultados
+                  Mostrando {medicamentos.from || 0} a {medicamentos.to || 0} de {medicamentos.total} resultados
                 </span>
                 
                 <div className="flex items-center space-x-1">
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    onClick={() => updateFilters({ page: currentPage - 1 })}
                     disabled={currentPage === 1}
                   >
+                    <ChevronLeft className="h-4 w-4" />
                     Anterior
                   </Button>
                   
                   <span className="text-sm px-2">
-                    Página {currentPage} de {totalPages}
+                    Página {currentPage} de {medicamentos.last_page}
                   </span>
                   
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                    disabled={currentPage === totalPages}
+                    onClick={() => updateFilters({ page: currentPage + 1 })}
+                    disabled={currentPage === medicamentos.last_page}
                   >
                     Siguiente
+                    <ChevronRight className="h-4 w-4 ml-1" />
                   </Button>
                 </div>
               </div>

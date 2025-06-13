@@ -33,6 +33,13 @@ class DatabaseSeeder extends Seeder
             IndicacionesPrnSeeder::class,
         ]);
 
+        // Seedear horarios programados y historial de administraciones
+        $this->call([
+            HorariosProgramadosSeeder::class,
+            AdministracionesHistorialSeeder::class,
+            EstadisticasYAlertasSeeder::class,
+        ]);
+
         echo "\n🎉 Base de datos inicializada con datos coherentes\n";
         echo "👤 Usuarios de prueba:\n";
         echo "   - admin@meditrack.com (Administrador)\n";
@@ -50,5 +57,13 @@ class DatabaseSeeder extends Seeder
         echo "   - 11 configuraciones medicamento-tratamiento\n";
         echo "   - 11 indicaciones PRN específicas\n";
         echo "   - Sistema completo de tolerancias y validaciones\n\n";
+        
+        echo "📊 Historial de administraciones (último mes):\n";
+        echo "   - Horarios programados para medicamentos\n";
+        echo "   - Administraciones programadas con adherencia realista (75-95%)\n";
+        echo "   - Administraciones PRN con síntomas y criterios\n";
+        echo "   - Estadísticas de consumo y adherencia\n";
+        echo "   - Alertas automáticas por patrones de riesgo\n";
+        echo "   - Datos listos para gráficos de dashboard\n\n";
     }
 }

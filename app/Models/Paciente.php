@@ -48,6 +48,12 @@ class Paciente extends Model
         return $this->belongsTo(Genero::class, 'genero_id');
     }
 
+    // Relación con tratamientos
+    public function tratamientos()
+    {
+        return $this->hasMany(Tratamiento::class, 'paciente_id');
+    }
+
     // Método para calcular la edad
     public function getEdadAttribute()
     {

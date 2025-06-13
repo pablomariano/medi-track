@@ -19,14 +19,77 @@ class MedicamentoController extends Controller
         ]);
     }
 
-    public function dataTable()
+    public function dataTable(Request $request)
     {
-        $medicamentos = Medicamento::activos()
-            ->orderBy('nombre')
-            ->paginate(20);
+        $query = Medicamento::activos();
+
+        // Aplicar búsqueda si existe
+        if ($request->filled('search')) {
+            $searchTerm = $request->get('search');
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('nombre', 'like', "%{$searchTerm}%")
+                  ->orWhere('principio_activo', 'like', "%{$searchTerm}%")
+                  ->orWhere('laboratorio', 'like', "%{$searchTerm}%");
+            });
+        }
+
+        // Aplicar filtros
+        if ($request->filled('estado') && $request->get('estado') !== 'todos') {
+            if ($request->get('estado') === 'activo') {
+                $query->where('activo', true);
+            } elseif ($request->get('estado') === 'inactivo') {
+                $query->where('activo', false);
+            }
+        }
+
+        if ($request->filled('receta') && $request->get('receta') !== 'todos') {
+            if ($request->get('receta') === 'si') {
+                $query->where('requiere_receta', true);
+            } elseif ($request->get('receta') === 'no') {
+                $query->where('requiere_receta', false);
+            }
+        }
+
+        if ($request->filled('categoria') && $request->get('categoria') !== 'todos') {
+            $query->where('categoria_terapeutica', $request->get('categoria'));
+        }
+
+        // Aplicar ordenamiento
+        $sortColumn = $request->get('sort', 'nombre');
+        $sortDirection = $request->get('direction', 'asc');
+        
+        // Validar columnas de ordenamiento
+        $allowedSortColumns = [
+            'nombre', 'principio_activo', 'categoria_terapeutica', 
+            'laboratorio', 'requiere_receta', 'activo', 'created_at'
+        ];
+        
+        if (in_array($sortColumn, $allowedSortColumns)) {
+            $query->orderBy($sortColumn, $sortDirection);
+        } else {
+            $query->orderBy('nombre', 'asc');
+        }
+
+        // Obtener número de elementos por página
+        $perPage = $request->get('per_page', 20);
+        $perPage = in_array($perPage, [5, 10, 20, 50]) ? $perPage : 20;
+
+        $medicamentos = $query->paginate($perPage);
+
+        // Añadir parámetros de consulta a los enlaces de paginación
+        $medicamentos->appends($request->query());
 
         return Inertia::render('Medicamentos/DataTable', [
-            'medicamentos' => $medicamentos
+            'medicamentos' => $medicamentos,
+            'filters' => [
+                'search' => $request->get('search', ''),
+                'estado' => $request->get('estado', 'todos'),
+                'receta' => $request->get('receta', 'todos'),
+                'categoria' => $request->get('categoria', 'todos'),
+                'sort' => $sortColumn,
+                'direction' => $sortDirection,
+                'per_page' => $perPage,
+            ]
         ]);
     }
 

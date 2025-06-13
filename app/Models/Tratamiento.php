@@ -61,6 +61,7 @@ class Tratamiento extends Model
                         'tolerancia_despues_minutos',
                         'intervalo_minimo_horas',
                         'dosis_maxima_dia',
+                        'dosis_maxima_semana',
                         'dosis_maxima_consecutiva',
                         'instrucciones_especiales',
                         'estado',
@@ -68,6 +69,12 @@ class Tratamiento extends Model
                         'orden'
                     ])
                     ->withTimestamps();
+    }
+
+    // Relación directa con medicamento_tratamientos
+    public function medicamentoTratamientos()
+    {
+        return $this->hasMany(MedicamentoTratamiento::class, 'tratamiento_id');
     }
 
     // Obtener horarios programados de este tratamiento

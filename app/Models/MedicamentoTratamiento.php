@@ -17,13 +17,17 @@ class MedicamentoTratamiento extends Model
         'dosis_cantidad',
         'unidad_dosis',
         'frecuencia_horas',
+        'es_prn',
         'tolerancia_antes_minutos',
         'tolerancia_despues_minutos',
         'intervalo_minimo_horas',
         'dosis_maxima_dia',
+        'dosis_maxima_semana',
         'dosis_maxima_consecutiva',
+        'duracion_dias',
         'instrucciones_especiales',
         'estado',
+        'activo',
         'motivo_suspension',
         'orden'
     ];
@@ -31,11 +35,15 @@ class MedicamentoTratamiento extends Model
     protected $casts = [
         'dosis_cantidad' => 'decimal:3',
         'frecuencia_horas' => 'integer',
+        'es_prn' => 'boolean',
         'tolerancia_antes_minutos' => 'integer',
         'tolerancia_despues_minutos' => 'integer',
         'intervalo_minimo_horas' => 'integer',
-        'dosis_maxima_dia' => 'decimal:3',
+        'dosis_maxima_dia' => 'integer',
+        'dosis_maxima_semana' => 'integer',
         'dosis_maxima_consecutiva' => 'integer',
+        'duracion_dias' => 'integer',
+        'activo' => 'boolean',
         'orden' => 'integer'
     ];
 

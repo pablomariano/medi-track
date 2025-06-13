@@ -50,6 +50,7 @@ class Medicamento extends Model
                         'tolerancia_despues_minutos',
                         'intervalo_minimo_horas',
                         'dosis_maxima_dia',
+                        'dosis_maxima_semana',
                         'dosis_maxima_consecutiva',
                         'instrucciones_especiales',
                         'estado',
