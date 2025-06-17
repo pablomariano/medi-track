@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/sidebar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Link } from '@inertiajs/react';
-import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, UserCheck, Stethoscope, Heart, UserX, User, LucideIcon, UserPlus, Activity, Clock, BarChart3 } from 'lucide-react';
+import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, UserCheck, Stethoscope, Heart, UserX, User, LucideIcon, UserPlus, Activity, Clock, BarChart3, UserCog } from 'lucide-react';
 
 interface NavigationItem {
   title: string;
@@ -86,6 +86,16 @@ const usuariosItems: NavigationItem[] = [
     title: 'Usuarios',
     href: '/usuarios',
     icon: Users,
+  },
+  {
+    title: 'Asignaciones Cuidadores',
+    href: '/asignaciones-cuidadores',
+    icon: UserCog,
+  },
+  {
+    title: 'Historial Asignaciones',
+    href: '/asignaciones-cuidadores/historial',
+    icon: FileText,
   },
 ];
 

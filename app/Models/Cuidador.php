@@ -52,4 +52,40 @@ class Cuidador extends Model
     {
         return $this->tarifa_hora ? '$' . number_format($this->tarifa_hora, 0, ',', '.') : '';
     }
+
+    // Relación con pacientes asignados
+    public function pacientes()
+    {
+        return $this->belongsToMany(
+            Paciente::class,
+            'paciente_cuidadores',
+            'cuidador_usuario_id',
+            'paciente_id',
+            'usuario_id',
+            'id'
+        )->withPivot('fecha_asignacion', 'fecha_fin', 'activo');
+    }
+
+    // Relación con pacientes activos
+    public function pacientesActivos()
+    {
+        return $this->pacientes()->wherePivot('activo', true);
+    }
+
+    // Relación con pacientes vigentes (activos y sin fecha fin vencida)
+    public function pacientesVigentes()
+    {
+        return $this->pacientes()
+            ->wherePivot('activo', true)
+            ->where(function($query) {
+                $query->whereNull('paciente_cuidadores.fecha_fin')
+                      ->orWhere('paciente_cuidadores.fecha_fin', '>', now());
+            });
+    }
+
+    // Relación directa con asignaciones de pacientes
+    public function asignacionesPacientes()
+    {
+        return $this->hasMany(PacienteCuidador::class, 'cuidador_usuario_id', 'usuario_id');
+    }
 } 

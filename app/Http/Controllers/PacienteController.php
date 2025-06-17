@@ -63,7 +63,7 @@ class PacienteController extends Controller
 
     public function show(Paciente $paciente)
     {
-        $paciente->load(['user', 'genero']);
+        $paciente->load(['user', 'genero', 'cuidadoresVigentes.user']);
         
         return Inertia::render('Pacientes/Show', [
             'paciente' => $paciente

@@ -54,6 +54,42 @@ class Paciente extends Model
         return $this->hasMany(Tratamiento::class, 'paciente_id');
     }
 
+    // Relación con cuidadores asignados
+    public function cuidadores()
+    {
+        return $this->belongsToMany(
+            Cuidador::class,
+            'paciente_cuidadores',
+            'paciente_id',
+            'cuidador_usuario_id',
+            'id',
+            'usuario_id'
+        )->withPivot('fecha_asignacion', 'fecha_fin', 'activo');
+    }
+
+    // Relación con cuidadores activos
+    public function cuidadoresActivos()
+    {
+        return $this->cuidadores()->wherePivot('activo', true);
+    }
+
+    // Relación con cuidadores vigentes (activos y sin fecha fin vencida)
+    public function cuidadoresVigentes()
+    {
+        return $this->cuidadores()
+            ->wherePivot('activo', true)
+            ->where(function($query) {
+                $query->whereNull('paciente_cuidadores.fecha_fin')
+                      ->orWhere('paciente_cuidadores.fecha_fin', '>', now());
+            });
+    }
+
+    // Relación directa con asignaciones de cuidadores
+    public function asignacionesCuidadores()
+    {
+        return $this->hasMany(PacienteCuidador::class, 'paciente_id');
+    }
+
     // Método para calcular la edad
     public function getEdadAttribute()
     {

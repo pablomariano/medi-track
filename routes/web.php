@@ -16,6 +16,7 @@ use App\Http\Controllers\TratamientoController;
 use App\Http\Controllers\MedicamentoController;
 use App\Http\Controllers\AdministracionController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PacienteCuidadorController;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -37,6 +38,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('cuidadores', CuidadorController::class);
     Route::resource('apoderados', ApoderadoController::class);
     Route::resource('pacientes', PacienteController::class);
+
+    // === SISTEMA DE ASIGNACIÓN DE CUIDADORES ===
+    Route::prefix('asignaciones-cuidadores')->name('asignaciones-cuidadores.')->group(function () {
+        Route::get('/', [PacienteCuidadorController::class, 'index'])->name('index');
+        Route::get('historial', [PacienteCuidadorController::class, 'historial'])->name('historial');
+        Route::get('create', [PacienteCuidadorController::class, 'create'])->name('create');
+        Route::post('/', [PacienteCuidadorController::class, 'store'])->name('store');
+        Route::get('{paciente}/{cuidador}', [PacienteCuidadorController::class, 'show'])->name('show');
+        Route::get('{paciente}/{cuidador}/edit', [PacienteCuidadorController::class, 'edit'])->name('edit');
+        Route::put('{paciente}/{cuidador}', [PacienteCuidadorController::class, 'update'])->name('update');
+        Route::delete('{paciente}/{cuidador}', [PacienteCuidadorController::class, 'destroy'])->name('destroy');
+        
+        // Rutas AJAX
+        Route::post('asignar', [PacienteCuidadorController::class, 'asignarDesdeView'])->name('asignar');
+        Route::get('cuidadores-disponibles/{paciente}', [PacienteCuidadorController::class, 'cuidadoresDisponibles'])->name('cuidadores-disponibles');
+    });
 
     // IMPORTANTE: Rutas específicas del sistema unificado ANTES que el resource
     Route::prefix('usuarios')->name('usuarios.')->group(function () {

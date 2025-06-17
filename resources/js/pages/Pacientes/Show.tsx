@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
-import { ArrowLeft, Edit, Trash2, CheckCircle, XCircle, User, Phone, MapPin, Calendar, FileText, Activity } from 'lucide-react';
+import { ArrowLeft, Edit, Trash2, CheckCircle, XCircle, User, Phone, MapPin, Calendar, FileText, Activity, UserCheck, Plus } from 'lucide-react';
 import { Link, router } from '@inertiajs/react';
 import {
     Card,
@@ -22,6 +22,22 @@ interface Genero {
     nombre: string;
 }
 
+interface Cuidador {
+    usuario_id: number;
+    user: {
+        id: number;
+        name: string;
+        email: string;
+    };
+    experiencia_anos: number | null;
+    tarifa_hora: number | null;
+    pivot: {
+        fecha_asignacion: string;
+        fecha_fin: string | null;
+        activo: boolean;
+    };
+}
+
 interface Paciente {
     id: number;
     usuario_id: number | null;
@@ -39,6 +55,7 @@ interface Paciente {
     created_at: string;
     user: User | null;
     genero: Genero | null;
+    cuidadores_vigentes: Cuidador[];
 }
 
 interface Props {
@@ -264,6 +281,84 @@ export default function Show({ paciente }: Props) {
                                         </h4>
                                         <div className="bg-muted/50 p-3 rounded-md">
                                             <p className="text-sm">{paciente.direccion}</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        {/* Cuidadores Asignados */}
+                        <Card>
+                            <CardHeader>
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="flex items-center gap-2">
+                                        <UserCheck className="h-5 w-5" />
+                                        Cuidadores Asignados
+                                    </CardTitle>
+                                    <Link href={route('asignaciones-cuidadores.create')}>
+                                        <Button size="sm">
+                                            <Plus className="h-4 w-4 mr-2" />
+                                            Asignar Cuidador
+                                        </Button>
+                                    </Link>
+                                </div>
+                                <CardDescription>
+                                    Personal de cuidado actualmente asignado a este paciente
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                {paciente.cuidadores_vigentes && paciente.cuidadores_vigentes.length > 0 ? (
+                                    <div className="space-y-4">
+                                        {paciente.cuidadores_vigentes.map((cuidador) => (
+                                            <div key={cuidador.usuario_id} className="flex items-center justify-between p-3 border rounded-lg">
+                                                <div className="flex items-center space-x-3">
+                                                    <div className="flex-shrink-0">
+                                                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                                            <UserCheck className="h-4 w-4 text-blue-600" />
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-medium">{cuidador.user.name}</p>
+                                                        <p className="text-sm text-muted-foreground">{cuidador.user.email}</p>
+                                                        <div className="flex items-center gap-2 mt-1">
+                                                            <Badge variant="outline" className="text-xs">
+                                                                Desde: {formatFecha(cuidador.pivot.fecha_asignacion)}
+                                                            </Badge>
+                                                            {cuidador.experiencia_anos && (
+                                                                <Badge variant="secondary" className="text-xs">
+                                                                    {cuidador.experiencia_anos} años exp.
+                                                                </Badge>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <Badge variant="secondary" className="bg-green-100 text-green-800">
+                                                        Activo
+                                                    </Badge>
+                                                    <Button variant="outline" size="sm" asChild>
+                                                        <Link href={route('asignaciones-cuidadores.show', [paciente.id, cuidador.usuario_id])}>
+                                                            Ver
+                                                        </Link>
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-6">
+                                        <UserCheck className="mx-auto h-12 w-12 text-muted-foreground" />
+                                        <h3 className="mt-2 text-sm font-medium text-muted-foreground">Sin cuidadores asignados</h3>
+                                        <p className="mt-1 text-sm text-muted-foreground">
+                                            Este paciente no tiene cuidadores asignados actualmente.
+                                        </p>
+                                        <div className="mt-6">
+                                            <Link href={route('asignaciones-cuidadores.create')}>
+                                                <Button>
+                                                    <Plus className="h-4 w-4 mr-2" />
+                                                    Asignar primer cuidador
+                                                </Button>
+                                            </Link>
                                         </div>
                                     </div>
                                 )}
