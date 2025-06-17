@@ -13,9 +13,29 @@ class TratamientoController extends Controller
 {
     public function index()
     {
-        $tratamientos = Tratamiento::with(['paciente', 'medico', 'medicamentos'])
-            ->latest()
-            ->paginate(10);
+        $this->authorize('viewAny', Tratamiento::class);
+        
+        $query = Tratamiento::with(['paciente', 'medico', 'medicamentos']);
+        
+        // Filtrar tratamientos según el rol del usuario
+        if (auth()->user()->hasRole('medico')) {
+            $query->where('medico_usuario_id', auth()->id());
+        } elseif (auth()->user()->hasRole('cuidador')) {
+            $query->whereHas('paciente.cuidadores', function($q) {
+                $q->where('cuidador_usuario_id', auth()->id())
+                  ->where('activo', true);
+            });
+        } elseif (auth()->user()->hasRole('apoderado')) {
+            $query->whereHas('paciente.apoderados', function($q) {
+                $q->where('apoderado_usuario_id', auth()->id());
+            });
+        } elseif (auth()->user()->hasRole('paciente')) {
+            $query->whereHas('paciente', function($q) {
+                $q->where('usuario_id', auth()->id());
+            });
+        }
+        
+        $tratamientos = $query->latest()->paginate(10);
 
         return Inertia::render('Tratamientos/Index', [
             'tratamientos' => $tratamientos
@@ -24,6 +44,8 @@ class TratamientoController extends Controller
 
     public function create()
     {
+        $this->authorize('create', Tratamiento::class);
+        
         $pacientes = Paciente::where('activo', true)->get();
         $medicos = User::whereHas('role', function($query) {
             $query->where('nombre', 'medico');
@@ -39,6 +61,8 @@ class TratamientoController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorize('create', Tratamiento::class);
+        
         $request->validate([
             'paciente_id' => 'required|exists:pacientes,id',
             'medico_usuario_id' => 'required|exists:users,id',
@@ -111,6 +135,8 @@ class TratamientoController extends Controller
 
     public function show(Tratamiento $tratamiento)
     {
+        $this->authorize('view', $tratamiento);
+        
         $tratamiento->load([
             'paciente',
             'medico',
@@ -141,6 +167,8 @@ class TratamientoController extends Controller
 
     public function edit(Tratamiento $tratamiento)
     {
+        $this->authorize('update', $tratamiento);
+        
         $pacientes = Paciente::where('activo', true)->get();
         $medicos = User::whereHas('role', function($query) {
             $query->where('nombre', 'medico');
@@ -160,6 +188,8 @@ class TratamientoController extends Controller
 
     public function update(Request $request, Tratamiento $tratamiento)
     {
+        $this->authorize('update', $tratamiento);
+        
         $request->validate([
             'paciente_id' => 'required|exists:pacientes,id',
             'medico_usuario_id' => 'required|exists:users,id',
@@ -235,6 +265,8 @@ class TratamientoController extends Controller
 
     public function destroy(Tratamiento $tratamiento)
     {
+        $this->authorize('delete', $tratamiento);
+        
         $tratamiento->delete();
 
         return redirect()->route('tratamientos.index')
@@ -243,6 +275,8 @@ class TratamientoController extends Controller
 
     public function activar(Tratamiento $tratamiento)
     {
+        $this->authorize('changeStatus', $tratamiento);
+        
         $tratamiento->update(['estado' => Tratamiento::ESTADO_ACTIVO]);
 
         return back()->with('success', 'Tratamiento activado exitosamente.');
@@ -250,6 +284,8 @@ class TratamientoController extends Controller
 
     public function pausar(Tratamiento $tratamiento)
     {
+        $this->authorize('changeStatus', $tratamiento);
+        
         $tratamiento->update(['estado' => Tratamiento::ESTADO_PAUSADO]);
 
         return back()->with('success', 'Tratamiento pausado exitosamente.');
@@ -257,6 +293,8 @@ class TratamientoController extends Controller
 
     public function finalizar(Tratamiento $tratamiento)
     {
+        $this->authorize('changeStatus', $tratamiento);
+        
         $tratamiento->update(['estado' => Tratamiento::ESTADO_FINALIZADO]);
 
         return back()->with('success', 'Tratamiento finalizado exitosamente.');

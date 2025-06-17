@@ -90,6 +90,19 @@ class Paciente extends Model
         return $this->hasMany(PacienteCuidador::class, 'paciente_id');
     }
 
+    // Relación con apoderados asignados
+    public function apoderados()
+    {
+        return $this->belongsToMany(
+            Apoderado::class,
+            'paciente_apoderados',
+            'paciente_id',
+            'apoderado_usuario_id',
+            'id',
+            'usuario_id'
+        )->withPivot('relacion', 'fecha_asignacion');
+    }
+
     // Método para calcular la edad
     public function getEdadAttribute()
     {

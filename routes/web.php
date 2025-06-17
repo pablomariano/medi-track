@@ -25,24 +25,45 @@ Route::get('/', function () {
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    // === DASHBOARD - Acceso para todos los usuarios autenticados ===
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('dashboard/refresh', [DashboardController::class, 'refresh'])->name('dashboard.refresh');
-    
     Route::get('dashboard/medicamentos', function () {
         return Inertia::render('Dashboard/Medicamentos');
     })->name('dashboard.medicamentos');
 
-    Route::resource('medicines', MedicineController::class);
-    Route::resource('roles', RoleController::class);
-    Route::resource('permisos', PermisoController::class);
-    Route::resource('generos', GeneroController::class);
-    Route::resource('personal-medico', PersonalMedicoController::class);
-    Route::resource('cuidadores', CuidadorController::class);
-    Route::resource('apoderados', ApoderadoController::class);
-    Route::resource('pacientes', PacienteController::class);
+    // === RUTAS DE ADMINISTRACIÓN - Solo Admin ===
+    Route::middleware('role:admin')->group(function () {
+        Route::resource('roles', RoleController::class);
+        Route::resource('permisos', PermisoController::class);
+        Route::resource('generos', GeneroController::class);
+    });
 
-    // === SISTEMA DE ASIGNACIÓN DE CUIDADORES ===
-    Route::prefix('asignaciones-cuidadores')->name('asignaciones-cuidadores.')->group(function () {
+    // === RUTAS DE GESTIÓN MÉDICA - Admin + Médicos ===
+    Route::middleware('permission:personal-medico.index')->group(function () {
+        Route::resource('personal-medico', PersonalMedicoController::class);
+    });
+
+    Route::middleware('permission:cuidadores.index')->group(function () {
+        Route::resource('cuidadores', CuidadorController::class);
+    });
+
+    Route::middleware('permission:apoderados.index')->group(function () {
+        Route::resource('apoderados', ApoderadoController::class);
+    });
+
+    // === RUTAS DE PACIENTES - Admin, Médicos, Cuidadores ===
+    Route::middleware('permission:pacientes.index')->group(function () {
+        Route::resource('pacientes', PacienteController::class);
+    });
+
+    // === RUTAS DE MEDICAMENTOS - Admin, Médicos, Cuidadores (lectura) ===
+    Route::middleware('permission:medicines.index')->group(function () {
+        Route::resource('medicines', MedicineController::class);
+    });
+
+    // === SISTEMA DE ASIGNACIÓN DE CUIDADORES - Admin, Médicos ===
+    Route::middleware('permission:cuidadores.index,personal-medico.index')->prefix('asignaciones-cuidadores')->name('asignaciones-cuidadores.')->group(function () {
         Route::get('/', [PacienteCuidadorController::class, 'index'])->name('index');
         Route::get('historial', [PacienteCuidadorController::class, 'historial'])->name('historial');
         Route::get('create', [PacienteCuidadorController::class, 'create'])->name('create');
@@ -57,32 +78,39 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('cuidadores-disponibles/{paciente}', [PacienteCuidadorController::class, 'cuidadoresDisponibles'])->name('cuidadores-disponibles');
     });
 
-    // IMPORTANTE: Rutas específicas del sistema unificado ANTES que el resource
-    Route::prefix('usuarios')->name('usuarios.')->group(function () {
-        Route::get('select-type', [UnifiedUserController::class, 'selectType'])->name('select-type');
-        Route::get('create-by-type', [UnifiedUserController::class, 'create'])->name('create-by-type');
-        Route::post('store-by-type', [UnifiedUserController::class, 'store'])->name('store-by-type');
-        Route::get('form-data', [UnifiedUserController::class, 'getFormData'])->name('form-data');
-    });
+    // === SISTEMA DE USUARIOS - Solo Admin ===
+    Route::middleware('role:admin')->group(function () {
+        // Rutas específicas del sistema unificado ANTES que el resource
+        Route::prefix('usuarios')->name('usuarios.')->group(function () {
+            Route::get('select-type', [UnifiedUserController::class, 'selectType'])->name('select-type');
+            Route::get('create-by-type', [UnifiedUserController::class, 'create'])->name('create-by-type');
+            Route::post('store-by-type', [UnifiedUserController::class, 'store'])->name('store-by-type');
+            Route::get('form-data', [UnifiedUserController::class, 'getFormData'])->name('form-data');
+        });
 
-    // Resource de usuarios DESPUÉS de las rutas específicas
-    Route::resource('usuarios', UserController::class);
+        // Resource de usuarios DESPUÉS de las rutas específicas
+        Route::resource('usuarios', UserController::class);
+    });
 
     // === SISTEMA DE MEDICAMENTOS ===
     
-    // Rutas de Medicamentos
-    Route::resource('medicamentos', MedicamentoController::class);
-    Route::get('medicamentos-search', [MedicamentoController::class, 'search'])->name('medicamentos.search');
-    Route::get('medicamentos-datatable', [MedicamentoController::class, 'dataTable'])->name('medicamentos.datatable');
+    // Rutas de Medicamentos - Admin, Médicos, Cuidadores (lectura)
+    Route::middleware('permission:medicines.index')->group(function () {
+        Route::resource('medicamentos', MedicamentoController::class);
+        Route::get('medicamentos-search', [MedicamentoController::class, 'search'])->name('medicamentos.search');
+        Route::get('medicamentos-datatable', [MedicamentoController::class, 'dataTable'])->name('medicamentos.datatable');
+    });
 
-    // Rutas de Tratamientos
-    Route::resource('tratamientos', TratamientoController::class);
-    Route::patch('tratamientos/{tratamiento}/activar', [TratamientoController::class, 'activar'])->name('tratamientos.activar');
-    Route::patch('tratamientos/{tratamiento}/pausar', [TratamientoController::class, 'pausar'])->name('tratamientos.pausar');
-    Route::patch('tratamientos/{tratamiento}/finalizar', [TratamientoController::class, 'finalizar'])->name('tratamientos.finalizar');
+    // Rutas de Tratamientos - Admin, Médicos
+    Route::middleware('permission:pacientes.edit')->group(function () {
+        Route::resource('tratamientos', TratamientoController::class);
+        Route::patch('tratamientos/{tratamiento}/activar', [TratamientoController::class, 'activar'])->name('tratamientos.activar');
+        Route::patch('tratamientos/{tratamiento}/pausar', [TratamientoController::class, 'pausar'])->name('tratamientos.pausar');
+        Route::patch('tratamientos/{tratamiento}/finalizar', [TratamientoController::class, 'finalizar'])->name('tratamientos.finalizar');
+    });
 
-    // Rutas de Administraciones
-    Route::prefix('administraciones')->name('administraciones.')->group(function () {
+    // === ADMINISTRACIONES - Médicos, Cuidadores ===
+    Route::middleware('permission:pacientes.index')->prefix('administraciones')->name('administraciones.')->group(function () {
         Route::get('/', [AdministracionController::class, 'index'])->name('index');
         Route::get('pendientes', [AdministracionController::class, 'pendientes'])->name('pendientes');
         Route::get('historial', [AdministracionController::class, 'historial'])->name('historial');
@@ -92,8 +120,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('{administracion}/rechazar', [AdministracionController::class, 'rechazar'])->name('rechazar');
     });
 
-    // Rutas de Cronograma (Horarios de Medicamentos)
-    Route::prefix('cronograma')->name('cronograma.')->group(function () {
+    // === CRONOGRAMA - Médicos, Cuidadores ===
+    Route::middleware('permission:pacientes.index')->prefix('cronograma')->name('cronograma.')->group(function () {
         Route::get('/', [App\Http\Controllers\CronogramaController::class, 'index'])->name('index');
         Route::get('resumen-semanal', [App\Http\Controllers\CronogramaController::class, 'resumenSemanal'])->name('resumen-semanal');
         Route::patch('{administracion}/administrar', [App\Http\Controllers\CronogramaController::class, 'administrar'])->name('administrar');

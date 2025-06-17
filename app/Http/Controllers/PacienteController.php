@@ -12,9 +12,25 @@ class PacienteController extends Controller
 {
     public function index()
     {
-        $pacientes = Paciente::with(['user', 'genero'])
-            ->latest('created_at')
-            ->paginate(10);
+        $this->authorize('viewAny', Paciente::class);
+        
+        $query = Paciente::with(['user', 'genero']);
+        
+        // Filtrar pacientes según el rol del usuario
+        if (auth()->user()->hasRole('cuidador')) {
+            $query->whereHas('cuidadores', function($q) {
+                $q->where('cuidador_usuario_id', auth()->id())
+                  ->where('activo', true);
+            });
+        } elseif (auth()->user()->hasRole('apoderado')) {
+            $query->whereHas('apoderados', function($q) {
+                $q->where('apoderado_usuario_id', auth()->id());
+            });
+        } elseif (auth()->user()->hasRole('paciente')) {
+            $query->where('usuario_id', auth()->id());
+        }
+        
+        $pacientes = $query->latest('created_at')->paginate(10);
         
         return Inertia::render('Pacientes/Index', [
             'pacientes' => $pacientes
@@ -23,6 +39,8 @@ class PacienteController extends Controller
 
     public function create()
     {
+        $this->authorize('create', Paciente::class);
+        
         // Obtener usuarios que no son pacientes aún
         $usuariosDisponibles = User::whereNotIn('id', function($query) {
             $query->select('usuario_id')
@@ -40,6 +58,8 @@ class PacienteController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorize('create', Paciente::class);
+        
         $validated = $request->validate([
             'usuario_id' => 'nullable|exists:users,id|unique:pacientes',
             'nombre' => 'required|string|max:100',
@@ -63,6 +83,8 @@ class PacienteController extends Controller
 
     public function show(Paciente $paciente)
     {
+        $this->authorize('view', $paciente);
+        
         $paciente->load(['user', 'genero', 'cuidadoresVigentes.user']);
         
         return Inertia::render('Pacientes/Show', [
@@ -72,6 +94,8 @@ class PacienteController extends Controller
 
     public function edit(Paciente $paciente)
     {
+        $this->authorize('update', $paciente);
+        
         $paciente->load(['user', 'genero']);
         
         // Obtener usuarios disponibles (incluir el actual si existe)
@@ -93,6 +117,8 @@ class PacienteController extends Controller
 
     public function update(Request $request, Paciente $paciente)
     {
+        $this->authorize('update', $paciente);
+        
         $validated = $request->validate([
             'usuario_id' => 'nullable|exists:users,id|unique:pacientes,usuario_id,' . $paciente->id,
             'nombre' => 'required|string|max:100',
@@ -116,6 +142,8 @@ class PacienteController extends Controller
 
     public function destroy(Paciente $paciente)
     {
+        $this->authorize('delete', $paciente);
+        
         $paciente->delete();
 
         return redirect()->route('pacientes.index')
