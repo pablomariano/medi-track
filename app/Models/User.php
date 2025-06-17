@@ -94,4 +94,80 @@ class User extends Authenticatable
     {
         return $query->where('activo', true);
     }
+
+    // === MÉTODOS DE AUTORIZACIÓN ===
+
+    /**
+     * Verificar si el usuario tiene un permiso específico
+     */
+    public function hasPermission(string $permission): bool
+    {
+        if (!$this->role) {
+            return false;
+        }
+
+        return $this->role->permisos()->where('nombre', $permission)->exists();
+    }
+
+    /**
+     * Verificar si el usuario tiene alguno de los permisos especificados
+     */
+    public function hasAnyPermission(array $permissions): bool
+    {
+        if (!$this->role) {
+            return false;
+        }
+
+        return $this->role->permisos()->whereIn('nombre', $permissions)->exists();
+    }
+
+    /**
+     * Verificar si el usuario tiene un rol específico
+     */
+    public function hasRole(string $roleName): bool
+    {
+        return $this->role?->nombre === $roleName;
+    }
+
+    /**
+     * Verificar si el usuario tiene alguno de los roles especificados
+     */
+    public function hasAnyRole(array $roles): bool
+    {
+        return $this->role && in_array($this->role->nombre, $roles);
+    }
+
+    /**
+     * Sobrescribir el método can de Laravel para usar nuestro sistema de permisos
+     */
+    public function can($abilities, $arguments = []): bool
+    {
+        // Si se pasa un string simple, usar nuestro sistema de permisos
+        if (is_string($abilities) && empty($arguments)) {
+            return $this->hasPermission($abilities);
+        }
+        
+        // Para otros casos, usar el comportamiento original de Laravel
+        return parent::can($abilities, $arguments);
+    }
+
+    /**
+     * Verificar si es administrador
+     */
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('admin');
+    }
+
+    /**
+     * Obtener todos los permisos del usuario
+     */
+    public function getAllPermissions()
+    {
+        if (!$this->role) {
+            return collect();
+        }
+
+        return $this->role->permisos;
+    }
 }

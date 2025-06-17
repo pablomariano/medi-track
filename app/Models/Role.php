@@ -22,4 +22,16 @@ class Role extends Model
     ];
 
     public $timestamps = false;
+
+    // Relación con permisos (many-to-many)
+    public function permisos()
+    {
+        return $this->belongsToMany(Permiso::class, 'rol_permisos', 'rol_id', 'permiso_id');
+    }
+
+    // Relación con usuarios (one-to-many)
+    public function users()
+    {
+        return $this->hasMany(User::class, 'rol_id');
+    }
 } 
