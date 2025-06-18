@@ -44,7 +44,7 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
-                'user' => $request->user(),
+                'user' => $this->getUserWithPermissions($request),
             ],
             'ziggy' => fn (): array => [
                 ...(new Ziggy)->toArray(),
@@ -52,5 +52,32 @@ class HandleInertiaRequests extends Middleware
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
+    }
+
+    /**
+     * Get user with role and permissions
+     */
+    private function getUserWithPermissions(Request $request)
+    {
+        $user = $request->user();
+        
+        if (!$user) {
+            return null;
+        }
+
+        // Load user with role and permissions
+        $user->load(['role.permisos']);
+        
+        // Build permissions array for easy frontend checking
+        $permissions = [];
+        if ($user->role && $user->role->permisos) {
+            $permissions = $user->role->permisos->pluck('nombre')->toArray();
+        }
+
+        // Add permissions as can_permissions for easy access
+        $userData = $user->toArray();
+        $userData['can_permissions'] = $permissions;
+        
+        return $userData;
     }
 }
