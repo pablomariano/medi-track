@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/sidebar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Link } from '@inertiajs/react';
-import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, UserCheck, Stethoscope, Heart, UserX, User, LucideIcon, UserPlus, Activity, Clock, BarChart3, UserCog } from 'lucide-react';
+import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, UserCheck, Stethoscope, Heart, UserX, User, LucideIcon, UserPlus, Activity, Clock, BarChart3, UserCog, AlertTriangle, Eye } from 'lucide-react';
 
 interface NavigationItem {
   title: string;
@@ -127,6 +127,19 @@ const configuracionItems: NavigationItem[] = [
   },
 ];
 
+const auditoriaItems: NavigationItem[] = [
+  {
+    title: 'Logs de Auditoría',
+    href: '/audit',
+    icon: Eye,
+  },
+  {
+    title: 'Dashboard Auditoría',
+    href: '/audit/dashboard',
+    icon: AlertTriangle,
+  },
+];
+
 export function AppSidebar() {
   return (
     <Sidebar variant="inset" collapsible="icon">
@@ -188,6 +201,21 @@ export function AppSidebar() {
               Usuarios
             </div>
             {usuariosItems.map((item: NavigationItem) => (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton asChild tooltip={item.title}>
+                  <Link href={item.href} className="flex items-center gap-2">
+                    {React.createElement(item.icon, { className: "h-4 w-4" })}
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+
+            {/* Auditoría */}
+            <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              Auditoría
+            </div>
+            {auditoriaItems.map((item: NavigationItem) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild tooltip={item.title}>
                   <Link href={item.href} className="flex items-center gap-2">
