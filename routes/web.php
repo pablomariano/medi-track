@@ -17,6 +17,7 @@ use App\Http\Controllers\MedicamentoController;
 use App\Http\Controllers\AdministracionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PacienteCuidadorController;
+use App\Http\Controllers\PacienteMedicoController;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -76,6 +77,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Rutas AJAX
         Route::post('asignar', [PacienteCuidadorController::class, 'asignarDesdeView'])->name('asignar');
         Route::get('cuidadores-disponibles/{paciente}', [PacienteCuidadorController::class, 'cuidadoresDisponibles'])->name('cuidadores-disponibles');
+    });
+
+    // === SISTEMA DE ASIGNACIÓN DE MÉDICOS - Admin, Médicos ===
+    Route::middleware('permission:personal-medico.index')->prefix('asignaciones-medicos')->name('asignaciones-medicos.')->group(function () {
+        Route::get('/', [PacienteMedicoController::class, 'index'])->name('index');
+        Route::get('historial', [PacienteMedicoController::class, 'historial'])->name('historial');
+        Route::get('create', [PacienteMedicoController::class, 'create'])->name('create');
+        Route::post('/', [PacienteMedicoController::class, 'store'])->name('store');
+        Route::get('{paciente}/{medico}', [PacienteMedicoController::class, 'show'])->name('show');
+        Route::delete('{paciente}/{medico}', [PacienteMedicoController::class, 'destroy'])->name('destroy');
+        
+        // Rutas AJAX específicas para médicos
+        Route::post('asignar', [PacienteMedicoController::class, 'asignarDesdeView'])->name('asignar');
+        Route::get('medicos-disponibles/{paciente}', [PacienteMedicoController::class, 'medicosDisponibles'])->name('medicos-disponibles');
+        Route::patch('{paciente}/cambiar-medico-principal', [PacienteMedicoController::class, 'cambiarMedicoPrincipal'])->name('cambiar-medico-principal');
     });
 
     // === SISTEMA DE USUARIOS - Solo Admin ===

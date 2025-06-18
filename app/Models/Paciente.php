@@ -103,6 +103,47 @@ class Paciente extends Model
         )->withPivot('relacion', 'fecha_asignacion');
     }
 
+    // Relación con médicos asignados
+    public function medicos()
+    {
+        return $this->belongsToMany(
+            PersonalMedico::class,
+            'paciente_medicos',
+            'paciente_id',
+            'medico_usuario_id',
+            'id',
+            'usuario_id'
+        )->withPivot('es_medico_principal', 'fecha_asignacion', 'fecha_fin', 'especialidad_tratamiento');
+    }
+
+    // Relación con médicos vigentes (sin fecha fin o fecha fin futura)
+    public function medicosVigentes()
+    {
+        return $this->medicos()
+            ->where(function($query) {
+                $query->whereNull('paciente_medicos.fecha_fin')
+                      ->orWhere('paciente_medicos.fecha_fin', '>', now());
+            });
+    }
+
+    // Relación con médico principal
+    public function medicoPrincipal()
+    {
+        return $this->medicos()
+            ->wherePivot('es_medico_principal', true)
+            ->where(function($query) {
+                $query->whereNull('paciente_medicos.fecha_fin')
+                      ->orWhere('paciente_medicos.fecha_fin', '>', now());
+            })
+            ->first();
+    }
+
+    // Relación directa con asignaciones de médicos
+    public function asignacionesMedicos()
+    {
+        return $this->hasMany(PacienteMedico::class, 'paciente_id');
+    }
+
     // Método para calcular la edad
     public function getEdadAttribute()
     {

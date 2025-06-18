@@ -26,6 +26,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'permission' => \App\Http\Middleware\CheckPermission::class,
             'role' => \App\Http\Middleware\CheckRole::class,
+            'assignment' => \App\Http\Middleware\CheckAssignment::class,
+            'temp-permission' => \App\Http\Middleware\CheckTemporaryPermission::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
