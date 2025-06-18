@@ -22,6 +22,36 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Registrar observer de auditoría para modelos críticos
+        $this->registerAuditObservers();
+    }
+
+    /**
+     * Registrar observers de auditoría para modelos críticos
+     */
+    private function registerAuditObservers(): void
+    {
+        $modelosAuditables = [
+            \App\Models\User::class,
+            \App\Models\Paciente::class,
+            \App\Models\PersonalMedico::class,
+            \App\Models\Cuidador::class,
+            \App\Models\Apoderado::class,
+            \App\Models\Tratamiento::class,
+            \App\Models\Medicamento::class,
+            \App\Models\MedicamentoTratamiento::class,
+            \App\Models\PacienteMedico::class,
+            \App\Models\PacienteCuidador::class,
+            \App\Models\Role::class,
+            \App\Models\Permiso::class,
+            \App\Models\PermisoTemporal::class,
+            \App\Models\Administracion::class,
+        ];
+
+        foreach ($modelosAuditables as $modelo) {
+            if (class_exists($modelo)) {
+                $modelo::observe(\App\Observers\AuditableObserver::class);
+            }
+        }
     }
 }

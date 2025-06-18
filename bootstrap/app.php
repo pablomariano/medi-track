@@ -20,14 +20,16 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleAppearance::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
+            \App\Http\Middleware\AuditLogger::class,
         ]);
 
-        // Registrar middlewares de autorización
+        // Registrar middlewares de autorización y auditoría
         $middleware->alias([
             'permission' => \App\Http\Middleware\CheckPermission::class,
             'role' => \App\Http\Middleware\CheckRole::class,
             'assignment' => \App\Http\Middleware\CheckAssignment::class,
             'temp-permission' => \App\Http\Middleware\CheckTemporaryPermission::class,
+            'audit' => \App\Http\Middleware\AuditLogger::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

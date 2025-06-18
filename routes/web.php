@@ -144,6 +144,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('{administracion}/omitir', [App\Http\Controllers\CronogramaController::class, 'omitir'])->name('omitir');
         Route::post('prn', [App\Http\Controllers\CronogramaController::class, 'registrarPrn'])->name('prn');
     });
+
+    // === SISTEMA DE AUDITORÍA - Solo Administradores ===
+    Route::middleware('role:admin')->prefix('audit')->name('audit.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\AuditController::class, 'index'])->name('index');
+        Route::get('dashboard', [\App\Http\Controllers\AuditController::class, 'dashboard'])->name('dashboard');
+        Route::get('{auditLog}', [\App\Http\Controllers\AuditController::class, 'show'])->name('show');
+        Route::post('export-compliance', [\App\Http\Controllers\AuditController::class, 'exportCompliance'])->name('export-compliance');
+        Route::get('user/{userId}/activity', [\App\Http\Controllers\AuditController::class, 'userActivity'])->name('user-activity');
+        Route::delete('clean-old-logs', [\App\Http\Controllers\AuditController::class, 'cleanOldLogs'])->name('clean-old-logs');
+        Route::get('live-stats', [\App\Http\Controllers\AuditController::class, 'liveStats'])->name('live-stats');
+        Route::post('search', [\App\Http\Controllers\AuditController::class, 'search'])->name('search');
+    });
   });
 
 require __DIR__.'/settings.php';
