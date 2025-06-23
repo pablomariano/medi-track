@@ -17,7 +17,7 @@ return new class extends Migration
             
             // Tiempos
             $table->timestamp('fecha_hora_programada')->nullable()->comment('NULL para PRN');
-            $table->timestamp('fecha_hora_administrada');
+            $table->timestamp('fecha_hora_administrada')->nullable();
             
             // Datos de administración
             $table->decimal('dosis_administrada', 10, 3);
