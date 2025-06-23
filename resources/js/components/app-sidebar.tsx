@@ -120,11 +120,11 @@ const configuracionItems: NavigationItem[] = [
     href: '/medicines',
     icon: Pill,
   },
-  {
-    title: 'Settings',
-    href: '/settings',
-    icon: Settings,
-  },
+  // {
+  //   title: 'Settings',
+  //   href: '/settings',
+  //   icon: Settings,
+  // },
 ];
 
 const auditoriaItems: NavigationItem[] = [

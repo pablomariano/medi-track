@@ -109,7 +109,7 @@ export default function MedicamentoForm({
                     </div>
                 ) : (
                     medicamentosSeleccionados.map((medicamento, index) => (
-                        <Card key={index} className="border-l-4 border-l-blue-500">
+                        <Card key={index}>
                             <CardHeader className="pb-3">
                                 <div className="flex items-center justify-between">
                                     <h4 className="font-medium">Medicamento #{index + 1}</h4>
