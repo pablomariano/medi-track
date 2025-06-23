@@ -27,10 +27,8 @@ class PacienteCuidador extends Model
     ];
 
     public $timestamps = false;
-
-    // Clave primaria compuesta
-    protected $primaryKey = ['paciente_id', 'cuidador_usuario_id'];
     public $incrementing = false;
+    protected $primaryKey = null;
 
     // Relación con el paciente
     public function paciente()
@@ -90,5 +88,25 @@ class PacienteCuidador extends Model
             'fecha_fin' => $fecha_fin ?: now(),
             'activo' => false
         ]);
+    }
+
+    /**
+     * Buscar una asignación específica por paciente y cuidador
+     */
+    public static function findByKeys($paciente_id, $cuidador_usuario_id)
+    {
+        return static::where('paciente_id', $paciente_id)
+                     ->where('cuidador_usuario_id', $cuidador_usuario_id)
+                     ->first();
+    }
+
+    /**
+     * Actualizar una asignación específica
+     */
+    public function updateByKeys($data)
+    {
+        return $this->where('paciente_id', $this->paciente_id)
+                    ->where('cuidador_usuario_id', $this->cuidador_usuario_id)
+                    ->update($data);
     }
 } 
