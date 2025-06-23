@@ -247,12 +247,12 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Profile">
+            {/* <SidebarMenuButton asChild tooltip="Profile">
               <Link href="/profile" className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 <span>Profile</span>
               </Link>
-            </SidebarMenuButton>
+            </SidebarMenuButton> */}
           </SidebarMenuItem>
         </SidebarMenu>
         <NavUser />

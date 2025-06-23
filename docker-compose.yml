@@ -34,6 +34,24 @@ services:
         environment:
             ADMINER_DEFAULT_SERVER: 'mysql'
             ADMINER_DESIGN: 'hydra'
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin:latest
+        ports:
+            - '${FORWARD_PHPMYADMIN_PORT:-8081}:80'
+        networks:
+            - sail
+        depends_on:
+            - mysql
+        environment:
+            PMA_HOST: mysql
+            PMA_PORT: 3306
+            PMA_USER: '${DB_USERNAME}'
+            PMA_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+            UPLOADS: 1
+            MEMORY_LIMIT: 512M
+        volumes:
+            - 'sail-phpmyadmin:/var/www/html/upload'
     mysql:
         image: 'mysql/mysql-server:8.0'
         ports:
@@ -63,4 +81,6 @@ networks:
         driver: bridge
 volumes:
     sail-mysql:
+        driver: local
+    sail-phpmyadmin:
         driver: local
