@@ -17,13 +17,8 @@ class MedicamentoTratamiento extends Model
         'dosis_cantidad',
         'unidad_dosis',
         'frecuencia_horas',
-        'es_prn',
         'tolerancia_antes_minutos',
         'tolerancia_despues_minutos',
-        'intervalo_minimo_horas',
-        'dosis_maxima_dia',
-        'dosis_maxima_semana',
-        'dosis_maxima_consecutiva',
         'duracion_dias',
         'instrucciones_especiales',
         'estado',
@@ -35,13 +30,8 @@ class MedicamentoTratamiento extends Model
     protected $casts = [
         'dosis_cantidad' => 'decimal:3',
         'frecuencia_horas' => 'integer',
-        'es_prn' => 'boolean',
         'tolerancia_antes_minutos' => 'integer',
         'tolerancia_despues_minutos' => 'integer',
-        'intervalo_minimo_horas' => 'integer',
-        'dosis_maxima_dia' => 'integer',
-        'dosis_maxima_semana' => 'integer',
-        'dosis_maxima_consecutiva' => 'integer',
         'duracion_dias' => 'integer',
         'activo' => 'boolean',
         'orden' => 'integer'
@@ -71,31 +61,17 @@ class MedicamentoTratamiento extends Model
         return $this->hasMany(Administracion::class);
     }
 
-    // Relación con indicaciones PRN
-    public function indicacionesPrn()
-    {
-        return $this->hasMany(IndicacionPrn::class);
-    }
-
     // Scope para medicamentos activos
     public function scopeActivos($query)
     {
         return $query->where('estado', 'Activo');
     }
 
-    // Scope para medicamentos de tratamientos programados
+    // Scope para medicamentos de tratamientos programados (único tipo)
     public function scopeProgramados($query)
     {
         return $query->whereHas('tratamiento', function($q) {
             $q->where('tipo', 'Programado');
-        });
-    }
-
-    // Scope para medicamentos de tratamientos PRN
-    public function scopePrn($query)
-    {
-        return $query->whereHas('tratamiento', function($q) {
-            $q->where('tipo', 'PRN');
         });
     }
 } 

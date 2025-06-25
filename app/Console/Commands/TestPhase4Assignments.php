@@ -9,7 +9,6 @@ use App\Models\PersonalMedico;
 use App\Models\Cuidador;
 use App\Models\PacienteMedico;
 use App\Models\PacienteCuidador;
-use App\Models\PermisoTemporal;
 use Carbon\Carbon;
 
 class TestPhase4Assignments extends Command
@@ -19,44 +18,20 @@ class TestPhase4Assignments extends Command
 
     public function handle()
     {
-        $this->info('🚀 INICIANDO PRUEBAS DE FASE 4: SISTEMA DE ASIGNACIONES ESPECÍFICAS');
-        $this->info('==================================================================');
+        $this->info('🚀 INICIANDO PRUEBAS FASE 4: ASIGNACIONES Y PERMISOS');
+        $this->info('================================================');
+        $this->newLine();
 
-        $tests = [
-            'testModels' => 'Modelos y relaciones',
-            'testMedicoAssignments' => 'Asignaciones médico-paciente',
-            'testCuidadorAssignments' => 'Asignaciones cuidador-paciente',
-            'testTemporaryPermissions' => 'Permisos temporales',
-            'testAssignmentMiddleware' => 'Middleware de asignaciones',
-            'testDashboardData' => 'Datos específicos por rol'
+        $results = [
+            'Modelos y Relaciones' => $this->testModels(),
+            'Asignaciones Médico-Paciente' => $this->testMedicoAssignments(),
+            'Asignaciones Cuidador-Paciente' => $this->testCuidadorAssignments(),
+            'Middleware de Asignaciones' => $this->testAssignmentMiddleware(),
+            'Datos Específicos por Rol' => $this->testDashboardData(),
         ];
 
-        $results = [];
-
-        foreach ($tests as $method => $description) {
-            $this->newLine();
-            $this->info("🔍 Probando: {$description}");
-            $this->line('-----------------------------------');
-            
-            try {
-                $result = $this->$method();
-                $results[$method] = $result;
-                
-                if ($result['success']) {
-                    $this->info("✅ {$description}: ÉXITO");
-                } else {
-                    $this->error("❌ {$description}: FALLÓ");
-                    $this->error("   Razón: {$result['message']}");
-                }
-            } catch (\Exception $e) {
-                $results[$method] = ['success' => false, 'message' => $e->getMessage()];
-                $this->error("❌ {$description}: ERROR");
-                $this->error("   Excepción: {$e->getMessage()}");
-            }
-        }
-
         $this->showSummary($results);
-        
+
         return $this->getExitCode($results);
     }
 
@@ -166,51 +141,6 @@ class TestPhase4Assignments extends Command
         }
 
         return ['success' => true, 'message' => 'Asignaciones cuidador-paciente funcionando correctamente'];
-    }
-
-    private function testTemporaryPermissions()
-    {
-        $this->comment('Verificando sistema de permisos temporales...');
-
-        // Verificar tabla existe
-        try {
-            $totalPermisos = PermisoTemporal::count();
-            $permisosVigentes = PermisoTemporal::vigentes()->count();
-            $permisosExpirados = PermisoTemporal::expirados()->count();
-
-            $this->line("  - Total permisos temporales: {$totalPermisos}");
-            $this->line("  - Permisos vigentes: {$permisosVigentes}");
-            $this->line("  - Permisos expirados: {$permisosExpirados}");
-
-            // Crear un permiso temporal de prueba
-            $usuario = User::where('rol_id', 3)->first(); // Cuidador
-            $admin = User::where('rol_id', 1)->first(); // Admin para otorgar el permiso
-            
-            if ($usuario && $admin) {
-                // Simular que el admin está autenticado
-                auth()->login($admin);
-                
-                $permiso = PermisoTemporal::otorgar([
-                    'usuario_id' => $usuario->id,
-                    'permiso' => 'pacientes.edit',
-                    'motivo' => 'Prueba del sistema - Fase 4',
-                    'fecha_inicio' => Carbon::now(),
-                    'fecha_fin' => Carbon::now()->addHours(24),
-                    'notas_adicionales' => 'Permiso temporal de prueba para testing'
-                ]);
-
-                $this->line("  ✓ Permiso temporal creado exitosamente (ID: {$permiso->id})");
-                
-                // Verificar el permiso
-                $tienePermiso = PermisoTemporal::usuarioTienePermiso($usuario->id, 'pacientes.edit');
-                $this->line("    • Usuario tiene permiso: " . ($tienePermiso ? 'Sí' : 'No'));
-            }
-
-        } catch (\Exception $e) {
-            return ['success' => false, 'message' => "Error con tabla permisos_temporales: {$e->getMessage()}"];
-        }
-
-        return ['success' => true, 'message' => 'Sistema de permisos temporales funcionando correctamente'];
     }
 
     private function testAssignmentMiddleware()

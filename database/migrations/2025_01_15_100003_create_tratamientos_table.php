@@ -13,7 +13,7 @@ return new class extends Migration
             $table->unsignedBigInteger('paciente_id');
             $table->string('nombre', 255);
             $table->text('diagnostico')->nullable();
-            $table->enum('tipo', ['Programado', 'PRN'])->default('Programado');
+            $table->enum('tipo', ['Programado'])->default('Programado');
             $table->enum('estado', ['Activo', 'Pausado', 'Completado', 'Suspendido'])->default('Activo');
             $table->date('fecha_inicio');
             $table->date('fecha_fin')->nullable();

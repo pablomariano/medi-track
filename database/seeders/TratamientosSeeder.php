@@ -23,11 +23,11 @@ class TratamientosSeeder extends Seeder
         }
 
         $tratamientos = [
-            // Tratamientos PROGRAMADOS
+            // Tratamientos PROGRAMADOS únicamente
             [
                 'paciente_id' => $pacientes->first()->id,
                 'medico_usuario_id' => $medicos->first()->usuario_id,
-                'nombre' => 'Control de Hipertensión',
+                'nombre' => 'Control Hipertensión',
                 'diagnostico' => 'Hipertensión arterial esencial',
                 'tipo' => 'Programado',
                 'estado' => 'Activo',
@@ -38,7 +38,7 @@ class TratamientosSeeder extends Seeder
             [
                 'paciente_id' => $pacientes->first()->id,
                 'medico_usuario_id' => $medicos->first()->usuario_id,
-                'nombre' => 'Control de Diabetes',
+                'nombre' => 'Control Diabetes',
                 'diagnostico' => 'Diabetes mellitus tipo 2',
                 'tipo' => 'Programado',
                 'estado' => 'Activo',
@@ -68,75 +68,27 @@ class TratamientosSeeder extends Seeder
                 'fecha_fin_estimada' => now()->addMonths(2)->format('Y-m-d'),
                 'observaciones' => 'Inhibidor de bomba de protones para protección gástrica.'
             ],
-            
-            // Tratamientos PRN
-            [
-                'paciente_id' => $pacientes->first()->id,
-                'medico_usuario_id' => $medicos->first()->usuario_id,
-                'nombre' => 'Manejo de Dolor PRN',
-                'diagnostico' => 'Dolor crónico musculoesquelético',
-                'tipo' => 'PRN',
-                'estado' => 'Activo',
-                'fecha_inicio' => now()->format('Y-m-d'),
-                'fecha_fin_estimada' => now()->addMonths(1)->format('Y-m-d'),
-                'observaciones' => 'Analgésicos PRN para episodios de dolor. Evaluar efectividad.'
-            ],
-            [
-                'paciente_id' => $pacientes->first()->id,
-                'medico_usuario_id' => $medicos->first()->usuario_id,
-                'nombre' => 'Control de Fiebre PRN',
-                'diagnostico' => 'Síndrome febril',
-                'tipo' => 'PRN',
-                'estado' => 'Activo',
-                'fecha_inicio' => now()->format('Y-m-d'),
-                'fecha_fin_estimada' => now()->addDays(14)->format('Y-m-d'),
-                'observaciones' => 'Antipiréticos PRN para fiebre >38°C.'
-            ],
-            [
-                'paciente_id' => $pacientes->skip(1)->first()->id ?? $pacientes->first()->id,
-                'medico_usuario_id' => $medicos->count() > 1 ? $medicos->skip(1)->first()->usuario_id : $medicos->first()->usuario_id,
-                'nombre' => 'Manejo de Náuseas PRN',
-                'diagnostico' => 'Náuseas post-quimioterapia',
-                'tipo' => 'PRN',
-                'estado' => 'Activo',
-                'fecha_inicio' => now()->format('Y-m-d'),
-                'fecha_fin_estimada' => now()->addDays(21)->format('Y-m-d'),
-                'observaciones' => 'Antieméticos PRN para episodios de náuseas.'
-            ],
             [
                 'paciente_id' => $pacientes->skip(2)->first()->id ?? $pacientes->first()->id,
                 'medico_usuario_id' => $medicos->first()->usuario_id,
-                'nombre' => 'Crisis de Ansiedad PRN',
+                'nombre' => 'Control de Ansiedad',
                 'diagnostico' => 'Trastorno de ansiedad generalizada',
-                'tipo' => 'PRN',
+                'tipo' => 'Programado',
                 'estado' => 'Activo',
                 'fecha_inicio' => now()->format('Y-m-d'),
                 'fecha_fin_estimada' => now()->addMonths(1)->format('Y-m-d'),
-                'observaciones' => 'Ansiolítico PRN para crisis. Máximo 2 dosis/día.'
+                'observaciones' => 'Tratamiento ansiolítico programado. Seguimiento semanal.'
             ],
             [
                 'paciente_id' => $pacientes->skip(2)->first()->id ?? $pacientes->first()->id,
                 'medico_usuario_id' => $medicos->first()->usuario_id,
-                'nombre' => 'Insomnio PRN',
-                'diagnostico' => 'Trastorno del sueño',
-                'tipo' => 'PRN',
-                'estado' => 'Activo',
-                'fecha_inicio' => now()->format('Y-m-d'),
-                'fecha_fin_estimada' => now()->addDays(14)->format('Y-m-d'),
-                'observaciones' => 'Hipnótico PRN para insomnio. Uso ocasional.'
-            ],
-            
-            // Tratamiento PRN de emergencia
-            [
-                'paciente_id' => $pacientes->skip(1)->first()->id ?? $pacientes->first()->id,
-                'medico_usuario_id' => $medicos->first()->usuario_id,
-                'nombre' => 'Crisis Asmática PRN',
-                'diagnostico' => 'Asma bronquial',
-                'tipo' => 'PRN',
+                'nombre' => 'Suplementación Vitamínica',
+                'diagnostico' => 'Deficiencia de vitaminas del complejo B',
+                'tipo' => 'Programado',
                 'estado' => 'Activo',
                 'fecha_inicio' => now()->format('Y-m-d'),
                 'fecha_fin_estimada' => now()->addMonths(3)->format('Y-m-d'),
-                'observaciones' => 'Broncodilatador PRN para crisis asmáticas.'
+                'observaciones' => 'Suplemento vitamínico diario con las comidas.'
             ]
         ];
 

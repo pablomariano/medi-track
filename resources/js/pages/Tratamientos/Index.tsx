@@ -92,54 +92,54 @@ export default function Index({ tratamientos }: Props) {
                 </div>
 
                 {/* Estadísticas */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Total</CardTitle>
-                            <Heart className="h-4 w-4 text-muted-foreground" />
+                            <div className="h-4 w-4 bg-blue-100 rounded"></div>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">{tratamientos.total}</div>
-                            <p className="text-xs text-muted-foreground">tratamientos</p>
+                            <div className="text-2xl font-bold">{tratamientos.data.length}</div>
+                            <p className="text-xs text-muted-foreground">tratamientos registrados</p>
                         </CardContent>
                     </Card>
 
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Activos</CardTitle>
-                            <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                            <div className="h-4 w-4 bg-green-100 rounded"></div>
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
                                 {tratamientos.data.filter(t => t.estado === 'Activo').length}
                             </div>
-                            <p className="text-xs text-muted-foreground">en curso</p>
+                            <p className="text-xs text-muted-foreground">en tratamiento</p>
                         </CardContent>
                     </Card>
 
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                             <CardTitle className="text-sm font-medium">Programados</CardTitle>
-                            <Clock className="h-4 w-4 text-blue-500" />
+                            <div className="h-4 w-4 bg-purple-100 rounded"></div>
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
                                 {tratamientos.data.filter(t => t.tipo === 'Programado').length}
                             </div>
-                            <p className="text-xs text-muted-foreground">con horarios</p>
+                            <p className="text-xs text-muted-foreground">con horarios fijos</p>
                         </CardContent>
                     </Card>
 
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">PRN</CardTitle>
-                            <div className="h-4 w-4 bg-orange-100 rounded"></div>
+                            <CardTitle className="text-sm font-medium">Completados</CardTitle>
+                            <div className="h-4 w-4 bg-gray-100 rounded"></div>
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
-                                {tratamientos.data.filter(t => t.tipo === 'PRN').length}
+                                {tratamientos.data.filter(t => t.estado === 'Completado').length}
                             </div>
-                            <p className="text-xs text-muted-foreground">según necesidad</p>
+                            <p className="text-xs text-muted-foreground">finalizados</p>
                         </CardContent>
                     </Card>
                 </div>

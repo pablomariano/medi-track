@@ -26,45 +26,28 @@ interface Paciente {
 }
 
 interface Medico {
-    id: number;
-    name: string;
-    email: string;
+    usuario_id: number;
+    nombre: string;
+    numero_licencia: string;
 }
 
 interface Medicamento {
     id: number;
     nombre: string;
-    principio_activo?: string;
-    forma_farmaceutica?: string;
-    concentracion?: string;
-    unidad_concentracion?: string;
-    pivot?: {
+    concentracion: string;
+    unidad_concentracion: string;
+    forma_farmaceutica: string;
+    pivot: {
+        id: number;
         dosis_cantidad: number;
         unidad_dosis: string;
-        frecuencia_horas?: number;
+        frecuencia_horas: number;
         tolerancia_antes_minutos?: number;
         tolerancia_despues_minutos?: number;
-        intervalo_minimo_horas?: number;
-        dosis_maxima_dia?: number;
-        dosis_maxima_consecutiva?: number;
         instrucciones_especiales?: string;
-        orden?: number;
-        estado?: string;
+        estado: string;
+        orden: number;
     };
-}
-
-interface SintomaPrn {
-    id: number;
-    nombre: string;
-    categoria: string;
-    descripcion: string;
-}
-
-interface IndicacionPrn {
-    id: number;
-    sintoma: SintomaPrn;
-    descripcion_personalizada: string;
-    es_criterio_principal: boolean;
 }
 
 interface HorarioProgramado {
@@ -72,17 +55,17 @@ interface HorarioProgramado {
     hora_programada: string;
     dias_semana: string;
     fecha_inicio: string;
-    fecha_fin: string;
+    fecha_fin?: string;
     activo: boolean;
 }
 
 interface Administracion {
     id: number;
     fecha_hora_programada: string;
-    fecha_hora_administrada: string;
-    dosis_administrada: number;
+    fecha_hora_administrada?: string;
     estado: string;
-    observaciones: string;
+    dosis_administrada?: number;
+    observaciones?: string;
 }
 
 interface TratamientoData {
@@ -92,7 +75,7 @@ interface TratamientoData {
     nombre: string;
     objetivo?: string;
     diagnostico?: string;
-    tipo: 'Programado' | 'PRN';
+    tipo: 'Programado';
     estado: string;
     fecha_inicio: string;
     fecha_fin?: string;
@@ -100,7 +83,6 @@ interface TratamientoData {
     paciente: Paciente;
     medico: Medico;
     medicamentos: Medicamento[];
-    indicaciones_prn?: IndicacionPrn[];
     horarios_programados?: HorarioProgramado[];
     administraciones_recientes?: Administracion[];
     created_at: string;
@@ -218,10 +200,10 @@ export default function ShowTratamiento({ tratamiento }: Props) {
                                 <div>
                                     <p className="text-sm font-medium">Médico Responsable</p>
                                     <p className="text-sm text-gray-600">
-                                        {tratamiento.medico.name}
+                                        {tratamiento.medico.nombre}
                                     </p>
                                     <p className="text-xs text-gray-500">
-                                        {tratamiento.medico.email}
+                                        Licencia: {tratamiento.medico.numero_licencia}
                                     </p>
                                 </div>
                             </div>
@@ -279,12 +261,6 @@ export default function ShowTratamiento({ tratamiento }: Props) {
                                         <div className="flex justify-between items-start mb-2">
                                             <div>
                                                 <h4 className="font-medium">{medicamento.nombre}</h4>
-                                                {medicamento.principio_activo && (
-                                                    <p className="text-sm text-gray-600">
-                                                        {medicamento.principio_activo}
-                                                        {medicamento.forma_farmaceutica && ` - ${medicamento.forma_farmaceutica}`}
-                                                    </p>
-                                                )}
                                                 {medicamento.concentracion && (
                                                     <p className="text-xs text-gray-500">
                                                         {medicamento.concentracion} {medicamento.unidad_concentracion}
@@ -305,35 +281,30 @@ export default function ShowTratamiento({ tratamiento }: Props) {
                                                     </span>
                                                 </div>
 
-                                                {tratamiento.tipo === 'Programado' && medicamento.pivot.frecuencia_horas && (
+                                                <div className="space-y-2 text-sm">
                                                     <div>
                                                         <span className="font-medium">Frecuencia:</span>
                                                         <span className="ml-1">
                                                             Cada {medicamento.pivot.frecuencia_horas} horas
                                                         </span>
                                                     </div>
-                                                )}
-
-                                                {tratamiento.tipo === 'PRN' && (
-                                                    <>
-                                                        {medicamento.pivot.intervalo_minimo_horas && (
-                                                            <div>
-                                                                <span className="font-medium">Intervalo mínimo:</span>
-                                                                <span className="ml-1">
-                                                                    {medicamento.pivot.intervalo_minimo_horas} horas
-                                                                </span>
-                                                            </div>
-                                                        )}
-                                                        {medicamento.pivot.dosis_maxima_dia && (
-                                                            <div>
-                                                                <span className="font-medium">Dosis máxima/día:</span>
-                                                                <span className="ml-1">
-                                                                    {medicamento.pivot.dosis_maxima_dia} {medicamento.pivot.unidad_dosis}
-                                                                </span>
-                                                            </div>
-                                                        )}
-                                                    </>
-                                                )}
+                                                    {medicamento.pivot.tolerancia_antes_minutos && (
+                                                        <div>
+                                                            <span className="font-medium">Ventana antes:</span>
+                                                            <span className="ml-1">
+                                                                {medicamento.pivot.tolerancia_antes_minutos} minutos
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                    {medicamento.pivot.tolerancia_despues_minutos && (
+                                                        <div>
+                                                            <span className="font-medium">Ventana después:</span>
+                                                            <span className="ml-1">
+                                                                {medicamento.pivot.tolerancia_despues_minutos} minutos
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </div>
 
                                                 {medicamento.pivot.estado && (
                                                     <div>
@@ -366,93 +337,50 @@ export default function ShowTratamiento({ tratamiento }: Props) {
                     </CardContent>
                 </Card>
 
-                {/* Indicaciones PRN (solo para tratamientos PRN) */}
-                {tratamiento.tipo === 'PRN' && (
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center space-x-2">
-                                <AlertCircle className="h-5 w-5" />
-                                <span>Indicaciones PRN</span>
-                            </CardTitle>
-                            <CardDescription>
-                                Síntomas e indicaciones para administración según necesidad
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {tratamiento.indicaciones_prn && tratamiento.indicaciones_prn.length > 0 ? (
-                                <div className="space-y-3">
-                                    {tratamiento.indicaciones_prn.map((indicacion) => (
-                                        <div key={indicacion.id} className="border rounded-lg p-3">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <h4 className="font-medium">{indicacion.sintoma.nombre}</h4>
-                                                {indicacion.es_criterio_principal && (
-                                                    <Badge variant="default">Principal</Badge>
-                                                )}
-                                            </div>
-                                            <p className="text-sm text-gray-600">
-                                                Categoría: {indicacion.sintoma.categoria}
-                                            </p>
-                                            {indicacion.descripcion_personalizada && (
-                                                <p className="text-sm text-gray-700 mt-2 bg-orange-50 border border-orange-100 p-2 rounded">
-                                                    {indicacion.descripcion_personalizada}
-                                                </p>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="text-center py-8 text-gray-500">
-                                    <AlertCircle className="h-12 w-12 mx-auto mb-2 text-gray-300" />
-                                    <p>No hay indicaciones PRN definidas</p>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-                )}
-
-                {/* Horarios Programados (solo para tratamientos programados) */}
-                {tratamiento.tipo === 'Programado' && (
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center space-x-2">
-                                <Clock className="h-5 w-5" />
-                                <span>Horarios Programados</span>
-                            </CardTitle>
-                            <CardDescription>
-                                Horarios establecidos para la administración de medicamentos
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {tratamiento.horarios_programados && tratamiento.horarios_programados.length > 0 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                    {tratamiento.horarios_programados.map((horario) => (
-                                        <div key={horario.id} className="border rounded-lg p-3">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <span className="font-medium text-lg">
+                {/* Horarios Programados */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center space-x-2">
+                            <Clock className="h-5 w-5" />
+                            <span>Horarios Programados</span>
+                        </CardTitle>
+                        <CardDescription>
+                            Horarios automáticos generados para este tratamiento
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {tratamiento.horarios_programados && tratamiento.horarios_programados.length > 0 ? (
+                            <div className="space-y-3">
+                                {tratamiento.horarios_programados.map((horario) => (
+                                    <div key={horario.id} className="border rounded-lg p-3">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <p className="font-medium">
                                                     {horario.hora_programada}
-                                                </span>
-                                                <Badge variant={horario.activo ? 'default' : 'secondary'}>
-                                                    {horario.activo ? 'Activo' : 'Inactivo'}
-                                                </Badge>
+                                                </p>
+                                                <p className="text-sm text-gray-600">
+                                                    {horario.dias_semana}
+                                                </p>
                                             </div>
-                                            <p className="text-sm text-gray-600">
-                                                Días: {horario.dias_semana}
-                                            </p>
-                                            <p className="text-xs text-gray-500 mt-1">
-                                                {formatDate(horario.fecha_inicio)} - {formatDate(horario.fecha_fin)}
-                                            </p>
+                                            <Badge variant={horario.activo ? "default" : "secondary"}>
+                                                {horario.activo ? "Activo" : "Inactivo"}
+                                            </Badge>
                                         </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="text-center py-8 text-gray-500">
-                                    <Clock className="h-12 w-12 mx-auto mb-2 text-gray-300" />
-                                    <p>No hay horarios programados</p>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-                )}
+                                        <div className="mt-2 text-sm text-gray-500">
+                                            <p>Desde: {horario.fecha_inicio}</p>
+                                            {horario.fecha_fin && <p>Hasta: {horario.fecha_fin}</p>}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-8 text-gray-500">
+                                <Clock className="h-12 w-12 mx-auto mb-2 text-gray-300" />
+                                <p>No hay horarios programados</p>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
 
                 {/* Administraciones Recientes */}
                 <Card>
@@ -472,7 +400,7 @@ export default function ShowTratamiento({ tratamiento }: Props) {
                                     <div key={admin.id} className="border rounded-lg p-3">
                                         <div className="flex items-center justify-between mb-2">
                                             <span className="font-medium">
-                                                {formatDateTime(admin.fecha_hora_administrada)}
+                                                {formatDateTime(admin.fecha_hora_administrada || '')}
                                             </span>
                                             <Badge variant={
                                                 admin.estado === 'Administrada' ? 'default' : 

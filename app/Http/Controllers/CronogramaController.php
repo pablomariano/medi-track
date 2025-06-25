@@ -97,45 +97,6 @@ class CronogramaController extends Controller
     }
 
     /**
-     * Registrar medicamento PRN
-     */
-    public function registrarPrn(Request $request)
-    {
-        $request->validate([
-            'tratamiento_id' => 'required|exists:tratamientos,id',
-            'medicamento_id' => 'required|exists:medicamentos,id',
-            'dosis_administrada' => 'required|numeric|min:0.1',
-            'motivo' => 'required|string|max:255',
-            'intensidad_sintoma' => 'nullable|string|max:50',
-            'observaciones' => 'nullable|string|max:500'
-        ]);
-
-        // Verificar restricciones PRN (intervalo mínimo, dosis máxima)
-        $puedeAdministrar = $this->verificarRestriccionesPrn(
-            $request->tratamiento_id,
-            $request->medicamento_id
-        );
-
-        if (!$puedeAdministrar['permitido']) {
-            return back()->with('error', $puedeAdministrar['motivo']);
-        }
-
-        Administracion::create([
-            'tratamiento_id' => $request->tratamiento_id,
-            'medicamento_id' => $request->medicamento_id,
-            'fecha_hora_administrada' => now(),
-            'dosis_administrada' => $request->dosis_administrada,
-            'estado' => Administracion::ESTADO_ADMINISTRADO,
-            'criterio_cumplido' => $request->motivo,
-            'intensidad_sintoma' => $request->intensidad_sintoma,
-            'observaciones' => $request->observaciones,
-            'administrado_por_usuario_id' => auth()->id()
-        ]);
-
-        return back()->with('success', 'Medicamento PRN registrado exitosamente.');
-    }
-
-    /**
      * Resumen semanal de cumplimiento
      */
     public function resumenSemanal(Request $request)
@@ -166,55 +127,6 @@ class CronogramaController extends Controller
             ->orderBy('fecha', 'desc')
             ->limit(30)
             ->pluck('fecha');
-    }
-
-    private function verificarRestriccionesPrn($tratamientoId, $medicamentoId)
-    {
-        // Obtener configuración PRN del medicamento
-        $configuracion = \DB::table('medicamentos_tratamientos')
-            ->where('tratamiento_id', $tratamientoId)
-            ->where('medicamento_id', $medicamentoId)
-            ->first();
-
-        if (!$configuracion) {
-            return ['permitido' => false, 'motivo' => 'Medicamento no encontrado en el tratamiento.'];
-        }
-
-        // Verificar última administración
-        $ultimaAdministracion = Administracion::where('tratamiento_id', $tratamientoId)
-            ->where('medicamento_id', $medicamentoId)
-            ->where('estado', Administracion::ESTADO_ADMINISTRADO)
-            ->latest('fecha_hora_administrada')
-            ->first();
-
-        if ($ultimaAdministracion && $configuracion->intervalo_minimo_horas) {
-            $horasTranscurridas = $ultimaAdministracion->fecha_hora_administrada->diffInHours(now());
-            if ($horasTranscurridas < $configuracion->intervalo_minimo_horas) {
-                return [
-                    'permitido' => false, 
-                    'motivo' => "Debe esperar {$configuracion->intervalo_minimo_horas} horas desde la última dosis. Faltan " . 
-                               ($configuracion->intervalo_minimo_horas - $horasTranscurridas) . " horas."
-                ];
-            }
-        }
-
-        // Verificar dosis máxima diaria
-        if ($configuracion->dosis_maxima_consecutiva) {
-            $dosisHoy = Administracion::where('tratamiento_id', $tratamientoId)
-                ->where('medicamento_id', $medicamentoId)
-                ->where('estado', Administracion::ESTADO_ADMINISTRADO)
-                ->whereDate('fecha_hora_administrada', Carbon::today())
-                ->count();
-
-            if ($dosisHoy >= $configuracion->dosis_maxima_consecutiva) {
-                return [
-                    'permitido' => false,
-                    'motivo' => "Ya se alcanzó la dosis máxima diaria de {$configuracion->dosis_maxima_consecutiva} dosis."
-                ];
-            }
-        }
-
-        return ['permitido' => true, 'motivo' => null];
     }
 
     private function calcularResumenSemanal($pacienteId, $fechaInicio)

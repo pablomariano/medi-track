@@ -1,0 +1,248 @@
+// ========================================
+// MEDI-TRACK SIMPLE - NUEVA APLICACIÓN
+// Esquema simplificado manteniendo solo funcionalidades esenciales
+// Reducción: 25+ tablas → 7 tablas core
+// ========================================
+
+// ==========================================
+// 1. SISTEMA DE USUARIOS SIMPLIFICADO
+// ==========================================
+
+Table users {
+  id int [pk, increment]
+  name varchar(100) [not null]
+  email varchar(100) [unique, not null]
+  password varchar(255) [not null]
+  phone varchar(20)
+  role enum('admin', 'medico', 'cuidador', 'paciente') [not null, default: 'paciente']
+  active boolean [default: true]
+  email_verified_at timestamp
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  Note: 'Tabla única de usuarios - sin tablas separadas por tipo'
+}
+
+// ==========================================
+// 2. GESTIÓN DE PACIENTES BÁSICA
+// ==========================================
+
+Table patients {
+  id int [pk, increment]
+  name varchar(100) [not null]
+  birth_date date [not null]
+  gender enum('M', 'F', 'O') [default: 'O']
+  document_number varchar(50)
+  document_type enum('rut', 'ci', 'passport') [default: 'rut']
+  blood_type varchar(5)
+  height decimal(5,2) [note: 'en cm']
+  weight decimal(5,2) [note: 'en kg']
+  address text
+  emergency_phone varchar(20)
+  medical_notes text
+  guardian_name varchar(100) [note: 'Nombre del apoderado/familiar']
+  guardian_phone varchar(20) [note: 'Teléfono del apoderado']
+  guardian_relation varchar(50) [note: 'Relación: padre, madre, tutor, etc.']
+  doctor_id int [ref: > users.id, note: 'Médico principal asignado']
+  caregiver_id int [ref: > users.id, note: 'Cuidador principal asignado']
+  active boolean [default: true]
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  Note: 'Un paciente = un médico + un cuidador. Apoderado como datos simples, no usuario separado'
+}
+
+// ==========================================
+// 3. CATÁLOGO DE MEDICAMENTOS SIMPLE
+// ==========================================
+
+Table medications {
+  id int [pk, increment]
+  name varchar(150) [not null]
+  generic_name varchar(150)
+  strength varchar(50) [note: 'Ej: 500mg, 250mg/5ml']
+  form enum('tablet', 'capsule', 'syrup', 'injection', 'cream', 'drops') [not null]
+  administration_route enum('oral', 'iv', 'im', 'topical', 'nasal', 'ocular') [default: 'oral']
+  general_indications text [note: 'Indicaciones generales del medicamento']
+  contraindications text [note: 'Contraindicaciones principales']
+  active boolean [default: true]
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  Note: 'Catálogo simple sin complejidad farmacológica excesiva'
+}
+
+// ==========================================
+// 4. TRATAMIENTOS UNIFICADOS Y SIMPLES
+// ==========================================
+
+Table treatments {
+  id int [pk, increment]
+  patient_id int [not null, ref: > patients.id]
+  medication_id int [not null, ref: > medications.id]
+  prescribed_by int [not null, ref: > users.id, note: 'Médico que prescribe']
+  
+  // Información del tratamiento
+  treatment_name varchar(100) [note: 'Ej: Antibiótico post-operatorio']
+  diagnosis varchar(200) [note: 'Diagnóstico o condición']
+  type enum('scheduled', 'prn') [not null, default: 'scheduled']
+  
+  // Dosificación simple
+  dose_amount decimal(8,2) [not null, note: 'Cantidad por dosis']
+  dose_unit varchar(20) [not null, note: 'mg, ml, tabletas, etc.']
+  
+  // Para tratamientos PROGRAMADOS
+  frequency_hours int [note: 'Solo programados: cada cuántas horas (8, 12, 24)']
+  
+  // Para tratamientos PRN  
+  prn_indication text [note: 'Solo PRN: cuándo administrar (fiebre >38°C, dolor >5/10)']
+  max_daily_doses int [note: 'Solo PRN: máximo de dosis por día']
+  min_interval_hours int [note: 'Solo PRN: intervalo mínimo entre dosis']
+  
+  // Fechas y estado
+  start_date date [not null]
+  end_date date
+  status enum('active', 'paused', 'completed', 'cancelled') [default: 'active']
+  instructions text [note: 'Instrucciones especiales: tomar con comida, etc.']
+  
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  Note: 'Una tabla unificada para tratamientos programados y PRN simples'
+}
+
+// ==========================================
+// 5. ADMINISTRACIONES SIMPLES
+// ==========================================
+
+Table administrations {
+  id int [pk, increment]
+  treatment_id int [not null, ref: > treatments.id]
+  
+  // Información de la administración
+  scheduled_date date [not null]
+  scheduled_time time [note: 'Solo para programados, calculado automáticamente']
+  administered_at timestamp [note: 'Cuándo se administró realmente']
+  administered_by int [ref: > users.id, note: 'Cuidador que administró']
+  
+  // Estado simple
+  status enum('pending', 'administered', 'skipped') [default: 'pending']
+  
+  // Para PRN: contexto de administración  
+  prn_symptom text [note: 'Solo PRN: síntoma reportado']
+  prn_severity int [note: 'Solo PRN: severidad 1-10']
+  
+  // Observaciones
+  notes text [note: 'Observaciones del cuidador']
+  side_effects text [note: 'Efectos adversos reportados']
+  
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  Note: 'Registro simple: se administró o no, con observaciones básicas'
+}
+
+// ==========================================
+// 6. ALERTAS BÁSICAS
+// ==========================================
+
+Table alerts {
+  id int [pk, increment]
+  patient_id int [not null, ref: > patients.id]
+  treatment_id int [ref: > treatments.id]
+  type enum('missed_dose', 'side_effect', 'treatment_ending', 'prn_overuse') [not null]
+  title varchar(150) [not null]
+  message text [not null]
+  severity enum('low', 'medium', 'high') [default: 'medium']
+  target_role enum('admin', 'medico', 'cuidador') [note: 'A quién dirigir la alerta']
+  read_at timestamp
+  resolved_at timestamp
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  Note: 'Alertas simples sin configuración compleja'
+}
+
+// ==========================================
+// 7. LOG DE AUDITORÍA BÁSICO (Solo acciones críticas)
+// ==========================================
+
+Table audit_logs {
+  id int [pk, increment]
+  user_id int [not null, ref: > users.id]
+  action varchar(50) [not null, note: 'login, create_patient, prescribe_treatment, etc.']
+  resource_type varchar(50) [note: 'patient, treatment, administration']
+  resource_id int [note: 'ID del recurso afectado']
+  description text
+  ip_address varchar(45)
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  Note: 'Solo auditoria de acciones críticas, sin complejidad excesiva'
+}
+
+// ==========================================
+// ÍNDICES PARA PERFORMANCE
+// ==========================================
+
+Table patients {
+  indexes {
+    doctor_id [name: 'idx_patients_doctor']
+    caregiver_id [name: 'idx_patients_caregiver']
+    (active, doctor_id) [name: 'idx_patients_active_doctor']
+  }
+}
+
+Table treatments {
+  indexes {
+    patient_id [name: 'idx_treatments_patient']
+    (patient_id, status) [name: 'idx_treatments_patient_status']
+    (status, end_date) [name: 'idx_treatments_active']
+  }
+}
+
+Table administrations {
+  indexes {
+    treatment_id [name: 'idx_administrations_treatment']
+    (scheduled_date, status) [name: 'idx_administrations_pending']
+    administered_by [name: 'idx_administrations_caregiver']
+  }
+}
+
+// ==========================================
+// RESUMEN DE SIMPLIFICACIONES
+// ==========================================
+
+Note: '''
+🎯 SIMPLIFICACIONES APLICADAS:
+
+1. USUARIOS:
+   ❌ Eliminado: personal_medico, cuidadores, apoderados (tablas separadas)  
+   ✅ Un campo 'role' en users es suficiente
+   ❌ Eliminado: 28 permisos específicos → permisos por rol hardcoded
+
+2. PACIENTES:
+   ❌ Eliminado: paciente_medicos, paciente_cuidadores (tablas pivot)
+   ✅ Un médico + un cuidador por paciente (foreign keys directas)
+   ❌ Eliminado: apoderados como usuarios → datos simples en paciente
+
+3. MEDICAMENTOS:
+   ❌ Eliminado: principios_activos, laboratorios, formas_farmaceuticas (tablas separadas)
+   ✅ Información esencial en una sola tabla
+
+4. TRATAMIENTOS:
+   ❌ Eliminado: medicamentos_tratamientos (tabla pivot compleja con 13+ campos)
+   ❌ Eliminado: sintomas_prn, criterios_prn, horarios_programados (tablas separadas)
+   ✅ Todo unificado en una tabla simple con campos condicionales
+
+5. ADMINISTRACIONES:
+   ❌ Eliminado: estadisticas_consumo, resumen_adherencia (pre-calculadas)
+   ❌ Eliminado: estados complejos (tardía, parcial, etc.)
+   ✅ Estados simples: pending, administered, skipped
+
+6. CONFIGURACIÓN:
+   ❌ Eliminado: ventanas de tolerancia personalizables
+   ❌ Eliminado: múltiples límites PRN (diario, semanal, consecutivo)
+   ❌ Eliminado: permisos temporales
+   ✅ Configuración mínima y hardcoded cuando sea posible
+
+RESULTADO: 25+ tablas → 7 tablas core (72% reducción)
+COMPLEJIDAD: Alta granularidad → Datos esenciales solamente
+CONFIGURACIÓN: Excesiva → Mínima necesaria
+''' 

@@ -28,7 +28,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \App\Http\Middleware\CheckPermission::class,
             'role' => \App\Http\Middleware\CheckRole::class,
             'assignment' => \App\Http\Middleware\CheckAssignment::class,
-            'temp-permission' => \App\Http\Middleware\CheckTemporaryPermission::class,
             'audit' => \App\Http\Middleware\AuditLogger::class,
         ]);
     })

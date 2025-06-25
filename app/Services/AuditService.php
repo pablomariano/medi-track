@@ -277,8 +277,7 @@ class AuditService
             'users',
             'roles',
             'permisos',
-            'rol_permisos',
-            'permisos_temporales'
+            'rol_permisos'
         ];
 
         // Tablas médicas importantes

@@ -84,6 +84,20 @@ interface Props {
     medicamentos: Medicamento[];
 }
 
+interface FormData {
+    paciente_id: number;
+    medico_usuario_id: number;
+    nombre: string;
+    objetivo?: string;
+    diagnostico?: string;
+    tipo: 'Programado';
+    estado: string;
+    fecha_inicio: string;
+    fecha_fin?: string;
+    observaciones?: string;
+    medicamentos: MedicamentoFormData[];
+}
+
 export default function EditTratamiento({ tratamiento, pacientes, medicos, medicamentos }: Props) {
     const { data, setData, patch, processing, errors } = useForm({
         paciente_id: tratamiento.paciente_id.toString(),
@@ -215,14 +229,17 @@ export default function EditTratamiento({ tratamiento, pacientes, medicos, medic
                                     <select
                                         id="tipo"
                                         value={data.tipo}
-                                        onChange={(e) => setData('tipo', e.target.value as 'Programado' | 'PRN')}
+                                        onChange={(e) => setData('tipo', e.target.value as 'Programado')}
                                         className="w-full px-3 py-2 border rounded-md"
                                         required
+                                        disabled
                                     >
                                         <option value="Programado">Programado</option>
-                                        <option value="PRN">PRN (Según necesidad)</option>
                                     </select>
                                     {errors.tipo && <p className="text-red-600 text-sm mt-1">{errors.tipo}</p>}
+                                    <p className="text-sm text-gray-500 mt-1">
+                                        Solo se permiten tratamientos programados con horarios fijos
+                                    </p>
                                 </div>
 
                                 <div>

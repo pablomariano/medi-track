@@ -12,9 +12,8 @@ class HorariosProgramadosSeeder extends Seeder
 {
     public function run(): void
     {
-        // Obtener tratamientos programados (no PRN)
-        $medicamentosTratamientos = MedicamentoTratamiento::where('es_prn', false)
-            ->where('activo', true)
+        // Obtener todos los tratamientos programados activos (ya no hay PRN)
+        $medicamentosTratamientos = MedicamentoTratamiento::where('activo', true)
             ->with(['tratamiento.paciente'])
             ->get();
             

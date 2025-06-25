@@ -14,14 +14,9 @@ return new class extends Migration
             $table->unsignedBigInteger('tratamiento_id');
             $table->decimal('dosis_cantidad', 10, 3);
             $table->string('unidad_dosis', 50);
-            $table->integer('frecuencia_horas')->nullable()->comment('Para medicamentos programados');
-            $table->boolean('es_prn')->default(false)->comment('True si es medicamento PRN (por necesidad)');
+            $table->integer('frecuencia_horas')->comment('Frecuencia en horas para medicamentos programados');
             $table->integer('tolerancia_antes_minutos')->default(30)->comment('Ventana antes del horario');
             $table->integer('tolerancia_despues_minutos')->default(60)->comment('Ventana después del horario');
-            $table->integer('intervalo_minimo_horas')->nullable()->comment('PRN: tiempo mínimo entre dosis');
-            $table->integer('max_dosis_dia')->nullable()->comment('PRN: máximo por día');
-            $table->integer('max_dosis_semana')->nullable()->comment('PRN: máximo por semana');
-            $table->integer('dosis_maxima_consecutiva')->nullable()->comment('PRN: máximo seguidas sin pausa');
             $table->integer('duracion_dias')->nullable()->comment('Duración del tratamiento en días');
             $table->text('instrucciones_especiales')->nullable();
             $table->enum('estado', ['Activo', 'Pausado', 'Suspendido'])->default('Activo');

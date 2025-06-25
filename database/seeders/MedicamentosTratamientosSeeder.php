@@ -13,43 +13,35 @@ class MedicamentosTratamientosSeeder extends Seeder
      */
     public function run(): void
     {
-        // Obtener datos relacionados
-        $medicamentos = DB::table('medicamentos')->get()->keyBy('nombre');
+        // Obtener tratamientos y medicamentos
         $tratamientos = DB::table('tratamientos')->get()->keyBy('nombre');
-        
-        if ($medicamentos->isEmpty() || $tratamientos->isEmpty()) {
-            $this->command->info('No hay medicamentos o tratamientos disponibles. Ejecutar seeders correspondientes primero.');
-            return;
-        }
+        $medicamentos = DB::table('medicamentos')->get()->keyBy('nombre');
 
+        // Configuraciones realistas de medicamentos-tratamientos (solo programados)
         $configuraciones = [
-            // TRATAMIENTOS PROGRAMADOS
-            
-            // Control de Hipertensión - Losartán
+            // Control Hipertensión - Losartán
             [
-                'tratamiento' => 'Control de Hipertensión',
+                'tratamiento' => 'Control Hipertensión',
                 'medicamento' => 'Losartán 50mg',
                 'dosis' => '50mg',
                 'frecuencia_horas' => 24,
                 'duracion_dias' => 90,
                 'via_administracion' => 'Oral',
-                'instrucciones' => 'Tomar una vez al día, preferiblemente en la mañana',
-                'tolerancia_minutos' => 120, // 2 horas de tolerancia
-                'es_prn' => false,
+                'instrucciones' => 'Tomar una vez al día por la mañana',
+                'tolerancia_minutos' => 60,
                 'activo' => true
             ],
             
-            // Control de Diabetes - Metformina
+            // Control Diabetes - Metformina
             [
-                'tratamiento' => 'Control de Diabetes',
+                'tratamiento' => 'Control Diabetes',
                 'medicamento' => 'Metformina 850mg',
                 'dosis' => '850mg',
                 'frecuencia_horas' => 12,
                 'duracion_dias' => 180,
                 'via_administracion' => 'Oral',
                 'instrucciones' => 'Tomar con las comidas principales (desayuno y cena)',
-                'tolerancia_minutos' => 60, // 1 hora de tolerancia
-                'es_prn' => false,
+                'tolerancia_minutos' => 60,
                 'activo' => true
             ],
             
@@ -62,8 +54,7 @@ class MedicamentosTratamientosSeeder extends Seeder
                 'duracion_dias' => 7,
                 'via_administracion' => 'Oral',
                 'instrucciones' => 'Tomar cada 8 horas. IMPORTANTE: Completar todo el tratamiento',
-                'tolerancia_minutos' => 30, // Antibióticos requieren precisión
-                'es_prn' => false,
+                'tolerancia_minutos' => 30,
                 'activo' => true
             ],
             
@@ -77,121 +68,32 @@ class MedicamentosTratamientosSeeder extends Seeder
                 'via_administracion' => 'Oral',
                 'instrucciones' => 'Tomar en ayunas, 30 minutos antes del desayuno',
                 'tolerancia_minutos' => 60,
-                'es_prn' => false,
                 'activo' => true
             ],
-            
-            // TRATAMIENTOS PRN
-            
-            // Manejo de Dolor PRN - Paracetamol
+
+            // Tratamiento de Ansiedad - Lorazepam programado
             [
-                'tratamiento' => 'Manejo de Dolor PRN',
-                'medicamento' => 'Paracetamol 500mg',
-                'dosis' => '500mg',
-                'frecuencia_horas' => 6, // Mínimo 6 horas entre dosis
-                'duracion_dias' => 30,
-                'via_administracion' => 'Oral',
-                'instrucciones' => 'Máximo 4 dosis por día (2g/día)',
-                'tolerancia_minutos' => null, // PRN no tiene tolerancia programada
-                'es_prn' => true,
-                'max_dosis_dia' => 4,
-                'max_dosis_semana' => null,
-                'activo' => true
-            ],
-            
-            // Manejo de Dolor PRN - Ibuprofeno (alternativo)
-            [
-                'tratamiento' => 'Manejo de Dolor PRN',
-                'medicamento' => 'Ibuprofeno 400mg',
-                'dosis' => '400mg',
-                'frecuencia_horas' => 8,
-                'duracion_dias' => 30,
-                'via_administracion' => 'Oral',
-                'instrucciones' => 'Máximo 3 dosis por día. Tomar con alimentos',
-                'tolerancia_minutos' => null,
-                'es_prn' => true,
-                'max_dosis_dia' => 3,
-                'max_dosis_semana' => null,
-                'activo' => true
-            ],
-            
-            // Control de Fiebre PRN - Paracetamol
-            [
-                'tratamiento' => 'Control de Fiebre PRN',
-                'medicamento' => 'Paracetamol 500mg',
-                'dosis' => '500mg',
-                'frecuencia_horas' => 6,
-                'duracion_dias' => 14,
-                'via_administracion' => 'Oral',
-                'instrucciones' => 'Administrar solo si fiebre >38°C',
-                'tolerancia_minutos' => null,
-                'es_prn' => true,
-                'max_dosis_dia' => 4,
-                'max_dosis_semana' => null,
-                'activo' => true
-            ],
-            
-            // Manejo de Náuseas PRN - Ondansetrón
-            [
-                'tratamiento' => 'Manejo de Náuseas PRN',
-                'medicamento' => 'Ondansetrón 4mg',
-                'dosis' => '4mg',
-                'frecuencia_horas' => 8,
-                'duracion_dias' => 21,
-                'via_administracion' => 'Oral',
-                'instrucciones' => 'Administrar ante episodios de náuseas',
-                'tolerancia_minutos' => null,
-                'es_prn' => true,
-                'max_dosis_dia' => 3,
-                'max_dosis_semana' => null,
-                'activo' => true
-            ],
-            
-            // Crisis de Ansiedad PRN - Lorazepam
-            [
-                'tratamiento' => 'Crisis de Ansiedad PRN',
+                'tratamiento' => 'Control de Ansiedad',
                 'medicamento' => 'Lorazepam 1mg',
                 'dosis' => '1mg',
                 'frecuencia_horas' => 12,
                 'duracion_dias' => 30,
                 'via_administracion' => 'Oral',
-                'instrucciones' => 'Solo para crisis. Máximo 2 dosis/día',
-                'tolerancia_minutos' => null,
-                'es_prn' => true,
-                'max_dosis_dia' => 2,
-                'max_dosis_semana' => 10,
+                'instrucciones' => 'Tomar cada 12 horas con las comidas',
+                'tolerancia_minutos' => 60,
                 'activo' => true
             ],
-            
-            // Insomnio PRN - Zolpidem
+
+            // Suplemento Vitamínico
             [
-                'tratamiento' => 'Insomnio PRN',
-                'medicamento' => 'Zolpidem 10mg',
-                'dosis' => '10mg',
+                'tratamiento' => 'Suplementación Vitamínica',
+                'medicamento' => 'Complejo B',
+                'dosis' => '1 tableta',
                 'frecuencia_horas' => 24,
-                'duracion_dias' => 14,
-                'via_administracion' => 'Oral',
-                'instrucciones' => 'Solo al acostarse si no puede dormir en 30 min',
-                'tolerancia_minutos' => null,
-                'es_prn' => true,
-                'max_dosis_dia' => 1,
-                'max_dosis_semana' => 5,
-                'activo' => true
-            ],
-            
-            // Crisis Asmática PRN - Salbutamol
-            [
-                'tratamiento' => 'Crisis Asmática PRN',
-                'medicamento' => 'Salbutamol 100mcg',
-                'dosis' => '2 puffs',
-                'frecuencia_horas' => 4,
                 'duracion_dias' => 90,
-                'via_administracion' => 'Inhalatoria',
-                'instrucciones' => 'Ante dificultad respiratoria. Si no mejora en 15 min, repetir',
-                'tolerancia_minutos' => null,
-                'es_prn' => true,
-                'max_dosis_dia' => 8, // 8 inhalaciones máximo
-                'max_dosis_semana' => null,
+                'via_administracion' => 'Oral',
+                'instrucciones' => 'Tomar una tableta diaria con el desayuno',
+                'tolerancia_minutos' => 120,
                 'activo' => true
             ]
         ];
@@ -209,13 +111,8 @@ class MedicamentosTratamientosSeeder extends Seeder
                     'frecuencia_horas' => $config['frecuencia_horas'],
                     'tolerancia_antes_minutos' => $config['tolerancia_minutos'] ?? 30,
                     'tolerancia_despues_minutos' => $config['tolerancia_minutos'] ?? 60,
-                    'intervalo_minimo_horas' => $config['es_prn'] ? $config['frecuencia_horas'] : null,
-                    'es_prn' => $config['es_prn'] ?? false,
                     'duracion_dias' => $config['duracion_dias'] ?? null,
                     'activo' => $config['activo'] ?? true,
-                    'dosis_maxima_dia' => $config['max_dosis_dia'] ?? null,
-                    'dosis_maxima_semana' => $config['max_dosis_semana'] ?? null,
-                    'dosis_maxima_consecutiva' => $config['max_dosis_dia'] ?? null,
                     'instrucciones_especiales' => $config['instrucciones'],
                     'estado' => $config['activo'] ? 'Activo' : 'Pausado',
                     'motivo_suspension' => null,
@@ -225,6 +122,8 @@ class MedicamentosTratamientosSeeder extends Seeder
                 ]);
             }
         }
+
+        $this->command->info('Configuraciones de medicamentos-tratamientos creadas: ' . count($configuraciones));
     }
 
     private function extractNumericDose($dosis)

@@ -58,9 +58,9 @@ export default function Create({ pacientes, medicos, medicamentos }: Props) {
         nombre: '',
         objetivo: '',
         diagnostico: '',
-        tipo: 'Programado' as 'Programado' | 'PRN',
+        tipo: 'Programado',
         estado: 'Activo',
-        fecha_inicio: new Date().toISOString().split('T')[0],
+        fecha_inicio: '',
         fecha_fin: '',
         observaciones: '',
         medicamentos: [] as any
@@ -114,39 +114,27 @@ export default function Create({ pacientes, medicos, medicamentos }: Props) {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <Label htmlFor="paciente_id">Paciente *</Label>
-                                    <select
+                                    <Input
                                         id="paciente_id"
-                                        value={data.paciente_id}
+                                        type="text"
+                                        value={data.paciente_id as string}
                                         onChange={(e) => setData('paciente_id', e.target.value)}
-                                        className="w-full px-3 py-2 border rounded-md"
+                                        placeholder="ID del paciente"
                                         required
-                                    >
-                                        <option value="">Seleccionar paciente</option>
-                                        {pacientes.map((paciente) => (
-                                            <option key={paciente.id} value={paciente.id}>
-                                                {paciente.nombre} - {paciente.numero_documento}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    />
                                     {errors.paciente_id && <p className="text-red-600 text-sm mt-1">{errors.paciente_id}</p>}
                                 </div>
 
                                 <div>
                                     <Label htmlFor="medico_usuario_id">Médico Responsable *</Label>
-                                    <select
+                                    <Input
                                         id="medico_usuario_id"
-                                        value={data.medico_usuario_id}
+                                        type="text"
+                                        value={data.medico_usuario_id as string}
                                         onChange={(e) => setData('medico_usuario_id', e.target.value)}
-                                        className="w-full px-3 py-2 border rounded-md"
+                                        placeholder="ID del médico"
                                         required
-                                    >
-                                        <option value="">Seleccionar médico</option>
-                                        {medicos.map((medico) => (
-                                            <option key={medico.id} value={medico.id}>
-                                                {medico.name} - {medico.email}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    />
                                     {errors.medico_usuario_id && <p className="text-red-600 text-sm mt-1">{errors.medico_usuario_id}</p>}
                                 </div>
                             </div>
@@ -156,9 +144,9 @@ export default function Create({ pacientes, medicos, medicamentos }: Props) {
                                 <Input
                                     id="nombre"
                                     type="text"
-                                    value={data.nombre}
+                                    value={data.nombre as string}
                                     onChange={(e) => setData('nombre', e.target.value)}
-                                    placeholder="Ej: Control de Hipertensión"
+                                    placeholder="Nombre del tratamiento"
                                     required
                                 />
                                 {errors.nombre && <p className="text-red-600 text-sm mt-1">{errors.nombre}</p>}
@@ -169,22 +157,25 @@ export default function Create({ pacientes, medicos, medicamentos }: Props) {
                                     <Label htmlFor="tipo">Tipo de Tratamiento *</Label>
                                     <select
                                         id="tipo"
-                                        value={data.tipo}
-                                        onChange={(e) => setData('tipo', e.target.value as 'Programado' | 'PRN')}
+                                        value={data.tipo as string}
+                                        onChange={(e) => setData('tipo', e.target.value)}
                                         className="w-full px-3 py-2 border rounded-md"
                                         required
+                                        disabled
                                     >
                                         <option value="Programado">Programado</option>
-                                        <option value="PRN">PRN (Según necesidad)</option>
                                     </select>
                                     {errors.tipo && <p className="text-red-600 text-sm mt-1">{errors.tipo}</p>}
+                                    <p className="text-sm text-gray-500 mt-1">
+                                        Solo se permiten tratamientos programados con horarios fijos
+                                    </p>
                                 </div>
 
                                 <div>
                                     <Label htmlFor="estado">Estado *</Label>
                                     <select
                                         id="estado"
-                                        value={data.estado}
+                                        value={data.estado as string}
                                         onChange={(e) => setData('estado', e.target.value)}
                                         className="w-full px-3 py-2 border rounded-md"
                                         required
@@ -203,7 +194,7 @@ export default function Create({ pacientes, medicos, medicamentos }: Props) {
                                     <Input
                                         id="fecha_inicio"
                                         type="date"
-                                        value={data.fecha_inicio}
+                                        value={data.fecha_inicio as string}
                                         onChange={(e) => setData('fecha_inicio', e.target.value)}
                                         required
                                     />
@@ -215,7 +206,7 @@ export default function Create({ pacientes, medicos, medicamentos }: Props) {
                                     <Input
                                         id="fecha_fin"
                                         type="date"
-                                        value={data.fecha_fin}
+                                        value={data.fecha_fin as string}
                                         onChange={(e) => setData('fecha_fin', e.target.value)}
                                     />
                                     {errors.fecha_fin && <p className="text-red-600 text-sm mt-1">{errors.fecha_fin}</p>}
@@ -263,52 +254,12 @@ export default function Create({ pacientes, medicos, medicamentos }: Props) {
                     <MedicamentoForm
                         medicamentos={medicamentos}
                         medicamentosSeleccionados={medicamentosArray}
-                        onMedicamentosChange={handleMedicamentosChange}
-                        tipoTratamiento={data.tipo}
+                        onMedicamentosChange={(nuevos) => {
+                            setData('medicamentos', nuevos);
+                        }}
+                        tipoTratamiento="Programado"
                         errors={errors}
                     />
-{/* 
-                    {medicamentosArray.length > 0 && (
-                        <Card className="bg-green-50 border-green-200">
-                            <CardHeader>
-                                <CardTitle className="text-green-800">
-                                    📋 Resumen del Tratamiento
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                    <div>
-                                        <p><strong>Tipo:</strong> {data.tipo}</p>
-                                        <p><strong>Estado:</strong> {data.estado}</p>
-                                        <p><strong>Medicamentos:</strong> {medicamentosArray.length}</p>
-                                    </div>
-                                    <div>
-                                        <p><strong>Fecha inicio:</strong> {data.fecha_inicio}</p>
-                                        <p><strong>Fecha fin:</strong> {data.fecha_fin || 'Sin fecha fin'}</p>
-                                    </div>
-                                </div>
-                                <div className="mt-4">
-                                    <strong>Medicamentos incluidos:</strong>
-                                    <ul className="list-disc list-inside mt-2 space-y-1">
-                                        {medicamentosArray.map((med, index) => {
-                                            const medicamento = medicamentos.find(m => m.id.toString() === med.medicamento_id);
-                                            return medicamento ? (
-                                                <li key={index} className="text-green-700">
-                                                    <strong>{medicamento.nombre}</strong> - {med.dosis_cantidad} {med.unidad_dosis}
-                                                    {data.tipo === 'Programado' && med.frecuencia_horas && 
-                                                        ` cada ${med.frecuencia_horas} horas`
-                                                    }
-                                                    {data.tipo === 'PRN' && med.intervalo_minimo_horas && 
-                                                        ` (mín. ${med.intervalo_minimo_horas}h entre dosis)`
-                                                    }
-                                                </li>
-                                            ) : null;
-                                        })}
-                                    </ul>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    )} */}
 
                     <div className="flex items-center justify-end space-x-4">
                         <Link href={route('tratamientos.index')}>

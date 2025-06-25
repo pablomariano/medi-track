@@ -33,7 +33,7 @@ interface Props {
     medicamentos: Medicamento[];
     medicamentosSeleccionados: MedicamentoFormData[];
     onMedicamentosChange: (medicamentos: MedicamentoFormData[]) => void;
-    tipoTratamiento: 'Programado' | 'PRN';
+    tipoTratamiento: 'Programado';
     errors?: { [key: string]: string };
 }
 
@@ -49,12 +49,12 @@ export default function MedicamentoForm({
             medicamento_id: '',
             dosis_cantidad: '',
             unidad_dosis: 'tableta',
-            frecuencia_horas: tipoTratamiento === 'Programado' ? '24' : '',
-            tolerancia_antes_minutos: tipoTratamiento === 'Programado' ? '30' : '',
-            tolerancia_despues_minutos: tipoTratamiento === 'Programado' ? '60' : '',
-            intervalo_minimo_horas: tipoTratamiento === 'PRN' ? '6' : '',
-            dosis_maxima_dia: tipoTratamiento === 'PRN' ? '' : '',
-            dosis_maxima_consecutiva: tipoTratamiento === 'PRN' ? '' : '',
+            frecuencia_horas: '24',
+            tolerancia_antes_minutos: '30',
+            tolerancia_despues_minutos: '60',
+            intervalo_minimo_horas: '',
+            dosis_maxima_dia: '',
+            dosis_maxima_consecutiva: '',
             instrucciones_especiales: '',
             orden: String(medicamentosSeleccionados.length + 1)
         };
@@ -189,92 +189,45 @@ export default function MedicamentoForm({
                                 </div>
 
                                 {/* Configuración específica por tipo */}
-                                {tipoTratamiento === 'Programado' ? (
-                                    <div className="bg-blue-50 p-4 rounded-md">
-                                        <h5 className="font-medium text-blue-900 mb-3">Configuración Programada</h5>
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                            <div>
-                                                <Label htmlFor={`frecuencia_${index}`}>Frecuencia (horas) *</Label>
-                                                <select
-                                                    id={`frecuencia_${index}`}
-                                                    value={medicamento.frecuencia_horas}
-                                                    onChange={(e) => actualizarMedicamento(index, 'frecuencia_horas', e.target.value)}
-                                                    className="w-full px-3 py-2 border rounded-md"
-                                                    required
-                                                >
-                                                    <option value="4">Cada 4 horas</option>
-                                                    <option value="6">Cada 6 horas</option>
-                                                    <option value="8">Cada 8 horas</option>
-                                                    <option value="12">Cada 12 horas</option>
-                                                    <option value="24">Cada 24 horas (diario)</option>
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <Label htmlFor={`tolerancia_antes_${index}`}>Tolerancia Antes (min)</Label>
-                                                <Input
-                                                    id={`tolerancia_antes_${index}`}
-                                                    type="number"
-                                                    min="0"
-                                                    value={medicamento.tolerancia_antes_minutos}
-                                                    onChange={(e) => actualizarMedicamento(index, 'tolerancia_antes_minutos', e.target.value)}
-                                                    placeholder="30"
-                                                />
-                                            </div>
-                                            <div>
-                                                <Label htmlFor={`tolerancia_despues_${index}`}>Tolerancia Después (min)</Label>
-                                                <Input
-                                                    id={`tolerancia_despues_${index}`}
-                                                    type="number"
-                                                    min="0"
-                                                    value={medicamento.tolerancia_despues_minutos}
-                                                    onChange={(e) => actualizarMedicamento(index, 'tolerancia_despues_minutos', e.target.value)}
-                                                    placeholder="60"
-                                                />
-                                            </div>
+                                <div className="bg-blue-50 p-4 rounded-md">
+                                    <h5 className="font-medium text-blue-900 mb-3">Configuración Programada</h5>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <Label htmlFor={`frecuencia_${index}`}>Frecuencia (horas) *</Label>
+                                            <Input
+                                                id={`frecuencia_${index}`}
+                                                type="number"
+                                                min="1"
+                                                value={medicamento.frecuencia_horas}
+                                                onChange={(e) => actualizarMedicamento(index, 'frecuencia_horas', e.target.value)}
+                                                placeholder="24"
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label htmlFor={`tolerancia_antes_${index}`}>Ventana Antes (min)</Label>
+                                            <Input
+                                                id={`tolerancia_antes_${index}`}
+                                                type="number"
+                                                min="0"
+                                                value={medicamento.tolerancia_antes_minutos}
+                                                onChange={(e) => actualizarMedicamento(index, 'tolerancia_antes_minutos', e.target.value)}
+                                                placeholder="30"
+                                            />
+                                        </div>
+                                        <div>
+                                            <Label htmlFor={`tolerancia_despues_${index}`}>Ventana Después (min)</Label>
+                                            <Input
+                                                id={`tolerancia_despues_${index}`}
+                                                type="number"
+                                                min="0"
+                                                value={medicamento.tolerancia_despues_minutos}
+                                                onChange={(e) => actualizarMedicamento(index, 'tolerancia_despues_minutos', e.target.value)}
+                                                placeholder="60"
+                                            />
                                         </div>
                                     </div>
-                                ) : (
-                                    <div className="bg-yellow-50 p-4 rounded-md">
-                                        <h5 className="font-medium text-yellow-900 mb-3">Configuración PRN (Por Necesidad)</h5>
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                            <div>
-                                                <Label htmlFor={`intervalo_minimo_${index}`}>Intervalo Mínimo (horas) *</Label>
-                                                <Input
-                                                    id={`intervalo_minimo_${index}`}
-                                                    type="number"
-                                                    min="1"
-                                                    value={medicamento.intervalo_minimo_horas}
-                                                    onChange={(e) => actualizarMedicamento(index, 'intervalo_minimo_horas', e.target.value)}
-                                                    placeholder="6"
-                                                    required
-                                                />
-                                            </div>
-                                            <div>
-                                                <Label htmlFor={`dosis_maxima_dia_${index}`}>Dosis Máxima por Día</Label>
-                                                <Input
-                                                    id={`dosis_maxima_dia_${index}`}
-                                                    type="number"
-                                                    step="0.1"
-                                                    min="0"
-                                                    value={medicamento.dosis_maxima_dia}
-                                                    onChange={(e) => actualizarMedicamento(index, 'dosis_maxima_dia', e.target.value)}
-                                                    placeholder="Ej: 3000 (mg)"
-                                                />
-                                            </div>
-                                            <div>
-                                                <Label htmlFor={`dosis_maxima_consecutiva_${index}`}>Máx. Dosis Consecutivas</Label>
-                                                <Input
-                                                    id={`dosis_maxima_consecutiva_${index}`}
-                                                    type="number"
-                                                    min="1"
-                                                    value={medicamento.dosis_maxima_consecutiva}
-                                                    onChange={(e) => actualizarMedicamento(index, 'dosis_maxima_consecutiva', e.target.value)}
-                                                    placeholder="3"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
+                                </div>
 
                                 {/* Instrucciones especiales */}
                                 <div>

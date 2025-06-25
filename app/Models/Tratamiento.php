@@ -9,16 +9,25 @@ class Tratamiento extends Model
 {
     use HasFactory;
 
+    // Constantes para los estados
+    const ESTADO_ACTIVO = 'Activo';
+    const ESTADO_PAUSADO = 'Pausado';
+    const ESTADO_COMPLETADO = 'Completado';
+    const ESTADO_SUSPENDIDO = 'Suspendido';
+
+    // Constantes para los tipos - Solo Programado
+    const TIPO_PROGRAMADO = 'Programado';
+
     protected $fillable = [
         'paciente_id',
         'medico_usuario_id',
         'nombre',
         'diagnostico',
         'tipo',
+        'estado',
         'objetivo',
         'fecha_inicio',
         'fecha_fin',
-        'estado',
         'observaciones'
     ];
 
@@ -26,16 +35,6 @@ class Tratamiento extends Model
         'fecha_inicio' => 'date',
         'fecha_fin' => 'date'
     ];
-
-    // Constantes para tipos de tratamiento
-    const TIPO_PROGRAMADO = 'Programado';
-    const TIPO_PRN = 'PRN';
-
-    // Constantes para estados
-    const ESTADO_ACTIVO = 'Activo';
-    const ESTADO_PAUSADO = 'Pausado';
-    const ESTADO_FINALIZADO = 'Completado';
-    const ESTADO_CANCELADO = 'Suspendido';
 
     // Relación con paciente
     public function paciente()
@@ -46,29 +45,31 @@ class Tratamiento extends Model
     // Relación con médico
     public function medico()
     {
-        return $this->belongsTo(User::class, 'medico_usuario_id');
+        return $this->belongsTo(PersonalMedico::class, 'medico_usuario_id', 'usuario_id');
     }
 
-    // Relación con medicamentos a través de la tabla pivot
+    // Relación many-to-many con medicamentos
     public function medicamentos()
     {
-        return $this->belongsToMany(Medicamento::class, 'medicamentos_tratamientos')
-                    ->withPivot([
-                        'dosis_cantidad',
-                        'unidad_dosis',
-                        'frecuencia_horas',
-                        'tolerancia_antes_minutos',
-                        'tolerancia_despues_minutos',
-                        'intervalo_minimo_horas',
-                        'dosis_maxima_dia',
-                        'dosis_maxima_semana',
-                        'dosis_maxima_consecutiva',
-                        'instrucciones_especiales',
-                        'estado',
-                        'motivo_suspension',
-                        'orden'
-                    ])
-                    ->withTimestamps();
+        return $this->belongsToMany(
+            Medicamento::class,
+            'medicamentos_tratamientos',
+            'tratamiento_id',
+            'medicamento_id'
+        )->withPivot([
+            'id',
+            'dosis_cantidad',
+            'unidad_dosis',
+            'frecuencia_horas',
+            'tolerancia_antes_minutos',
+            'tolerancia_despues_minutos',
+            'duracion_dias',
+            'instrucciones_especiales',
+            'estado',
+            'activo',
+            'motivo_suspension',
+            'orden'
+        ])->withTimestamps();
     }
 
     // Relación directa con medicamento_tratamientos
@@ -82,13 +83,6 @@ class Tratamiento extends Model
     {
         $medicamentoTratamientoIds = $this->medicamentos()->pluck('medicamentos_tratamientos.id');
         return HorarioProgramado::whereIn('medicamento_tratamiento_id', $medicamentoTratamientoIds);
-    }
-
-    // Obtener indicaciones PRN de este tratamiento a través de la tabla pivot
-    public function indicacionesPrn()
-    {
-        $medicamentoTratamientoIds = $this->medicamentos()->pluck('medicamentos_tratamientos.id');
-        return \App\Models\IndicacionPrn::whereIn('medicamento_tratamiento_id', $medicamentoTratamientoIds);
     }
 
     // Obtener administraciones de este tratamiento  
@@ -110,16 +104,10 @@ class Tratamiento extends Model
         return $query->where('tipo', $tipo);
     }
 
-    // Scope para tratamientos programados
+    // Scope para tratamientos programados (único tipo disponible)
     public function scopeProgramados($query)
     {
         return $query->where('tipo', self::TIPO_PROGRAMADO);
-    }
-
-    // Scope para tratamientos PRN
-    public function scopePrn($query)
-    {
-        return $query->where('tipo', self::TIPO_PRN);
     }
 
     // Método para verificar si el tratamiento está activo
@@ -128,9 +116,36 @@ class Tratamiento extends Model
         return $this->estado === self::ESTADO_ACTIVO;
     }
 
-    // Método para verificar si es tratamiento PRN
-    public function isPrn()
+    // Método para verificar si es tratamiento programado (siempre true ahora)
+    public function isProgramado()
     {
-        return $this->tipo === self::TIPO_PRN;
+        return $this->tipo === self::TIPO_PROGRAMADO;
+    }
+
+    // Método para finalizar el tratamiento
+    public function finalizar($motivo = null)
+    {
+        $this->update([
+            'estado' => self::ESTADO_COMPLETADO,
+            'fecha_fin' => now(),
+            'observaciones' => $this->observaciones . ($motivo ? "\n\nMotivo de finalización: " . $motivo : '')
+        ]);
+    }
+
+    // Método para pausar el tratamiento
+    public function pausar($motivo = null)
+    {
+        $this->update([
+            'estado' => self::ESTADO_PAUSADO,
+            'observaciones' => $this->observaciones . ($motivo ? "\n\nMotivo de pausa: " . $motivo : '')
+        ]);
+    }
+
+    // Método para reactivar el tratamiento
+    public function activar()
+    {
+        $this->update([
+            'estado' => self::ESTADO_ACTIVO
+        ]);
     }
 } 
