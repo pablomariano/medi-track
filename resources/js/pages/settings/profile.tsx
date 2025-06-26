@@ -20,7 +20,9 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 type ProfileForm = {
-    name: string;
+    nombre: string;
+    apellido_paterno: string;
+    apellido_materno: string;
     email: string;
 }
 
@@ -28,7 +30,9 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
     const { auth } = usePage<SharedData>().props;
 
     const { data, setData, patch, errors, processing, recentlySuccessful } = useForm<Required<ProfileForm>>({
-        name: auth.user.name,
+        nombre: auth.user.nombre || '',
+        apellido_paterno: auth.user.apellido_paterno || '',
+        apellido_materno: auth.user.apellido_materno || '',
         email: auth.user.email,
     });
 
@@ -49,20 +53,46 @@ export default function Profile({ mustVerifyEmail, status }: { mustVerifyEmail: 
                     <HeadingSmall title="Profile information" description="Update your name and email address" />
 
                     <form onSubmit={submit} className="space-y-6">
-                        <div className="grid gap-2">
-                            <Label htmlFor="name">Name</Label>
+                        <div className="grid grid-cols-3 gap-4">
+                            <div className="grid gap-2">
+                                <Label htmlFor="nombre">Nombre</Label>
+                                <Input
+                                    id="nombre"
+                                    className="mt-1 block w-full"
+                                    value={data.nombre}
+                                    onChange={(e) => setData('nombre', e.target.value)}
+                                    required
+                                    autoComplete="given-name"
+                                    placeholder="Juan"
+                                />
+                                <InputError className="mt-2" message={errors.nombre} />
+                            </div>
 
-                            <Input
-                                id="name"
-                                className="mt-1 block w-full"
-                                value={data.name}
-                                onChange={(e) => setData('name', e.target.value)}
-                                required
-                                autoComplete="name"
-                                placeholder="Full name"
-                            />
+                            <div className="grid gap-2">
+                                <Label htmlFor="apellido_paterno">Apellido Paterno</Label>
+                                <Input
+                                    id="apellido_paterno"
+                                    className="mt-1 block w-full"
+                                    value={data.apellido_paterno}
+                                    onChange={(e) => setData('apellido_paterno', e.target.value)}
+                                    required
+                                    autoComplete="family-name"
+                                    placeholder="Pérez"
+                                />
+                                <InputError className="mt-2" message={errors.apellido_paterno} />
+                            </div>
 
-                            <InputError className="mt-2" message={errors.name} />
+                            <div className="grid gap-2">
+                                <Label htmlFor="apellido_materno">Apellido Materno</Label>
+                                <Input
+                                    id="apellido_materno"
+                                    className="mt-1 block w-full"
+                                    value={data.apellido_materno}
+                                    onChange={(e) => setData('apellido_materno', e.target.value)}
+                                    placeholder="González"
+                                />
+                                <InputError className="mt-2" message={errors.apellido_materno} />
+                            </div>
                         </div>
 
                         <div className="grid gap-2">

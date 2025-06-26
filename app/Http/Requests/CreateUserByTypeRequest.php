@@ -15,8 +15,10 @@ class CreateUserByTypeRequest extends FormRequest
     public function rules(): array
     {
         $rules = [
-            // Datos base del usuario
-            'user_data.name' => 'required|string|max:255',
+            // Datos base del usuario - nuevos campos separados
+            'user_data.nombre' => 'required|string|max:100',
+            'user_data.apellido_paterno' => 'required|string|max:100',
+            'user_data.apellido_materno' => 'nullable|string|max:100',
             'user_data.email' => 'required|email|unique:users,email',
             'user_data.password' => ['required', 'confirmed', Rules\Password::defaults()],
             'user_data.telefono' => 'nullable|string|max:20',
@@ -57,7 +59,9 @@ class CreateUserByTypeRequest extends FormRequest
             case 'paciente':
                 $rules = array_merge($rules, [
                     // Para pacientes, los datos de usuario son opcionales
-                    'user_data.name' => 'nullable|string|max:255',
+                    'user_data.nombre' => 'nullable|string|max:100',
+                    'user_data.apellido_paterno' => 'nullable|string|max:100',
+                    'user_data.apellido_materno' => 'nullable|string|max:100',
                     'user_data.email' => 'nullable|email|unique:users,email',
                     'user_data.password' => $this->filled('user_data.email') ? 
                         ['required', 'confirmed', Rules\Password::defaults()] : 'nullable',
@@ -88,7 +92,8 @@ class CreateUserByTypeRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'user_data.name.required' => 'El nombre es obligatorio.',
+            'user_data.nombre.required' => 'El nombre es obligatorio.',
+            'user_data.apellido_paterno.required' => 'El apellido paterno es obligatorio.',
             'user_data.email.required' => 'El email es obligatorio.',
             'user_data.email.unique' => 'Este email ya está registrado.',
             'user_data.password.required' => 'La contraseña es obligatoria.',

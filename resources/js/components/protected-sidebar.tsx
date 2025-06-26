@@ -14,6 +14,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ProtectedLink } from '@/components/auth/ProtectedLink';
 import { useAuth } from '@/hooks/use-auth';
 import { CanAccess } from '@/components/auth/CanAccess';
+import { usePage } from '@inertiajs/react';
 import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, UserCheck, Stethoscope, Heart, UserX, User, LucideIcon, UserPlus, Activity, Clock, BarChart3, UserCog } from 'lucide-react';
 
 interface NavigationItem {
@@ -183,6 +184,20 @@ const navigationSections: NavigationSection[] = [
 
 export function ProtectedSidebar() {
   const auth = useAuth();
+  const page = usePage();
+  
+  // Función para verificar si una ruta está activa
+  const isActiveRoute = (href: string): boolean => {
+    // Comparación exacta para rutas específicas
+    if (page.url === href) return true;
+    
+    // Para rutas que pueden tener sub-rutas (como /pacientes/1/edit)
+    if (href !== '/' && href !== '/dashboard' && page.url.startsWith(href)) {
+      return true;
+    }
+    
+    return false;
+  };
 
   const canAccessSection = (section: NavigationSection): boolean => {
     if (section.requireAdmin) return auth.isAdmin();
@@ -207,7 +222,7 @@ export function ProtectedSidebar() {
       <SidebarHeader className="px-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
+            <SidebarMenuButton size="lg" asChild isActive={isActiveRoute('/dashboard')}>
               <ProtectedLink href="/dashboard" className="flex items-center">
                 <span className="text-base font-semibold">MediTrack</span>
               </ProtectedLink>
@@ -222,7 +237,7 @@ export function ProtectedSidebar() {
             {/* Botón Crear Usuario - Solo para usuarios autorizados */}
             <CanAccess permission="usuarios.create" hideWhenDenied>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton asChild isActive={isActiveRoute('/usuarios/select-type')}>
                   <ProtectedLink 
                     href="/usuarios/select-type" 
                     className="flex items-center gap-2"
@@ -253,7 +268,7 @@ export function ProtectedSidebar() {
                   </div>
                   {visibleItems.map((item: NavigationItem) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild tooltip={item.title}>
+                      <SidebarMenuButton asChild tooltip={item.title} isActive={isActiveRoute(item.href)}>
                         <ProtectedLink 
                           href={item.href} 
                           className="flex items-center gap-2"
@@ -282,7 +297,7 @@ export function ProtectedSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Profile">
+            <SidebarMenuButton asChild tooltip="Profile" isActive={isActiveRoute('/profile')}>
               <ProtectedLink href="/profile" className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 <span>Profile</span>

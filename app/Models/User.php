@@ -18,7 +18,10 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'name', // Mantenemos para compatibilidad temporal
+        'nombre',
+        'apellido_paterno',
+        'apellido_materno',
         'email',
         'password',
         'telefono',
@@ -81,6 +84,49 @@ class User extends Authenticatable
     public function getRolNombreAttribute()
     {
         return $this->role ? $this->role->nombre : 'Sin rol';
+    }
+
+    // Método para obtener el nombre completo
+    public function getNombreCompletoAttribute()
+    {
+        $partes = array_filter([
+            $this->nombre,
+            $this->apellido_paterno,
+            $this->apellido_materno
+        ]);
+        
+        return implode(' ', $partes);
+    }
+
+    // Método para obtener el nombre completo formateado
+    public function getDisplayNameAttribute()
+    {
+        // Si existen los campos separados, usarlos; sino usar el campo name original
+        if ($this->nombre || $this->apellido_paterno) {
+            return $this->nombre_completo;
+        }
+        
+        return $this->name;
+    }
+
+    // Setter para el campo name que actualiza los campos separados
+    public function setNameAttribute($value)
+    {
+        $this->attributes['name'] = $value;
+        
+        // Si se está estableciendo el campo name, intentar separarlo automáticamente
+        if ($value && (!$this->nombre && !$this->apellido_paterno)) {
+            $partes = explode(' ', trim($value));
+            
+            $this->attributes['nombre'] = $partes[0] ?? '';
+            $this->attributes['apellido_paterno'] = $partes[1] ?? '';
+            $this->attributes['apellido_materno'] = $partes[2] ?? '';
+            
+            // Si hay más de 3 partes, asignar el resto al apellido materno
+            if (count($partes) > 3) {
+                $this->attributes['apellido_materno'] = implode(' ', array_slice($partes, 2));
+            }
+        }
     }
 
     // Método para verificar si el email está verificado

@@ -28,14 +28,16 @@ interface Props {
 
 export default function Create({ roles }: Props) {
     const { data, setData, post, processing, errors } = useForm({
-        name: '',
+        nombre: '',
+        apellido_paterno: '',
+        apellido_materno: '',
         email: '',
         password: '',
         password_confirmation: '',
         telefono: '',
         rol_id: '',
-        activo: true,
-        email_verificado: false,
+        activo: true as boolean,
+        email_verificado: false as boolean,
     });
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -79,20 +81,50 @@ export default function Create({ roles }: Props) {
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
+                                <div className="grid grid-cols-3 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="name">Nombre Completo *</Label>
+                                        <Label htmlFor="nombre">Nombre *</Label>
                                         <Input
-                                            id="name"
-                                            value={data.name}
-                                            onChange={(e) => setData('name', e.target.value)}
-                                            placeholder="Juan Pérez González"
+                                            id="nombre"
+                                            value={data.nombre}
+                                            onChange={(e) => setData('nombre', e.target.value)}
+                                            placeholder="Juan"
                                             required
                                         />
-                                        {errors.name && (
-                                            <p className="text-sm text-destructive">{errors.name}</p>
+                                        {errors.nombre && (
+                                            <p className="text-sm text-destructive">{errors.nombre}</p>
                                         )}
                                     </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="apellido_paterno">Apellido Paterno *</Label>
+                                        <Input
+                                            id="apellido_paterno"
+                                            value={data.apellido_paterno}
+                                            onChange={(e) => setData('apellido_paterno', e.target.value)}
+                                            placeholder="Pérez"
+                                            required
+                                        />
+                                        {errors.apellido_paterno && (
+                                            <p className="text-sm text-destructive">{errors.apellido_paterno}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label htmlFor="apellido_materno">Apellido Materno</Label>
+                                        <Input
+                                            id="apellido_materno"
+                                            value={data.apellido_materno}
+                                            onChange={(e) => setData('apellido_materno', e.target.value)}
+                                            placeholder="González"
+                                        />
+                                        {errors.apellido_materno && (
+                                            <p className="text-sm text-destructive">{errors.apellido_materno}</p>
+                                        )}
+                                    </div>
+                                </div>
+                                
+                                <div className="grid grid-cols-2 gap-4">
 
                                     <div className="space-y-2">
                                         <Label htmlFor="email">Email *</Label>

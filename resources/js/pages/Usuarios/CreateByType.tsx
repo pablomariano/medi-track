@@ -38,7 +38,9 @@ export default function CreateByType({ tipo, tipoInfo, generos }: Props) {
     const { data, setData, post, processing, errors } = useForm({
         tipo_usuario: tipo,
         user_data: {
-            name: '',
+            nombre: '',
+            apellido_paterno: '',
+            apellido_materno: '',
             email: '',
             password: '',
             password_confirmation: '',
@@ -151,21 +153,55 @@ export default function CreateByType({ tipo, tipoInfo, generos }: Props) {
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="name">
-                                Nombre Completo {isRequired && '*'}
+                                                            <div className="space-y-2">
+                            <Label htmlFor="nombre">
+                                Nombre {isRequired && '*'}
                             </Label>
                             <Input
-                                id="name"
-                                value={data.user_data.name}
-                                onChange={(e) => updateUserData('name', e.target.value)}
-                                placeholder="Juan Pérez González"
+                                id="nombre"
+                                value={data.user_data.nombre}
+                                onChange={(e) => updateUserData('nombre', e.target.value)}
+                                placeholder="Juan"
                                 required={isRequired}
                             />
-                            {errors['user_data.name' as keyof typeof errors] && (
-                                <p className="text-sm text-destructive">{errors['user_data.name' as keyof typeof errors]}</p>
+                            {errors['user_data.nombre' as keyof typeof errors] && (
+                                <p className="text-sm text-destructive">{errors['user_data.nombre' as keyof typeof errors]}</p>
                             )}
                         </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="apellido_paterno">
+                                Apellido Paterno {isRequired && '*'}
+                            </Label>
+                            <Input
+                                id="apellido_paterno"
+                                value={data.user_data.apellido_paterno}
+                                onChange={(e) => updateUserData('apellido_paterno', e.target.value)}
+                                placeholder="Pérez"
+                                required={isRequired}
+                            />
+                            {errors['user_data.apellido_paterno' as keyof typeof errors] && (
+                                <p className="text-sm text-destructive">{errors['user_data.apellido_paterno' as keyof typeof errors]}</p>
+                            )}
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="apellido_materno">
+                                Apellido Materno
+                            </Label>
+                            <Input
+                                id="apellido_materno"
+                                value={data.user_data.apellido_materno}
+                                onChange={(e) => updateUserData('apellido_materno', e.target.value)}
+                                placeholder="González"
+                            />
+                            {errors['user_data.apellido_materno' as keyof typeof errors] && (
+                                <p className="text-sm text-destructive">{errors['user_data.apellido_materno' as keyof typeof errors]}</p>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
 
                         <div className="space-y-2">
                             <Label htmlFor="email">

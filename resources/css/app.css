@@ -170,7 +170,7 @@
     --shadow-lg: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 4px 6px -2px hsl(0 0% 0% / 0.10);
     --shadow-xl: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 8px 10px -2px hsl(0 0% 0% / 0.10);
     --shadow-2xl: 0px 4px 8px -1px hsl(0 0% 0% / 0.25);
-  }
+    }
   
   @theme inline {
     --color-background: var(--background);
@@ -227,8 +227,8 @@
 /* :root {
 
 
-/* Neo Brutalist Theme */
-/*
+/* ------------------------------ Neo Brutalist Theme ------------------------------ */
+
 :root {
     --background: oklch(1.00 0 0);
     --foreground: oklch(0 0 0);
@@ -322,7 +322,7 @@
     --shadow-xl: 4px 4px 0px 0px hsl(0 0% 0% / 1.00), 4px 8px 10px -1px hsl(0 0% 0% / 1.00);
     --shadow-2xl: 4px 4px 0px 0px hsl(0 0% 0% / 2.50);
     }
-    
+/*     
     @theme inline {
     --color-background: var(--background);
     --color-foreground: var(--foreground);
@@ -374,13 +374,13 @@
     --shadow-lg: var(--shadow-lg);
     --shadow-xl: var(--shadow-xl);
     --shadow-2xl: var(--shadow-2xl);
-  }
-*/
+  } */
 
 
-/* Tangerine Theme */
 
+/* ------------------------------ Tangerine Theme ------------------------------ */
 
+/* 
 :root {
   --background: oklch(0.9383 0.0042 236.4993);
   --foreground: oklch(0.3211 0 0);
@@ -526,7 +526,7 @@
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
   --shadow-2xl: var(--shadow-2xl);
-}
+} */
 
 
 

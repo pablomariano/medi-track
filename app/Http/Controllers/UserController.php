@@ -34,7 +34,9 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'nombre' => 'required|string|max:100',
+            'apellido_paterno' => 'required|string|max:100',
+            'apellido_materno' => 'nullable|string|max:100',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'telefono' => 'nullable|string|max:20',
@@ -45,6 +47,14 @@ class UserController extends Controller
 
         $validated['password'] = Hash::make($validated['password']);
         $validated['email_verified_at'] = $validated['email_verificado'] ? now() : null;
+        
+        // Crear el campo name para compatibilidad
+        $validated['name'] = trim(
+            ($validated['nombre'] ?? '') . ' ' . 
+            ($validated['apellido_paterno'] ?? '') . ' ' . 
+            ($validated['apellido_materno'] ?? '')
+        );
+        
         unset($validated['email_verificado']);
 
         User::create($validated);
@@ -76,7 +86,9 @@ class UserController extends Controller
     public function update(Request $request, User $usuario)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'nombre' => 'required|string|max:100',
+            'apellido_paterno' => 'required|string|max:100',
+            'apellido_materno' => 'nullable|string|max:100',
             'email' => 'required|string|email|max:255|unique:users,email,' . $usuario->id,
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
             'telefono' => 'nullable|string|max:20',
@@ -92,6 +104,14 @@ class UserController extends Controller
         }
 
         $validated['email_verified_at'] = $validated['email_verificado'] ? now() : null;
+        
+        // Actualizar el campo name para compatibilidad
+        $validated['name'] = trim(
+            ($validated['nombre'] ?? '') . ' ' . 
+            ($validated['apellido_paterno'] ?? '') . ' ' . 
+            ($validated['apellido_materno'] ?? '')
+        );
+        
         unset($validated['email_verificado']);
 
         $usuario->update($validated);

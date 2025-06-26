@@ -29,6 +29,14 @@ class UserRegistrationService
             // Crear usuario con rol de médico
             $userData['rol_id'] = $rolMedico->id;
             $userData['password'] = Hash::make($userData['password']);
+            
+            // Generar campo name para compatibilidad
+            $userData['name'] = trim(
+                ($userData['nombre'] ?? '') . ' ' . 
+                ($userData['apellido_paterno'] ?? '') . ' ' . 
+                ($userData['apellido_materno'] ?? '')
+            );
+            
             $user = User::create($userData);
 
             // Crear registro de personal médico
@@ -54,6 +62,14 @@ class UserRegistrationService
             // Crear usuario con rol de cuidador
             $userData['rol_id'] = $rolCuidador->id;
             $userData['password'] = Hash::make($userData['password']);
+            
+            // Generar campo name para compatibilidad
+            $userData['name'] = trim(
+                ($userData['nombre'] ?? '') . ' ' . 
+                ($userData['apellido_paterno'] ?? '') . ' ' . 
+                ($userData['apellido_materno'] ?? '')
+            );
+            
             $user = User::create($userData);
 
             // Crear registro de cuidador
@@ -79,6 +95,14 @@ class UserRegistrationService
             // Crear usuario con rol de apoderado
             $userData['rol_id'] = $rolApoderado->id;
             $userData['password'] = Hash::make($userData['password']);
+            
+            // Generar campo name para compatibilidad
+            $userData['name'] = trim(
+                ($userData['nombre'] ?? '') . ' ' . 
+                ($userData['apellido_paterno'] ?? '') . ' ' . 
+                ($userData['apellido_materno'] ?? '')
+            );
+            
             $user = User::create($userData);
 
             // Crear registro de apoderado
@@ -106,6 +130,14 @@ class UserRegistrationService
 
                 $userData['rol_id'] = $rolPaciente->id;
                 $userData['password'] = Hash::make($userData['password']);
+                
+                // Generar campo name para compatibilidad
+                $userData['name'] = trim(
+                    ($userData['nombre'] ?? '') . ' ' . 
+                    ($userData['apellido_paterno'] ?? '') . ' ' . 
+                    ($userData['apellido_materno'] ?? '')
+                );
+                
                 $user = User::create($userData);
                 $userId = $user->id;
             }
@@ -131,6 +163,13 @@ class UserRegistrationService
             // Crear usuario con rol de admin
             $userData['rol_id'] = $rolAdmin->id;
             $userData['password'] = Hash::make($userData['password']);
+            
+            // Generar campo name para compatibilidad
+            $userData['name'] = trim(
+                ($userData['nombre'] ?? '') . ' ' . 
+                ($userData['apellido_paterno'] ?? '') . ' ' . 
+                ($userData['apellido_materno'] ?? '')
+            );
             
             return User::create($userData);
         });

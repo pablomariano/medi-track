@@ -11,7 +11,7 @@ import {
   SidebarFooter
 } from '@/components/ui/sidebar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, UserCheck, Stethoscope, Heart, UserX, User, LucideIcon, UserPlus, Activity, Clock, BarChart3, UserCog, AlertTriangle, Eye } from 'lucide-react';
 
 interface NavigationItem {
@@ -141,12 +141,27 @@ const auditoriaItems: NavigationItem[] = [
 ];
 
 export function AppSidebar() {
+  const page = usePage();
+  
+  // Función para verificar si una ruta está activa
+  const isActiveRoute = (href: string): boolean => {
+    // Comparación exacta para rutas específicas
+    if (page.url === href) return true;
+    
+    // Para rutas que pueden tener sub-rutas (como /pacientes/1/edit)
+    if (href !== '/' && href !== '/dashboard' && page.url.startsWith(href)) {
+      return true;
+    }
+    
+    return false;
+  };
+
   return (
     <Sidebar variant="inset" collapsible="icon">
       <SidebarHeader className="px-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
+            <SidebarMenuButton size="lg" asChild isActive={isActiveRoute('/dashboard')}>
               <Link href="/dashboard" prefetch className="flex items-center">
                 <span className="text-base font-semibold">MediTrack</span>
               </Link>
@@ -158,7 +173,7 @@ export function AppSidebar() {
         <ScrollArea className="h-full">
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton asChild isActive={isActiveRoute('/usuarios/select-type')}>
                 <Link href="/usuarios/select-type" className="flex items-center gap-2">
                   <UserPlus className="h-4 w-4" />
                   <span>Crear Usuario</span>
@@ -172,7 +187,7 @@ export function AppSidebar() {
             </div>
             {dashboardItems.map((item: NavigationItem) => (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild tooltip={item.title}>
+                <SidebarMenuButton asChild tooltip={item.title} isActive={isActiveRoute(item.href)}>
                   <Link href={item.href} className="flex items-center gap-2">
                     {React.createElement(item.icon, { className: "h-4 w-4" })}
                     <span>{item.title}</span>
@@ -187,7 +202,7 @@ export function AppSidebar() {
             </div>
             {medicamentosItems.map((item: NavigationItem) => (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild tooltip={item.title}>
+                <SidebarMenuButton asChild tooltip={item.title} isActive={isActiveRoute(item.href)}>
                   <Link href={item.href} className="flex items-center gap-2">
                     {React.createElement(item.icon, { className: "h-4 w-4" })}
                     <span>{item.title}</span>
@@ -202,7 +217,7 @@ export function AppSidebar() {
             </div>
             {usuariosItems.map((item: NavigationItem) => (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild tooltip={item.title}>
+                <SidebarMenuButton asChild tooltip={item.title} isActive={isActiveRoute(item.href)}>
                   <Link href={item.href} className="flex items-center gap-2">
                     {React.createElement(item.icon, { className: "h-4 w-4" })}
                     <span>{item.title}</span>
@@ -217,7 +232,7 @@ export function AppSidebar() {
             </div>
             {auditoriaItems.map((item: NavigationItem) => (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild tooltip={item.title}>
+                <SidebarMenuButton asChild tooltip={item.title} isActive={isActiveRoute(item.href)}>
                   <Link href={item.href} className="flex items-center gap-2">
                     {React.createElement(item.icon, { className: "h-4 w-4" })}
                     <span>{item.title}</span>
@@ -232,7 +247,7 @@ export function AppSidebar() {
             </div>
             {configuracionItems.map((item: NavigationItem) => (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild tooltip={item.title}>
+                <SidebarMenuButton asChild tooltip={item.title} isActive={isActiveRoute(item.href)}>
                   <Link href={item.href} className="flex items-center gap-2">
                     {React.createElement(item.icon, { className: "h-4 w-4" })}
                     <span>{item.title}</span>
