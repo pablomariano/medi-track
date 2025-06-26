@@ -22,7 +22,8 @@ services:
       - storage_data:/var/www/html/storage
       - cache_data:/var/www/html/bootstrap/cache
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     networks:
       - medi-track-network
 
@@ -41,6 +42,12 @@ services:
       - "3306:3306"
     networks:
       - medi-track-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+      interval: 10s
+      start_period: 40s
 
 volumes:
   mysql_data:

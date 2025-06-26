@@ -74,7 +74,53 @@ docker-compose -f docker-compose.prod.yml up -d
 
 # Esperar a que MySQL esté listo
 echo "⏳ Esperando a que MySQL esté listo..."
-sleep 30
+echo "🔍 Verificando conectividad con MySQL..."
+
+# Función para verificar MySQL
+wait_for_mysql() {
+    local max_attempts=60
+    local attempt=1
+    
+    echo "🕐 Esperando a que MySQL esté disponible..."
+    
+    while [ $attempt -le $max_attempts ]; do
+        if docker-compose -f docker-compose.prod.yml exec -T mysql mysqladmin ping -h localhost --silent; then
+            echo "✅ MySQL está listo!"
+            return 0
+        fi
+        
+        echo "⏳ Intento $attempt/$max_attempts - MySQL aún no está listo..."
+        sleep 2
+        attempt=$((attempt + 1))
+    done
+    
+    echo "❌ MySQL no respondió después de $max_attempts intentos"
+    return 1
+}
+
+# Ejecutar la función
+if ! wait_for_mysql; then
+    echo "❌ Error: No se pudo conectar a MySQL"
+    echo "📋 Logs de MySQL:"
+    docker-compose -f docker-compose.prod.yml logs mysql --tail=20
+    exit 1
+fi
+
+# Verificar conectividad desde Laravel
+echo "🔍 Verificando conectividad desde Laravel..."
+if ! docker-compose -f docker-compose.prod.yml exec -T app php artisan db:show 2>/dev/null; then
+    echo "⚠️  Conexión inicial fallida, esperando más tiempo..."
+    sleep 15
+    
+    if ! docker-compose -f docker-compose.prod.yml exec -T app php artisan db:show 2>/dev/null; then
+        echo "❌ Laravel no puede conectarse a MySQL"
+        echo "📋 Configuración de red:"
+        docker-compose -f docker-compose.prod.yml exec -T app ping -c 3 mysql || true
+        echo "📋 Variables de entorno:"
+        docker-compose -f docker-compose.prod.yml exec -T app env | grep DB_
+        exit 1
+    fi
+fi
 
 # Ejecutar migraciones y seeders
 echo "🗄️  Ejecutando migraciones..."
