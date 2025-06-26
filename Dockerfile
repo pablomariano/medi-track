@@ -11,7 +11,7 @@ COPY eslint.config.js ./
 COPY components.json ./
 
 # Instalar dependencias de Node.js
-RUN npm ci --only=production
+RUN npm ci
 
 # Copiar código fuente del frontend
 COPY resources/ ./resources/
@@ -21,7 +21,7 @@ COPY public/ ./public/
 RUN npm run build
 
 # Etapa principal - PHP/Laravel
-FROM php:8.4-fpm-alpine
+FROM php:8.3-fpm-alpine
 
 # Instalar dependencias del sistema
 RUN apk add --no-cache \
@@ -37,8 +37,7 @@ RUN apk add --no-cache \
     oniguruma-dev \
     libxml2-dev \
     mysql-client \
-    nodejs \
-    npm
+    libzip-dev
 
 # Instalar extensiones de PHP
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -49,13 +48,38 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     pcntl \
     bcmath \
     gd \
-    xml
+    xml \
+    zip
 
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Crear usuario para Laravel
 RUN addgroup -g 1000 laravel && adduser -u 1000 -G laravel -s /bin/sh -D laravel
+
+# Establecer directorio de trabajo
+WORKDIR /var/www/html
+
+# Cambiar ownership del directorio de trabajo
+RUN chown -R laravel:laravel /var/www/html
+
+# Cambiar a usuario laravel para composer
+USER laravel
+
+# Copiar archivos de composer
+COPY --chown=laravel:laravel composer.json composer.lock ./
+
+# Instalar dependencias de PHP
+RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+
+# Cambiar de vuelta a root para resto de configuración
+USER root
+
+# Copiar código fuente de Laravel
+COPY --chown=laravel:laravel . .
+
+# Copiar archivos construidos del frontend
+COPY --from=frontend-builder --chown=laravel:laravel /app/public/build ./public/build
 
 # Configurar Nginx
 COPY docker/nginx.conf /etc/nginx/nginx.conf
@@ -64,28 +88,17 @@ COPY docker/default.conf /etc/nginx/http.d/default.conf
 # Configurar Supervisor
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Establecer directorio de trabajo
-WORKDIR /var/www/html
-
-# Copiar archivos de composer
-COPY composer.json composer.lock ./
-
-# Instalar dependencias de PHP
-RUN composer install --no-dev --optimize-autoloader --no-interaction
-
-# Copiar código fuente de Laravel
-COPY . .
-
-# Copiar archivos construidos del frontend
-COPY --from=frontend-builder /app/public/build ./public/build
-
-# Configurar permisos
-RUN chown -R laravel:laravel /var/www/html \
-    && chmod -R 755 /var/www/html/storage \
-    && chmod -R 755 /var/www/html/bootstrap/cache
-
-# Crear directorio para logs de Nginx
-RUN mkdir -p /var/log/nginx
+# Crear directorios necesarios y configurar permisos
+RUN mkdir -p /var/log/nginx \
+    && mkdir -p /var/log/supervisor \
+    && mkdir -p storage/logs \
+    && mkdir -p storage/framework/cache \
+    && mkdir -p storage/framework/sessions \
+    && mkdir -p storage/framework/views \
+    && mkdir -p bootstrap/cache \
+    && chown -R laravel:laravel /var/www/html \
+    && chmod -R 755 storage \
+    && chmod -R 755 bootstrap/cache
 
 # Exponer puerto
 EXPOSE 80

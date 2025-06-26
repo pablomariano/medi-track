@@ -27,8 +27,16 @@ fi
 
 # Crear archivo .env para producción si no existe
 if [ ! -f ".env" ]; then
-    echo "📋 Creando archivo .env desde .env.production..."
-    cp .env.production .env
+    echo "📋 Creando archivo .env para producción..."
+    if [ -f ".env.production" ]; then
+        cp .env.production .env
+    elif [ -f ".env.example" ]; then
+        cp .env.example .env
+        echo "⚠️  Usando .env.example como base. Configura para producción."
+    else
+        echo "❌ No se encontró .env.production ni .env.example"
+        exit 1
+    fi
     echo "⚠️  IMPORTANTE: Edita el archivo .env con tus configuraciones específicas antes de continuar."
     echo "⚠️  Especialmente: APP_KEY, DB_PASSWORD, DB_ROOT_PASSWORD, APP_URL"
     read -p "¿Has configurado el archivo .env? (y/N): " -n 1 -r
