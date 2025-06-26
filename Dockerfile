@@ -75,8 +75,11 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --no-script
 # Cambiar de vuelta a root para resto de configuración
 USER root
 
-# Copiar código fuente de Laravel
+# Copiar código fuente de Laravel (excluyendo .env)
 COPY --chown=laravel:laravel . .
+
+# Copiar archivo de configuración de producción
+COPY --chown=laravel:laravel .env.production .env
 
 # Copiar archivos construidos del frontend
 COPY --from=frontend-builder --chown=laravel:laravel /app/public/build ./public/build
@@ -84,6 +87,9 @@ COPY --from=frontend-builder --chown=laravel:laravel /app/public/build ./public/
 # Configurar Nginx
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/default.conf /etc/nginx/http.d/default.conf
+
+# Configurar PHP-FPM
+COPY docker/php-fpm.conf /usr/local/etc/php-fpm.conf
 
 # Configurar Supervisor
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
