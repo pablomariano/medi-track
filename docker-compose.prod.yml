@@ -37,23 +37,8 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./database/init:/docker-entrypoint-initdb.d
     ports:
       - "3306:3306"
-    networks:
-      - medi-track-network
-
-  nginx-proxy:
-    image: nginx:alpine
-    container_name: medi-track-proxy
-    restart: unless-stopped
-    ports:
-      - "443:443"
-    volumes:
-      - ./docker/ssl:/etc/nginx/ssl
-      - ./docker/proxy.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - app
     networks:
       - medi-track-network
 
