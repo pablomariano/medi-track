@@ -8,7 +8,13 @@
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix",
-        "types": "tsc --noEmit"
+        "types": "tsc --noEmit",
+        "sail:up": "./vendor/bin/sail up -d",
+        "sail:down": "./vendor/bin/sail down",
+        "sail:build": "./vendor/bin/sail build --no-cache",
+        "sail:fresh": "./vendor/bin/sail artisan migrate:fresh --seed",
+        "sail:test": "./vendor/bin/sail artisan test",
+        "sail:composer": "./vendor/bin/sail composer"
     },
     "devDependencies": {
         "@eslint/js": "^9.19.0",
