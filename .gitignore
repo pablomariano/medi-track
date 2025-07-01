@@ -23,3 +23,6 @@ yarn-error.log
 /.vscode
 /.zed
 public/.DS_Store
+.env.clean
+.env.old
+setup-sail.sh

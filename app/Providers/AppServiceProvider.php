@@ -26,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
         // Forzar HTTPS en producción
         if (config('app.env') === 'production' || request()->header('x-forwarded-proto') === 'https') {
             URL::forceScheme('https');
-        }
+        }    
 
         // Registrar observer de auditoría para modelos críticos
         $this->registerAuditObservers();
