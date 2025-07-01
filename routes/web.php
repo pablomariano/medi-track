@@ -18,10 +18,10 @@ use App\Http\Controllers\AdministracionController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PacienteCuidadorController;
 use App\Http\Controllers\PacienteMedicoController;
+use App\Http\Controllers\LandingController;
 
-Route::get('/', function () {
-    return Inertia::render('welcome');
-})->name('home');
+// === LANDING PAGE - Página principal ===
+Route::get('/', [LandingController::class, 'index'])->name('home');
 
 
 
