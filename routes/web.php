@@ -19,6 +19,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PacienteCuidadorController;
 use App\Http\Controllers\PacienteMedicoController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\WelcomeController;
 
 // === LANDING PAGE - Página principal ===
 Route::get('/', [LandingController::class, 'index'])->name('home');
@@ -32,6 +33,38 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard/medicamentos', function () {
         return Inertia::render('Dashboard/Medicamentos');
     })->name('dashboard.medicamentos');
+
+    // === BIENVENIDA PARA USUARIOS NUEVOS ===
+    Route::get('bienvenida', [WelcomeController::class, 'newUser'])->name('welcome.new-user');
+    Route::post('bienvenida/progreso', [WelcomeController::class, 'updateProgress'])->name('welcome.update-progress');
+    Route::post('bienvenida/completar', [WelcomeController::class, 'completeOnboarding'])->name('welcome.complete');
+    Route::get('bienvenida/estadisticas', [WelcomeController::class, 'getMotivationStats'])->name('welcome.stats');
+
+    // === RUTAS ESPECÍFICAS PARA CASOS DE USO DE NUEVOS USUARIOS ===
+    Route::prefix('mis-tratamientos')->name('mis-tratamientos.')->group(function () {
+        Route::get('crear', function () {
+            return Inertia::render('MisTratamientos/Crear');
+        })->name('crear');
+        Route::post('/', function () {
+            // Lógica para crear tratamiento
+            return redirect()->route('welcome.new-user')->with('success', '¡Tratamiento creado exitosamente!');
+        })->name('store');
+    });
+
+    Route::prefix('mi-perfil')->name('mi-perfil.')->group(function () {
+        Route::get('/', function () {
+            return Inertia::render('MiPerfil/Index');
+        })->name('index');
+        Route::get('editar', function () {
+            return Inertia::render('MiPerfil/Editar');
+        })->name('editar');
+    });
+
+    Route::prefix('mi-cronograma')->name('mi-cronograma.')->group(function () {
+        Route::get('/', function () {
+            return Inertia::render('MiCronograma/Index');
+        })->name('index');
+    });
 
     // === RUTAS DE ADMINISTRACIÓN - Solo Admin ===
     Route::middleware('role:admin')->group(function () {
