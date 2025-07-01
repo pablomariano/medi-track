@@ -57,6 +57,30 @@ const navigationSections: NavigationSection[] = [
     ],
   },
   {
+    title: 'Mi Información',
+    anyRoles: ['paciente'],
+    items: [
+      {
+        title: 'Mi Perfil',
+        href: '/mi-perfil',
+        icon: User,
+        anyRoles: ['paciente'],
+      },
+      {
+        title: 'Mis Tratamientos',
+        href: '/mis-tratamientos',
+        icon: Activity,
+        anyRoles: ['paciente'],
+      },
+      {
+        title: 'Mi Cronograma',
+        href: '/mi-cronograma',
+        icon: Calendar,
+        anyRoles: ['paciente'],
+      },
+    ],
+  },
+  {
     title: 'Medicamentos',
     anyRoles: ['admin', 'medico', 'cuidador'],
     items: [
