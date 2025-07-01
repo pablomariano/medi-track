@@ -216,4 +216,22 @@ class User extends Authenticatable
 
         return $this->role->permisos;
     }
+
+    /**
+     * Obtener el rol por defecto para usuarios nuevos
+     */
+    public static function getDefaultRole(): ?Role
+    {
+        return Role::where('nombre', 'paciente')->first();
+    }
+
+    /**
+     * Asignar rol por defecto si el usuario no tiene uno
+     */
+    public function ensureHasRole(): void
+    {
+        if (!$this->rol_id && $defaultRole = self::getDefaultRole()) {
+            $this->update(['rol_id' => $defaultRole->id]);
+        }
+    }
 }

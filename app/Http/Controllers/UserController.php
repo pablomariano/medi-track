@@ -45,6 +45,14 @@ class UserController extends Controller
             'email_verificado' => 'boolean'
         ]);
 
+        // Si no se especifica rol, asignar rol de paciente por defecto
+        if (empty($validated['rol_id'])) {
+            $rolPaciente = User::getDefaultRole();
+            if ($rolPaciente) {
+                $validated['rol_id'] = $rolPaciente->id;
+            }
+        }
+
         $validated['password'] = Hash::make($validated['password']);
         $validated['email_verified_at'] = $validated['email_verificado'] ? now() : null;
         
@@ -96,6 +104,14 @@ class UserController extends Controller
             'activo' => 'boolean',
             'email_verificado' => 'boolean'
         ]);
+
+        // Si no se especifica rol, asignar rol de paciente por defecto
+        if (empty($validated['rol_id'])) {
+            $rolPaciente = User::getDefaultRole();
+            if ($rolPaciente) {
+                $validated['rol_id'] = $rolPaciente->id;
+            }
+        }
 
         if (!empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
