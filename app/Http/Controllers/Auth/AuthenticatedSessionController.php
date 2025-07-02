@@ -33,6 +33,13 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $user = Auth::user();
+        
+        // Verificar si el usuario necesita onboarding
+        if ($this->userNeedsOnboarding($user)) {
+            return redirect()->intended(route('welcome.new-user', absolute: false));
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 
@@ -47,5 +54,55 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    /**
+     * Verificar si el usuario necesita onboarding
+     */
+    private function userNeedsOnboarding($user): bool
+    {
+        // Si ya completó el onboarding
+        if (session('onboarding_completed')) {
+            return false;
+        }
+
+        // Si es un usuario recién creado (menos de 7 días)
+        $userAge = $user->created_at->diffInDays(now());
+        if ($userAge > 7) {
+            return false;
+        }
+
+        // Verificar si ha completado acciones básicas
+        $hasBasicData = $this->userHasBasicData($user);
+        
+        return !$hasBasicData;
+    }
+
+    /**
+     * Verificar si el usuario tiene datos básicos
+     */
+    private function userHasBasicData($user): bool
+    {
+        // Verificar según el rol
+        switch ($user->role->nombre ?? 'paciente') {
+            case 'paciente':
+                // Verificar si tiene paciente asociado o tratamientos
+                return $user->pacientes()->exists();
+                
+            case 'medico':
+                // Verificar si tiene perfil médico completo
+                return $user->personalMedico()->exists();
+                
+            case 'cuidador':
+                // Verificar si tiene perfil de cuidador
+                return $user->cuidadores()->exists();
+                
+            case 'apoderado':
+                // Verificar si tiene perfil de apoderado
+                return $user->apoderados()->exists();
+                
+            default:
+                return false;
+        }
     }
 }
