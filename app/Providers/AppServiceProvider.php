@@ -50,7 +50,6 @@ class AppServiceProvider extends ServiceProvider
             \App\Models\PacienteCuidador::class,
             \App\Models\Role::class,
             \App\Models\Permiso::class,
-            \App\Models\PermisoTemporal::class,
             \App\Models\Administracion::class,
         ];
 

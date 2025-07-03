@@ -110,7 +110,6 @@ class AuditableObserver
             'App\\Models\\PacienteCuidador',
             'App\\Models\\Role',
             'App\\Models\\Permiso',
-            'App\\Models\\PermisoTemporal',
             'App\\Models\\Administracion'
         ];
 
@@ -189,8 +188,7 @@ class AuditableObserver
             'App\\Models\\PersonalMedico' => ['nombre', 'apellido', 'rut', 'especialidad', 'activo'],
             'App\\Models\\Tratamiento' => ['paciente_id', 'medico_usuario_id', 'nombre', 'fecha_inicio', 'fecha_fin', 'activo'],
             'App\\Models\\PacienteMedico' => ['paciente_id', 'medico_id', 'es_principal', 'fecha_asignacion', 'fecha_fin'],
-            'App\\Models\\Administracion' => ['tratamiento_id', 'medicamento_id', 'fecha_programada', 'fecha_administracion', 'estado'],
-            'App\\Models\\PermisoTemporal' => ['usuario_id', 'permiso', 'fecha_inicio', 'fecha_fin', 'activo']
+            'App\\Models\\Administracion' => ['tratamiento_id', 'medicamento_id', 'fecha_programada', 'fecha_administracion', 'estado']
         ];
 
         return $camposPorModelo[$modelClass] ?? [];
@@ -209,8 +207,7 @@ class AuditableObserver
             'App\\Models\\Paciente' => ['activo', 'rut'],
             'App\\Models\\PersonalMedico' => ['activo', 'rut'],
             'App\\Models\\Tratamiento' => ['activo', 'fecha_fin'],
-            'App\\Models\\PacienteMedico' => ['es_principal', 'fecha_fin'],
-            'App\\Models\\PermisoTemporal' => ['activo', 'fecha_fin']
+            'App\\Models\\PacienteMedico' => ['es_principal', 'fecha_fin']
         ];
 
         $camposCriticosModelo = $cambiosCriticos[$modelClass] ?? [];
