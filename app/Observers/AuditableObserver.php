@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class AuditableObserver
 {
     /**
+     * Almacén temporal para datos originales durante actualizaciones
+     */
+    private static $originalData = [];
+
+    /**
      * Handle the model "created" event.
      */
     public function created(Model $model): void
@@ -27,7 +32,8 @@ class AuditableObserver
     {
         // Guardamos el estado original antes de la actualización
         if ($this->debeAuditar($model)) {
-            $model->_original_for_audit = $model->getOriginal();
+            $modelKey = get_class($model) . '_' . $model->getKey();
+            self::$originalData[$modelKey] = $model->getOriginal();
         }
     }
 
@@ -36,19 +42,23 @@ class AuditableObserver
      */
     public function updated(Model $model): void
     {
-        if ($this->debeAuditar($model) && isset($model->_original_for_audit)) {
-            AuditService::logUpdate(
-                $model, 
-                $model->_original_for_audit,
-                [
-                    'evento' => 'model_updated',
-                    'usuario_actual' => $this->getUsuarioActual(),
-                    'cambios_detectados' => $this->detectarCambiosImportantes($model)
-                ]
-            );
+        if ($this->debeAuditar($model)) {
+            $modelKey = get_class($model) . '_' . $model->getKey();
             
-            // Limpiar la propiedad temporal
-            unset($model->_original_for_audit);
+            if (isset(self::$originalData[$modelKey])) {
+                AuditService::logUpdate(
+                    $model, 
+                    self::$originalData[$modelKey],
+                    [
+                        'evento' => 'model_updated',
+                        'usuario_actual' => $this->getUsuarioActual(),
+                        'cambios_detectados' => $this->detectarCambiosImportantes($model, self::$originalData[$modelKey])
+                    ]
+                );
+                
+                // Limpiar los datos temporales
+                unset(self::$originalData[$modelKey]);
+            }
         }
     }
 
@@ -154,14 +164,14 @@ class AuditableObserver
     /**
      * Detectar cambios importantes en el modelo
      */
-    private function detectarCambiosImportantes(Model $model): array
+    private function detectarCambiosImportantes(Model $model, array $originalData): array
     {
         $camposImportantes = $this->getCamposImportantesPorModelo($model);
         $cambiosImportantes = [];
 
         foreach ($model->getDirty() as $campo => $valorNuevo) {
             if (in_array($campo, $camposImportantes)) {
-                $valorOriginal = $model->getOriginal($campo);
+                $valorOriginal = $originalData[$campo] ?? null;
                 
                 $cambiosImportantes[] = [
                     'campo' => $campo,
@@ -183,12 +193,12 @@ class AuditableObserver
         $modelClass = get_class($model);
 
         $camposPorModelo = [
-            'App\\Models\\User' => ['name', 'email', 'role_id', 'email_verified_at'],
-            'App\\Models\\Paciente' => ['nombre', 'apellido', 'rut', 'fecha_nacimiento', 'activo'],
-            'App\\Models\\PersonalMedico' => ['nombre', 'apellido', 'rut', 'especialidad', 'activo'],
-            'App\\Models\\Tratamiento' => ['paciente_id', 'medico_usuario_id', 'nombre', 'fecha_inicio', 'fecha_fin', 'activo'],
+            'App\\Models\\User' => ['name', 'email', 'rol_id', 'email_verified_at'],
+            'App\\Models\\Paciente' => ['nombre', 'apellido', 'numero_documento', 'fecha_nacimiento', 'activo'],
+            'App\\Models\\PersonalMedico' => ['nombre', 'apellido', 'numero_documento', 'especialidad', 'activo'],
+            'App\\Models\\Tratamiento' => ['paciente_id', 'medico_usuario_id', 'nombre', 'fecha_inicio', 'fecha_fin', 'estado'],
             'App\\Models\\PacienteMedico' => ['paciente_id', 'medico_id', 'es_principal', 'fecha_asignacion', 'fecha_fin'],
-            'App\\Models\\Administracion' => ['tratamiento_id', 'medicamento_id', 'fecha_programada', 'fecha_administracion', 'estado']
+            'App\\Models\\Administracion' => ['tratamiento_id', 'medicamento_id', 'fecha_hora_programada', 'fecha_hora_administrada', 'estado']
         ];
 
         return $camposPorModelo[$modelClass] ?? [];
@@ -200,29 +210,29 @@ class AuditableObserver
     private function esCambioCritico(Model $model, string $campo, $valorAnterior, $valorNuevo): bool
     {
         $modelClass = get_class($model);
-
-        // Cambios críticos por modelo y campo
-        $cambiosCriticos = [
-            'App\\Models\\User' => ['role_id', 'email'],
-            'App\\Models\\Paciente' => ['activo', 'rut'],
-            'App\\Models\\PersonalMedico' => ['activo', 'rut'],
-            'App\\Models\\Tratamiento' => ['activo', 'fecha_fin'],
-            'App\\Models\\PacienteMedico' => ['es_principal', 'fecha_fin']
+        
+        // Cambios críticos por modelo
+        $camposCriticos = [
+            'App\\Models\\User' => ['email', 'rol_id', 'activo'],
+            'App\\Models\\Paciente' => ['numero_documento', 'activo'],
+            'App\\Models\\Tratamiento' => ['paciente_id', 'medico_usuario_id', 'estado'],
+            'App\\Models\\Administracion' => ['estado', 'fecha_hora_administrada']
         ];
 
-        $camposCriticosModelo = $cambiosCriticos[$modelClass] ?? [];
-
-        if (in_array($campo, $camposCriticosModelo)) {
+        $criticos = $camposCriticos[$modelClass] ?? [];
+        
+        if (in_array($campo, $criticos)) {
+            // Casos específicos de criticidad
+            if ($campo === 'activo' && $valorAnterior == true && $valorNuevo == false) {
+                return true; // Desactivación
+            }
+            
+            if ($campo === 'estado' && in_array($valorAnterior, ['Activo', 'Pendiente']) && 
+                in_array($valorNuevo, ['Suspendido', 'Omitida', 'Cancelado'])) {
+                return true; // Cambio de estado activo a inactivo
+            }
+            
             return true;
-        }
-
-        // Casos específicos adicionales
-        if ($campo === 'activo' && $valorAnterior == true && $valorNuevo == false) {
-            return true; // Desactivación siempre es crítica
-        }
-
-        if ($campo === 'fecha_fin' && $valorAnterior === null && $valorNuevo !== null) {
-            return true; // Establecer fecha fin es crítico
         }
 
         return false;

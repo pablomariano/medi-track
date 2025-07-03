@@ -42,6 +42,15 @@ class User extends Authenticatable
     ];
 
     /**
+     * Attributes that should be ignored during mass assignment and auditing
+     *
+     * @var array
+     */
+    protected $guarded = [
+        '_original_for_audit'
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -95,7 +104,7 @@ class User extends Authenticatable
             $this->apellido_materno
         ]);
         
-        return implode(' ', $partes);
+        return !empty($partes) ? implode(' ', $partes) : $this->name;
     }
 
     // Método para obtener el nombre completo formateado
@@ -233,5 +242,43 @@ class User extends Authenticatable
         if (!$this->rol_id && $defaultRole = self::getDefaultRole()) {
             $this->update(['rol_id' => $defaultRole->id]);
         }
+    }
+
+    // Método para verificar si el usuario es médico
+    public function isMedico()
+    {
+        return $this->hasRole('medico');
+    }
+
+    // Método para verificar si el usuario es paciente
+    public function isPaciente()
+    {
+        return $this->hasRole('paciente');
+    }
+
+    // Método para verificar si el usuario es cuidador
+    public function isCuidador()
+    {
+        return $this->hasRole('cuidador');
+    }
+
+    // Método para verificar si el usuario es apoderado
+    public function isApoderado()
+    {
+        return $this->hasRole('apoderado');
+    }
+
+    // Accessor para email_verificado (compatibilidad)
+    public function getEmailVerificadoAttribute()
+    {
+        return $this->email_verified_at !== null;
+    }
+
+    // Scope para usuarios por rol
+    public function scopePorRol($query, $roleName)
+    {
+        return $query->whereHas('role', function($q) use ($roleName) {
+            $q->where('nombre', $roleName);
+        });
     }
 }
