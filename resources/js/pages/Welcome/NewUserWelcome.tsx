@@ -13,7 +13,10 @@ import {
   CheckCircle, 
   ArrowRight,
   Users,
-  Clock
+  Clock,
+  BarChart3,
+  Shield,
+  Eye
 } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
@@ -228,10 +231,76 @@ export default function NewUserWelcome() {
           variant: 'secondary'
         }
       ]
+    },
+    admin: {
+      role: 'admin',
+      title: '¡Bienvenido, Administrador!',
+      subtitle: 'Gestiona el sistema y supervisa todas las operaciones',
+      steps: [
+        {
+          id: 'system-overview',
+          title: 'Revisión del sistema',
+          description: 'Monitorea el estado general del sistema',
+          icon: BarChart3,
+          href: '/dashboard',
+          completed: false,
+          priority: 'high'
+        },
+        {
+          id: 'user-management',
+          title: 'Gestión de usuarios',
+          description: 'Administra usuarios del sistema',
+          icon: Users,
+          href: '/usuarios',
+          completed: false,
+          priority: 'high'
+        },
+        {
+          id: 'role-permissions',
+          title: 'Configurar roles y permisos',
+          description: 'Gestiona el sistema de autorización',
+          icon: Shield,
+          href: '/roles',
+          completed: false,
+          priority: 'medium'
+        },
+        {
+          id: 'audit-logs',
+          title: 'Revisar auditoría',
+          description: 'Supervisa los logs del sistema',
+          icon: Eye,
+          href: '/audit',
+          completed: false,
+          priority: 'medium'
+        }
+      ],
+      quickActions: [
+        {
+          title: 'Dashboard del Sistema',
+          description: 'Ver métricas generales',
+          icon: BarChart3,
+          href: '/dashboard',
+          variant: 'default'
+        },
+        {
+          title: 'Gestionar Usuarios',
+          description: 'Administrar cuentas de usuario',
+          icon: Users,
+          href: '/usuarios',
+          variant: 'secondary'
+        },
+        {
+          title: 'Logs de Auditoría',
+          description: 'Revisar actividad del sistema',
+          icon: Eye,
+          href: '/audit',
+          variant: 'outline'
+        }
+      ]
     }
   };
 
-  const currentUserGuide = userGuides[auth.user?.role?.nombre || 'paciente'];
+  const currentUserGuide = userGuides[auth.user?.role?.nombre || 'paciente'] || userGuides['paciente'];
 
   const markStepCompleted = (stepId: string) => {
     if (!completedSteps.includes(stepId)) {
