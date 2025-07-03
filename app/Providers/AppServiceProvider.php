@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
 use App\Services\UserRegistrationService;
 use Illuminate\Support\Facades\URL;
 
@@ -27,7 +28,11 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') === 'production' || request()->header('x-forwarded-proto') === 'https') {
             URL::forceScheme('https');
         }    
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 483cd74842263748e9f18d073f08d55f63196910
         // Registrar observer de auditoría para modelos críticos
         $this->registerAuditObservers();
     }

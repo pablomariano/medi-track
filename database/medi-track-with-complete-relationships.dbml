@@ -1,0 +1,390 @@
+// ========================================
+// MEDI-TRACK - MODELO DE DATOS COMPLETO
+// Con todas las relaciones foreign key implementadas
+// ========================================
+
+// ==========================================
+// SISTEMA DE ROLES Y PERMISOS
+// ==========================================
+
+Table roles {
+  id int [pk, increment]
+  nombre varchar(50) [unique, not null]
+  descripcion text
+  activo boolean [default: true]
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  Note: 'Roles del sistema: admin, medico, cuidador, apoderado, paciente'
+}
+
+Table permisos {
+  id int [pk, increment]
+  nombre varchar(50) [unique, not null]
+  descripcion text
+  modulo varchar(50)
+  
+  Note: 'Permisos específicos del sistema'
+}
+
+Table rol_permisos {
+  rol_id int [ref: > roles.id]
+  permiso_id int [ref: > permisos.id]
+  
+  indexes {
+    (rol_id, permiso_id) [pk]
+  }
+  
+  Note: 'Permisos asignados a cada rol'
+}
+
+// ==========================================
+// SISTEMA DE USUARIOS
+// ==========================================
+
+Table users {
+  id int [pk, increment]
+  name varchar(255) [not null]
+  email varchar(255) [unique, not null]
+  email_verified_at timestamp
+  password varchar(255) [not null]
+  telefono varchar(20)
+  rol_id int [ref: > roles.id]
+  activo boolean [default: true]
+  email_verificado boolean [default: false]
+  ultimo_acceso timestamp
+  remember_token varchar(100)
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Tabla central de usuarios del sistema'
+}
+
+// ==========================================
+// TIPOS DE USUARIOS ESPECÍFICOS
+// ==========================================
+
+Table personal_medico {
+  usuario_id int [pk, ref: - users.id]
+  especialidad varchar(100)
+  numero_colegiatura varchar(50) [unique]
+  institucion varchar(100)
+  anos_experiencia int
+  
+  Note: 'Información específica del personal médico'
+}
+
+Table cuidadores {
+  usuario_id int [pk, ref: - users.id]
+  certificaciones text
+  experiencia_anos int
+  disponibilidad_horaria varchar(100)
+  tarifa_hora decimal(8,2)
+  
+  Note: 'Información específica de cuidadores'
+}
+
+Table apoderados {
+  usuario_id int [pk, ref: - users.id]
+  relacion_paciente varchar(50)
+  es_contacto_emergencia boolean [default: true]
+  
+  Note: 'Información específica de apoderados/tutores'
+}
+
+// ==========================================
+// SISTEMA DE PACIENTES
+// ==========================================
+
+Table generos {
+  id char(1) [pk]
+  nombre varchar(20) [unique, not null]
+  
+  Note: 'M: Masculino, F: Femenino, O: Otro'
+}
+
+Table pacientes {
+  id int [pk, increment]
+  usuario_id int [ref: > users.id, note: 'Opcional - paciente puede no tener cuenta']
+  nombre varchar(100) [not null]
+  fecha_nacimiento date
+  genero_id char(1) [ref: > generos.id]
+  numero_documento varchar(20) [unique]
+  tipo_documento varchar(10)
+  tipo_sangre varchar(10)
+  altura decimal(5,2)
+  direccion text
+  telefono_emergencia varchar(20)
+  observaciones_medicas text
+  activo boolean [default: true]
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  Note: 'Pacientes del sistema - pueden o no tener cuenta de usuario'
+}
+
+// ==========================================
+// RELACIONES ENTRE PACIENTES Y USUARIOS
+// ==========================================
+
+Table paciente_apoderados {
+  paciente_id int [ref: > pacientes.id]
+  apoderado_usuario_id int [ref: > apoderados.usuario_id]
+  es_principal boolean [default: false]
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  indexes {
+    (paciente_id, apoderado_usuario_id) [pk]
+  }
+  
+  Note: 'Un paciente puede tener múltiples apoderados'
+}
+
+Table paciente_cuidadores {
+  paciente_id int [ref: > pacientes.id]
+  cuidador_usuario_id int [ref: > cuidadores.usuario_id]
+  fecha_asignacion date [not null]
+  fecha_fin date
+  activo boolean [default: true]
+  
+  indexes {
+    (paciente_id, cuidador_usuario_id) [pk]
+  }
+  
+  Note: 'Asignación de cuidadores a pacientes'
+}
+
+Table paciente_medicos {
+  paciente_id int [ref: > pacientes.id]
+  medico_usuario_id int [ref: > personal_medico.usuario_id]
+  es_medico_principal boolean [default: false]
+  fecha_asignacion date [not null]
+  fecha_fin date
+  especialidad_tratamiento varchar(100)
+  
+  indexes {
+    (paciente_id, medico_usuario_id) [pk]
+  }
+  
+  Note: 'Asignación de médicos a pacientes'
+}
+
+// ==========================================
+// SISTEMA DE MEDICAMENTOS
+// ==========================================
+
+Table medicamentos {
+  id int [pk, increment]
+  nombre varchar(255) [not null]
+  principio_activo varchar(255)
+  forma_farmaceutica varchar(100)
+  via_administracion varchar(100)
+  medida varchar(255) [not null]
+  unidad_medida varchar(255) [not null]
+  descripcion text
+  activo boolean [default: true]
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+  
+  Note: 'Catálogo de medicamentos disponibles'
+}
+
+// ==========================================
+// SISTEMA DE TRATAMIENTOS Y ADMINISTRACIÓN
+// ==========================================
+
+Table tratamientos {
+  id int [pk, increment]
+  paciente_id int [ref: > pacientes.id]
+  medico_usuario_id int [ref: > personal_medico.usuario_id]
+  nombre varchar(255) [not null]
+  objetivo varchar(255)
+  diagnostico text
+  tipo enum ['Programado']
+  estado enum ['Activo', 'Pausado', 'Completado', 'Suspendido']
+  fecha_inicio date [not null]
+  fecha_fin date
+  observaciones text
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Tratamientos médicos asignados a pacientes'
+}
+
+Table medicamentos_tratamientos {
+  id int [pk, increment]
+  medicamento_id int [ref: > medicamentos.id]
+  tratamiento_id int [ref: > tratamientos.id]
+  dosis_cantidad decimal(10,3) [not null]
+  unidad_dosis varchar(50) [not null]
+  frecuencia_horas int [not null]
+  tolerancia_antes_minutos int [default: 30]
+  tolerancia_despues_minutos int [default: 60]
+  duracion_dias int
+  instrucciones_especiales text
+  estado enum ['Activo', 'Pausado', 'Suspendido']
+  activo boolean [default: true]
+  motivo_suspension text
+  orden int [default: 1]
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Medicamentos específicos dentro de un tratamiento'
+}
+
+Table horarios_programados {
+  id int [pk, increment]
+  medicamento_tratamiento_id int [ref: > medicamentos_tratamientos.id]
+  paciente_id int [ref: > pacientes.id]
+  hora_programada time [not null]
+  dias_semana varchar(20) [not null]
+  fecha_inicio date [not null]
+  fecha_fin date
+  activo boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Horarios programados para administración de medicamentos'
+}
+
+Table administraciones {
+  id int [pk, increment]
+  medicamento_tratamiento_id int [ref: > medicamentos_tratamientos.id]
+  horario_programado_id int [ref: > horarios_programados.id, note: 'NULL para PRN']
+  paciente_id int [ref: > pacientes.id]
+  cuidador_usuario_id int [ref: > cuidadores.usuario_id, note: 'Quien administró']
+  
+  // Tiempos
+  fecha_hora_programada timestamp
+  fecha_hora_administrada timestamp
+  
+  // Datos de administración
+  dosis_administrada decimal(10,3) [not null]
+  estado enum ['Pendiente', 'Administrada', 'Omitida', 'Tardía']
+  es_dentro_ventana_tolerancia boolean [default: true]
+  minutos_diferencia int
+  
+  // Datos específicos PRN
+  sintoma_reportado_id bigint
+  intensidad_sintoma varchar(20)
+  criterio_cumplido text
+  
+  // Observaciones
+  observaciones text
+  efectos_adversos text
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Registro de administraciones de medicamentos'
+}
+
+// ==========================================
+// SISTEMA DE ALERTAS Y MONITOREO
+// ==========================================
+
+Table alertas {
+  id int [pk, increment]
+  paciente_id int [ref: > pacientes.id]
+  tratamiento_id int [ref: > tratamientos.id, note: 'Opcional']
+  administracion_id int [ref: > administraciones.id, note: 'Opcional']
+  tipo enum ['Dosis_Omitida', 'Fuera_Ventana', 'Exceso_PRN', 'Intervalo_Corto_PRN', 'Efecto_Adverso']
+  nivel enum ['Info', 'Advertencia', 'Critica']
+  mensaje text [not null]
+  fecha_generada timestamp [not null]
+  revisada boolean [default: false]
+  revisada_por int [ref: > users.id, note: 'Usuario que revisó']
+  fecha_revision timestamp
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Sistema de alertas para monitoreo de adherencia'
+}
+
+// ==========================================
+// SISTEMA DE ESTADÍSTICAS Y REPORTES
+// ==========================================
+
+Table estadisticas_consumo {
+  id int [pk, increment]
+  paciente_id int [ref: > pacientes.id]
+  medicamento_id int [ref: > medicamentos.id]
+  periodo_inicio date [not null]
+  periodo_fin date [not null]
+  tipo_periodo enum ['Diario', 'Semanal', 'Mensual']
+  
+  // Métricas de adherencia
+  dosis_programadas int [default: 0]
+  dosis_administradas int [default: 0]
+  dosis_omitidas int [default: 0]
+  dosis_tardias int [default: 0]
+  dosis_prn int [default: 0]
+  
+  // Métricas PRN específicas
+  administraciones_prn_por_sintoma json
+  promedio_intensidad_sintomas decimal(3,1)
+  
+  // Métricas de calidad
+  adherencia_porcentaje decimal(5,2)
+  puntualidad_porcentaje decimal(5,2)
+  
+  // Consumo total
+  cantidad_total_administrada decimal(10,3)
+  unidad varchar(50)
+  
+  calculated_at timestamp [not null]
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Estadísticas de consumo y adherencia por paciente y medicamento'
+}
+
+Table resumen_adherencia_paciente {
+  id int [pk, increment]
+  paciente_id int [ref: > pacientes.id]
+  fecha date [not null]
+  
+  // Resumen general del día
+  total_medicamentos_activos int [default: 0]
+  total_dosis_programadas int [default: 0]
+  total_dosis_administradas int [default: 0]
+  total_dosis_omitidas int [default: 0]
+  total_dosis_prn int [default: 0]
+  
+  // Resumen PRN específico
+  sintomas_mas_frecuentes json
+  total_medicamentos_prn_activos int [default: 0]
+  
+  // Indicadores de calidad
+  adherencia_general_porcentaje decimal(5,2)
+  puntualidad_general_porcentaje decimal(5,2)
+  
+  calculated_at timestamp [not null]
+  created_at timestamp
+  updated_at timestamp
+  
+  Note: 'Resumen diario de adherencia por paciente'
+}
+
+// ==========================================
+// SISTEMA DE AUDITORÍA
+// ==========================================
+
+Table audit_logs {
+  id int [pk, increment]
+  usuario_id int [ref: > users.id, note: 'Usuario que realizó la acción']
+  accion enum ['create', 'update', 'delete', 'access', 'login', 'logout', 'permission_grant', 'permission_revoke']
+  tabla_afectada varchar(100)
+  registro_id bigint
+  datos_anteriores json
+  datos_nuevos json
+  ip_address varchar(45) [not null]
+  user_agent text
+  metodo_http varchar(10)
+  url varchar(500)
+  ruta varchar(200)
+  contexto_adicional json
+  session_id varchar(100)
+  severidad enum ['low', 'medium', 'high', 'critical']
+  created_at timestamp
+  created_by_name varchar(100)
+  
+  Note: 'Registro de auditoría para todas las acciones críticas'
+} 
