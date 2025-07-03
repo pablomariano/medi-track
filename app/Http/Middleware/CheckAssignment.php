@@ -17,10 +17,10 @@ class CheckAssignment
      * 
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     * @param  string  $type  Tipo de asignación: 'medico', 'cuidador', 'apoderado'
+     * @param  ?string  $type  Tipo de asignación: 'medico', 'cuidador', 'apoderado'
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function handle(Request $request, Closure $next, string $type = null): Response
+    public function handle(Request $request, Closure $next, ?string $type = null): Response
     {
         $user = auth()->user();
 
