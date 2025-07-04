@@ -16,10 +16,12 @@ use App\Http\Controllers\TratamientoController;
 use App\Http\Controllers\MedicamentoController;
 use App\Http\Controllers\AdministracionController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PacienteCuidadorController;
 use App\Http\Controllers\PacienteMedicoController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\ComponentCatalogController;
 
 // === LANDING PAGE - Página principal ===
 Route::get('/', [LandingController::class, 'index'])->name('home');
@@ -27,8 +29,11 @@ Route::get('/', [LandingController::class, 'index'])->name('home');
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    // === DASHBOARD - Acceso para todos los usuarios autenticados ===
-    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // === PÁGINA DE INICIO SIMPLE (temporal) - Acceso para todos los usuarios autenticados ===
+    Route::get('dashboard', [HomeController::class, 'index'])->name('dashboard');
+    
+    // === DASHBOARD ORIGINAL (comentado temporalmente) ===
+    // Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('dashboard/refresh', [DashboardController::class, 'refresh'])->name('dashboard.refresh');
     Route::get('dashboard/medicamentos', function () {
         return Inertia::render('Dashboard/Medicamentos');
@@ -71,6 +76,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('roles', RoleController::class);
         Route::resource('permisos', PermisoController::class);
         Route::resource('generos', GeneroController::class);
+        
+        // Catálogo de Componentes - Solo Administradores
+        Route::get('component-catalog', [ComponentCatalogController::class, 'index'])->name('component-catalog.index');
     });
 
     // === RUTAS DE GESTIÓN MÉDICA - Admin + Médicos ===

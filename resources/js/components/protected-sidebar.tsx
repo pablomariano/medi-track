@@ -15,7 +15,7 @@ import { ProtectedLink } from '@/components/auth/ProtectedLink';
 import { useAuth } from '@/hooks/use-auth';
 import { CanAccess } from '@/components/auth/CanAccess';
 import { usePage } from '@inertiajs/react';
-import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, UserCheck, Stethoscope, Heart, UserX, User, LucideIcon, UserPlus, Activity, Clock, BarChart3, UserCog } from 'lucide-react';
+import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, UserCheck, Stethoscope, Heart, UserX, User, LucideIcon, UserPlus, Activity, Clock, BarChart3, UserCog, Code } from 'lucide-react';
 
 interface NavigationItem {
   title: string;
@@ -196,6 +196,12 @@ const navigationSections: NavigationSection[] = [
         icon: Pill,
         resource: 'medicines',
         action: 'index',
+      },
+      {
+        title: 'Catálogo de Componentes',
+        href: '/component-catalog',
+        icon: Code,
+        requireAdmin: true,
       },
       {
         title: 'Settings',

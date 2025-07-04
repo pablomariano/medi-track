@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/sidebar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Link, usePage } from '@inertiajs/react';
-import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, UserCheck, Stethoscope, Heart, UserX, User, LucideIcon, UserPlus, Activity, Clock, BarChart3, UserCog, AlertTriangle, Eye } from 'lucide-react';
+import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, UserCheck, Stethoscope, Heart, UserX, User, LucideIcon, UserPlus, Activity, Clock, BarChart3, UserCog, AlertTriangle, Eye, Code } from 'lucide-react';
 
 interface NavigationItem {
   title: string;
@@ -114,6 +114,11 @@ const configuracionItems: NavigationItem[] = [
     title: 'Géneros',
     href: '/generos',
     icon: UserCheck,
+  },
+  {
+    title: 'Catálogo de Componentes',
+    href: '/component-catalog',
+    icon: Code,
   },
   {
     title: 'Medicines (Legacy)',
