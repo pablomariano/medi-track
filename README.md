@@ -77,7 +77,7 @@ Medi-Track es una aplicación web moderna diseñada para la gestión integral de
 
 1. **Clonar el repositorio**
 ```bash
-git clone https://github.com/tu-usuario/medi-track.git
+git clone https://github.com/pablomariano/medi-track.git
 cd medi-track
 ```
 
@@ -304,7 +304,7 @@ Para soporte técnico o preguntas sobre el sistema:
 
 ## 🔄 Estado del Proyecto
 
-**Versión Actual**: 2.0  
+**Versión Actual**: 1.0  
 **Estado**: En desarrollo activo  
 **Última Actualización**: Julio 2025
 
