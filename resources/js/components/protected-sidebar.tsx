@@ -327,12 +327,12 @@ export function ProtectedSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Profile" isActive={isActiveRoute('/profile')}>
+            {/* <SidebarMenuButton asChild tooltip="Profile" isActive={isActiveRoute('/profile')}>
               <ProtectedLink href="/profile" className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 <span>Profile</span>
               </ProtectedLink>
-            </SidebarMenuButton>
+            </SidebarMenuButton> */}
           </SidebarMenuItem>
         </SidebarMenu>
         <NavUser />
