@@ -68,7 +68,7 @@ export default function Password() {
                                 type="password"
                                 className="mt-1 block w-full"
                                 autoComplete="current-password"
-                                placeholder="Contraseña actual"
+                                placeholder="Ingresa tu ontraseña actual"
                             />
 
                             <InputError message={errors.current_password} />
@@ -85,7 +85,7 @@ export default function Password() {
                                 type="password"
                                 className="mt-1 block w-full"
                                 autoComplete="new-password"
-                                placeholder="Nueva contraseña"
+                                placeholder="Ingresa tu nueva contraseña"
                             />
 
                             <InputError message={errors.password} />
@@ -101,7 +101,7 @@ export default function Password() {
                                 type="password"
                                 className="mt-1 block w-full"
                                 autoComplete="new-password"
-                                placeholder="Confirmar contraseña"
+                                placeholder="Confirma tu nueva contraseña"
                             />
 
                             <InputError message={errors.password_confirmation} />
