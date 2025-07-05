@@ -168,7 +168,7 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild isActive={isActiveRoute('/dashboard')}>
               <Link href="/dashboard" prefetch className="flex items-center">
-                <span className="text-base font-semibold">MediTrack</span>
+                <span className="text-base font-semibold">Meditrack</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

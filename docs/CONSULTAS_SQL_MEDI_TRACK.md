@@ -400,7 +400,7 @@ ORDER BY fecha, hp.hora_programada;
 -- Adherencia por medicamento en los últimos 30 días
 SELECT 
     m.nombre as medicamento,
-    CONCAT(mt.dosis_cantidad, ' ', mt.unidad_dosis) as dosis,
+    mt.dosis_cantidad || ' ' || mt.unidad_dosis as dosis,
     COUNT(hp.id) as dosis_programadas,
     COUNT(a.id) as dosis_administradas,
     COUNT(CASE WHEN a.estado = 'Omitida' THEN 1 END) as dosis_omitidas,
@@ -447,6 +447,20 @@ WHERE a.paciente_id = ?
   AND a.fecha_hora_programada >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
 GROUP BY YEAR(a.fecha_hora_programada), MONTH(a.fecha_hora_programada)
 ORDER BY año DESC, mes DESC;
+```
+
+### 6.3 Estadísticas de Consumo
+```sql
+-- Insertar/actualizar estadísticas de consumo
+INSERT INTO estadisticas_consumo (
+    paciente_id, medicamento_id, fecha_estadistica, dosis_programadas,
+    dosis_administradas, dosis_omitidas, adherencia_porcentaje
+) VALUES (?, ?, ?, ?, ?, ?, ?)
+ON DUPLICATE KEY UPDATE
+    dosis_programadas = VALUES(dosis_programadas),
+    dosis_administradas = VALUES(dosis_administradas),
+    dosis_omitidas = VALUES(dosis_omitidas),
+    adherencia_porcentaje = VALUES(adherencia_porcentaje);
 ```
 
 ---

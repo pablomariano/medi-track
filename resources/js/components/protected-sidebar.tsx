@@ -324,7 +324,7 @@ export function ProtectedSidebar() {
         </ScrollArea>
       </SidebarContent>
 
-      <SidebarFooter>
+      {/* <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild tooltip="Profile" isActive={isActiveRoute('/profile')}>
@@ -336,7 +336,7 @@ export function ProtectedSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
         <NavUser />
-      </SidebarFooter>
+      </SidebarFooter> */}
     </Sidebar>
   );
 } 

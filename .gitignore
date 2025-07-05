@@ -26,3 +26,5 @@ public/.DS_Store
 .env.clean
 .env.old
 setup-sail.sh
+/docs
+.cursor
