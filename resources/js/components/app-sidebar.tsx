@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/sidebar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Link, usePage } from '@inertiajs/react';
-import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, UserCheck, Stethoscope, Heart, UserX, User, LucideIcon, UserPlus, Activity, Clock, BarChart3, UserCog, AlertTriangle, Eye, Code } from 'lucide-react';
+import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, UserCheck, Stethoscope, Heart, UserX, User, LucideIcon, UserPlus, Activity, Clock, BarChart3, UserCog, AlertTriangle, Eye, Code, Settings2 } from 'lucide-react';
 
 interface NavigationItem {
   title: string;
@@ -25,6 +25,11 @@ const dashboardItems: NavigationItem[] = [
     title: 'Dashboard Principal',
     href: '/dashboard',
     icon: Home,
+  },
+  {
+    title: 'Panel Administración',
+    href: '/admin-dashboard',
+    icon: Settings2,
   },
   {
     title: 'Dashboard Medicamentos',

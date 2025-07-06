@@ -9,6 +9,10 @@ use App\Models\Tratamiento;
 use App\Models\Administracion;
 use App\Models\EstadisticaConsumo;
 use App\Models\Alerta;
+use App\Models\User;
+use App\Models\Role;
+use App\Models\Permiso;
+use App\Models\Medicamento;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -252,5 +256,63 @@ class DashboardController extends Controller
             'adherenciaUltimos7Dias' => $this->obtenerAdherenciaUltimos7Dias(),
             'actividadReciente' => $this->obtenerActividadReciente()
         ]);
+    }
+
+    /**
+     * Dashboard específico para administradores
+     */
+    public function adminDashboard()
+    {
+        $user = Auth::user();
+        
+        // Verificar que el usuario sea administrador
+        if (!$user->hasRole('admin')) {
+            return redirect()->route('dashboard')
+                ->with('error', 'No tienes permisos para acceder al panel de administración.');
+        }
+
+        $stats = $this->obtenerEstadisticasAdmin();
+        
+        return Inertia::render('AdminDashboard', [
+            'stats' => $stats
+        ]);
+    }
+
+    /**
+     * Obtener estadísticas específicas para administrador
+     */
+    private function obtenerEstadisticasAdmin()
+    {
+        // Estadísticas de usuarios
+        $totalUsuarios = User::count();
+        $usuariosActivos = User::where('activo', true)->count();
+        
+        // Estadísticas de roles y permisos
+        $rolesCount = Role::count();
+        $permisosCount = Permiso::count();
+        
+        // Estadísticas de alertas
+        $alertasPendientes = Alerta::where('revisada', false)->count();
+        
+        // Estadísticas de medicamentos
+        $medicamentosCount = Medicamento::count();
+        
+        // Estadísticas de pacientes y tratamientos
+        $pacientesActivos = Paciente::whereHas('tratamientos', function($query) {
+            $query->where('estado', 'Activo');
+        })->count();
+        
+        $tratamientosActivos = Tratamiento::where('estado', 'Activo')->count();
+
+        return [
+            'total_usuarios' => $totalUsuarios,
+            'usuarios_activos' => $usuariosActivos,
+            'roles_count' => $rolesCount,
+            'permisos_count' => $permisosCount,
+            'alertas_pendientes' => $alertasPendientes,
+            'medicamentos_count' => $medicamentosCount,
+            'pacientes_activos' => $pacientesActivos,
+            'tratamientos_activos' => $tratamientosActivos,
+        ];
     }
 } 

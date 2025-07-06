@@ -3,8 +3,140 @@ description:
 globs: 
 alwaysApply: true
 ---
-UI and Styling
-  - Use Shadcn UI, Radix, and Tailwind for components and styling.
-  - Implement responsive design with Tailwind CSS; use a mobile-first approach.
 
+# MediTrack Project Rules
 
+## UI and Styling
+- Use Shadcn UI, Radix, and Tailwind for components and styling.
+- Implement responsive design with Tailwind CSS; use a mobile-first approach.
+
+## Page Patterns
+
+### Card Selection Pages (tipo select-type)
+When creating new pages with card selection patterns, follow these standards:
+
+**Layout Structure:**
+- Use AppSidebarLayout for consistent navigation
+- Include back button (ArrowLeft icon) positioned top-left with Button variant="ghost" size="icon"
+- Page title as h1 with text-2xl font-bold
+- Subtitle/description with text-muted-foreground class
+
+**Card Design:**
+- Cards should be square with consistent spacing
+- Use grid layout: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6`
+- Card classes: `cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 border-2 hover:border-primary/50`
+
+**Card Content:**
+- Centered icon in rounded container with `mx-auto mb-4 p-3 bg-primary/10 rounded-full w-fit`
+- Icon size: `h-8 w-8 text-primary`
+- CardTitle with `text-lg`
+- CardDescription with `text-sm leading-relaxed`
+- Action button at bottom with full width: `w-full` size="sm"
+- Plus icon in button: `<Plus className="h-4 w-4 mr-2" />`
+
+**Example Structure:**
+```tsx
+<Card className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 border-2 hover:border-primary/50">
+  <CardHeader className="text-center pb-4">
+    <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-full w-fit">
+      <IconComponent className="h-8 w-8 text-primary" />
+    </div>
+    <CardTitle className="text-lg">{title}</CardTitle>
+  </CardHeader>
+  <CardContent className="text-center">
+    <CardDescription className="text-sm leading-relaxed">
+      {description}
+    </CardDescription>
+    <div className="mt-4">
+      <Button className="w-full" size="sm">
+        <Plus className="h-4 w-4 mr-2" />
+        {actionText}
+      </Button>
+    </div>
+  </CardContent>
+</Card>
+```
+
+### Form Pages (tipo create-by-type)
+When creating form pages, follow these standards:
+
+**Layout Structure:**
+- Use AppLayout for main container
+- Container with: `container mx-auto p-6 space-y-6 max-w-none`
+- Header section with back button, title, and description
+- Form with: `space-y-6 w-full max-w-6xl mx-auto`
+
+**Header Pattern:**
+```tsx
+<div className="flex items-center gap-4">
+  <Link href={backRoute}>
+    <Button variant="ghost" size="icon">
+      <ArrowLeft className="h-4 w-4" />
+    </Button>
+  </Link>
+  <div>
+    <h1 className="text-2xl font-bold">{pageTitle}</h1>
+    <p className="text-muted-foreground">
+      {pageDescription}
+    </p>
+  </div>
+</div>
+```
+
+**Form Sections:**
+- Organize form fields in separate Card components for logical grouping
+- Each Card should have CardHeader with CardTitle and CardDescription
+- Use CardContent for form fields with `space-y-4` class
+- Grid layouts for related fields: `grid grid-cols-2 gap-4` or `grid grid-cols-3 gap-4`
+
+**Form Section Structure:**
+```tsx
+<Card>
+  <CardHeader>
+    <CardTitle>Section Title</CardTitle>
+    <CardDescription>
+      Section description explaining the purpose
+    </CardDescription>
+  </CardHeader>
+  <CardContent className="space-y-4">
+    {/* Form fields with proper spacing and validation */}
+  </CardContent>
+</Card>
+```
+
+**Action Buttons:**
+- Place at the end of the form
+- Use: `flex justify-end gap-4`
+- Cancel button: `Button type="button" variant="outline"`
+- Submit button: `Button type="submit" disabled={processing}`
+- Show loading state in submit button text
+
+**Form Validation:**
+- Include comprehensive validation for all required fields
+- Display error messages below each field with: `text-sm text-destructive`
+- Use appropriate input types and constraints
+- Include confirmation dialogs or alerts for important actions
+
+**Field Guidelines:**
+- Use proper Label components with htmlFor attributes
+- Mark required fields with asterisk (*)
+- Use appropriate input types (email, tel, number, date, etc.)
+- Include helpful placeholders
+- Group related fields logically
+
+## Code Quality Rules
+
+### Bug Fixes:
+- Analyze the problem thoroughly before suggesting fixes
+- Provide precise, targeted solutions
+- Explain the root cause of the bug
+
+### Keep It Simple:
+- Prioritize readability and maintainability
+- Avoid over-engineering solutions
+- Use standard libraries and patterns when possible
+
+### Code Changes:
+- Propose a clear plan before making changes
+- Apply all modifications to a single file at once
+- Do not alter unrelated files

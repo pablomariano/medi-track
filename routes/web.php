@@ -73,6 +73,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // === RUTAS DE ADMINISTRACIÓN - Solo Admin ===
     Route::middleware('role:admin')->group(function () {
+        // Dashboard de Administración
+        Route::get('admin-dashboard', [DashboardController::class, 'adminDashboard'])->name('admin.dashboard');
+        
         Route::resource('roles', RoleController::class);
         Route::resource('permisos', PermisoController::class);
         Route::resource('generos', GeneroController::class);
