@@ -61,20 +61,19 @@ class AuthenticatedSessionController extends Controller
      */
     private function userNeedsOnboarding($user): bool
     {
-        // DESHABILITADO: Onboarding automático
-        // Todos los usuarios van directo al dashboard
-        return false;
-        
-        // CÓDIGO ORIGINAL (comentado para referencia)
-        /*
         // Si ya completó el onboarding
         if (session('onboarding_completed')) {
             return false;
         }
 
-        // Si es un usuario recién creado (menos de 7 días)
+        // Si es un usuario recién creado (menos de 7 días) y es paciente
         $userAge = $user->created_at->diffInDays(now());
         if ($userAge > 7) {
+            return false;
+        }
+
+        // Solo mostrar onboarding para pacientes nuevos
+        if (!$user->hasRole('paciente')) {
             return false;
         }
 
@@ -82,7 +81,6 @@ class AuthenticatedSessionController extends Controller
         $hasBasicData = $this->userHasBasicData($user);
         
         return !$hasBasicData;
-        */
     }
 
     /**

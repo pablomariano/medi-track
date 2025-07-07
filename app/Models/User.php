@@ -231,7 +231,19 @@ class User extends Authenticatable
      */
     public static function getDefaultRole(): ?Role
     {
-        return Role::where('nombre', 'paciente')->first();
+        // Buscar el rol de paciente
+        $role = Role::where('nombre', 'paciente')->first();
+        
+        // Si no existe, crearlo automáticamente
+        if (!$role) {
+            $role = Role::create([
+                'nombre' => 'paciente',
+                'descripcion' => 'Paciente - acceso a su propia información médica',
+                'activo' => true
+            ]);
+        }
+        
+        return $role;
     }
 
     /**

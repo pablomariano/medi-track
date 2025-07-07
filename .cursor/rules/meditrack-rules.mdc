@@ -6,6 +6,14 @@ alwaysApply: true
 
 # MediTrack Project Rules
 
+## Development Environment
+- **Laravel Sail**: This project uses Laravel Sail for local development with Docker
+- Use `./vendor/bin/sail` prefix for all artisan commands (e.g., `./vendor/bin/sail artisan migrate`)
+- Database runs in Docker container via Sail
+- Node.js/npm commands should also be run through Sail: `./vendor/bin/sail npm`
+- Start development environment with: `./vendor/bin/sail up -d`
+- Access application at: `http://localhost`
+
 ## UI and Styling
 - Use Shadcn UI, Radix, and Tailwind for components and styling.
 - Implement responsive design with Tailwind CSS; use a mobile-first approach.
@@ -140,3 +148,11 @@ When creating form pages, follow these standards:
 - Propose a clear plan before making changes
 - Apply all modifications to a single file at once
 - Do not alter unrelated files
+
+### Laravel Sail Commands:
+- Always use `./vendor/bin/sail artisan` instead of `php artisan` 
+- For migrations: `./vendor/bin/sail artisan migrate`
+- For seeders: `./vendor/bin/sail artisan db:seed`
+- For cache clearing: `./vendor/bin/sail artisan cache:clear`
+- For testing: `./vendor/bin/sail test`
+- For npm commands: `./vendor/bin/sail npm run dev`

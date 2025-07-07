@@ -114,8 +114,20 @@ class WelcomeController extends Controller
         // Verificar según el rol
         switch ($user->role->nombre ?? 'paciente') {
             case 'paciente':
-                // Verificar si tiene paciente asociado o tratamientos
-                return $user->pacientes()->exists();
+                // Para pacientes, verificar si ha completado información adicional
+                $paciente = $user->pacientes()->first();
+                if (!$paciente) {
+                    return false; // No tiene registro de paciente
+                }
+                
+                // Verificar si ha completado información básica o tiene tratamientos
+                $hasBasicInfo = !empty($paciente->fecha_nacimiento) ||
+                               !empty($paciente->telefono_emergencia) ||
+                               !empty($paciente->genero_id);
+                               
+                $hasTratamientos = $paciente->tratamientos()->exists();
+                
+                return $hasBasicInfo || $hasTratamientos;
                 
             case 'medico':
                 // Verificar si tiene perfil médico completo

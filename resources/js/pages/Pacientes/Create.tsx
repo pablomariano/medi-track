@@ -45,7 +45,7 @@ export default function Create({ usuarios, generos }: Props) {
         direccion: '',
         telefono_emergencia: '',
         observaciones_medicas: '',
-        activo: true,
+        activo: true as boolean,
     });
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -54,7 +54,7 @@ export default function Create({ usuarios, generos }: Props) {
     };
 
     const handleCheckboxChange = (checked: boolean | string) => {
-        setData('activo', checked === true || checked === 'true');
+        setData('activo', Boolean(checked)); 
     };
 
     const tiposDocumento = [

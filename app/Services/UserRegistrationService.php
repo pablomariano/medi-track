@@ -20,11 +20,14 @@ class UserRegistrationService
     public function createMedico(array $userData, array $medicoData): User
     {
         return DB::transaction(function () use ($userData, $medicoData) {
-            // Obtener el rol de médico
-            $rolMedico = Role::where('nombre', 'medico')->first();
-            if (!$rolMedico) {
-                throw ValidationException::withMessages(['rol' => 'El rol de médico no existe en el sistema']);
-            }
+            // Obtener o crear el rol de médico
+            $rolMedico = Role::firstOrCreate(
+                ['nombre' => 'medico'],
+                [
+                    'descripcion' => 'Personal médico - gestión de pacientes y diagnósticos',
+                    'activo' => true
+                ]
+            );
 
             // Crear usuario con rol de médico
             $userData['rol_id'] = $rolMedico->id;
@@ -53,11 +56,14 @@ class UserRegistrationService
     public function createCuidador(array $userData, array $cuidadorData): User
     {
         return DB::transaction(function () use ($userData, $cuidadorData) {
-            // Obtener el rol de cuidador
-            $rolCuidador = Role::where('nombre', 'cuidador')->first();
-            if (!$rolCuidador) {
-                throw ValidationException::withMessages(['rol' => 'El rol de cuidador no existe en el sistema']);
-            }
+            // Obtener o crear el rol de cuidador
+            $rolCuidador = Role::firstOrCreate(
+                ['nombre' => 'cuidador'],
+                [
+                    'descripcion' => 'Personal de cuidado y asistencia a pacientes',
+                    'activo' => true
+                ]
+            );
 
             // Crear usuario con rol de cuidador
             $userData['rol_id'] = $rolCuidador->id;
@@ -86,11 +92,14 @@ class UserRegistrationService
     public function createApoderado(array $userData, array $apoderadoData): User
     {
         return DB::transaction(function () use ($userData, $apoderadoData) {
-            // Obtener el rol de apoderado
-            $rolApoderado = Role::where('nombre', 'apoderado')->first();
-            if (!$rolApoderado) {
-                throw ValidationException::withMessages(['rol' => 'El rol de apoderado no existe en el sistema']);
-            }
+            // Obtener o crear el rol de apoderado
+            $rolApoderado = Role::firstOrCreate(
+                ['nombre' => 'apoderado'],
+                [
+                    'descripcion' => 'Familiares o responsables de pacientes',
+                    'activo' => true
+                ]
+            );
 
             // Crear usuario con rol de apoderado
             $userData['rol_id'] = $rolApoderado->id;
@@ -123,10 +132,13 @@ class UserRegistrationService
 
             // Si se proporcionan datos de usuario, crear el usuario con rol de paciente
             if ($userData) {
-                $rolPaciente = Role::where('nombre', 'paciente')->first();
-                if (!$rolPaciente) {
-                    throw ValidationException::withMessages(['rol' => 'El rol de paciente no existe en el sistema']);
-                }
+                $rolPaciente = Role::firstOrCreate(
+                    ['nombre' => 'paciente'],
+                    [
+                        'descripcion' => 'Paciente - acceso a su propia información médica',
+                        'activo' => true
+                    ]
+                );
 
                 $userData['rol_id'] = $rolPaciente->id;
                 $userData['password'] = Hash::make($userData['password']);
@@ -154,11 +166,14 @@ class UserRegistrationService
     public function createAdmin(array $userData): User
     {
         return DB::transaction(function () use ($userData) {
-            // Obtener el rol de admin
-            $rolAdmin = Role::where('nombre', 'admin')->first();
-            if (!$rolAdmin) {
-                throw ValidationException::withMessages(['rol' => 'El rol de administrador no existe en el sistema']);
-            }
+            // Obtener o crear el rol de admin
+            $rolAdmin = Role::firstOrCreate(
+                ['nombre' => 'admin'],
+                [
+                    'descripcion' => 'Administrador del sistema con acceso total',
+                    'activo' => true
+                ]
+            );
 
             // Crear usuario con rol de admin
             $userData['rol_id'] = $rolAdmin->id;
