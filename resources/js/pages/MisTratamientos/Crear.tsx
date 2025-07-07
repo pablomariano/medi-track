@@ -15,7 +15,7 @@ interface Medicamento {
   id: number;
   nombre: string;
   principio_activo?: string;
-  presentacion?: string;
+  forma_farmaceutica?: string;
 }
 
 interface Props {
@@ -31,7 +31,6 @@ export default function CrearTratamiento({ medicamentos = [] }: Props) {
     frecuencia: '1',
     tipo_frecuencia: 'diario',
     horario_principal: '08:00',
-    horarios: ['08:00'],
     duracion: '30',
     tipo_duracion: 'dias',
     indicaciones: '',
@@ -40,12 +39,13 @@ export default function CrearTratamiento({ medicamentos = [] }: Props) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Actualizar horarios antes del envío
-    setData('horarios', [data.horario_principal]);
     
     post(route('mis-tratamientos.store'), {
       onSuccess: () => {
-        // Redirigir a página de éxito o cronograma
+        // Redirigir automáticamente a la página de éxito
+      },
+      onError: (errors) => {
+        console.error('Error al crear tratamiento:', errors);
       }
     });
   };
@@ -64,10 +64,10 @@ export default function CrearTratamiento({ medicamentos = [] }: Props) {
             </Link>
             <Badge variant="secondary">Usuario Nuevo</Badge>
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold">
             Registra tu primer tratamiento
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-muted-foreground mt-2">
             Completa el formulario con la información básica de tu medicamento
           </p>
         </div>
@@ -76,7 +76,7 @@ export default function CrearTratamiento({ medicamentos = [] }: Props) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Pill className="h-5 w-5 text-blue-600" />
+              <Pill className="h-5 w-5 text-primary" />
               Información del tratamiento
             </CardTitle>
             <CardDescription>
@@ -106,17 +106,20 @@ export default function CrearTratamiento({ medicamentos = [] }: Props) {
                           <div>
                             <div className="font-medium">{medicamento.nombre}</div>
                             {medicamento.principio_activo && (
-                              <div className="text-sm text-gray-500">{medicamento.principio_activo}</div>
+                              <div className="text-sm text-muted-foreground">{medicamento.principio_activo}</div>
+                            )}
+                            {medicamento.forma_farmaceutica && (
+                              <div className="text-xs text-muted-foreground">{medicamento.forma_farmaceutica}</div>
                             )}
                           </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  {errors.medicamento_id && <p className="text-red-500 text-sm mt-1">{errors.medicamento_id}</p>}
+                  {errors.medicamento_id && <p className="text-sm text-destructive mt-1">{errors.medicamento_id}</p>}
                 </div>
 
-                <div className="text-center text-gray-500 text-sm">o agrega uno nuevo</div>
+                <div className="text-center text-muted-foreground text-sm">o agrega uno nuevo</div>
 
                 <div>
                   <Label htmlFor="medicamento_personalizado">Nombre del medicamento</Label>
@@ -130,7 +133,7 @@ export default function CrearTratamiento({ medicamentos = [] }: Props) {
                     }}
                     placeholder="Escribe el nombre del medicamento..."
                   />
-                  {errors.medicamento_personalizado && <p className="text-red-500 text-sm mt-1">{errors.medicamento_personalizado}</p>}
+                  {errors.medicamento_personalizado && <p className="text-sm text-destructive mt-1">{errors.medicamento_personalizado}</p>}
                 </div>
               </div>
 
@@ -146,7 +149,7 @@ export default function CrearTratamiento({ medicamentos = [] }: Props) {
                     type="number"
                     required
                   />
-                  {errors.dosis && <p className="text-red-500 text-sm mt-1">{errors.dosis}</p>}
+                  {errors.dosis && <p className="text-sm text-destructive mt-1">{errors.dosis}</p>}
                 </div>
                 <div>
                   <Label htmlFor="unidad_dosis">Unidad</Label>
@@ -181,7 +184,7 @@ export default function CrearTratamiento({ medicamentos = [] }: Props) {
                       <SelectItem value="4">4 veces al día</SelectItem>
                     </SelectContent>
                   </Select>
-                  {errors.frecuencia && <p className="text-red-500 text-sm mt-1">{errors.frecuencia}</p>}
+                  {errors.frecuencia && <p className="text-sm text-destructive mt-1">{errors.frecuencia}</p>}
                 </div>
                 <div>
                   <Label htmlFor="horario_principal">Horario principal</Label>
@@ -207,7 +210,7 @@ export default function CrearTratamiento({ medicamentos = [] }: Props) {
                     type="number"
                     required
                   />
-                  {errors.duracion && <p className="text-red-500 text-sm mt-1">{errors.duracion}</p>}
+                  {errors.duracion && <p className="text-sm text-destructive mt-1">{errors.duracion}</p>}
                 </div>
                 <div>
                   <Label htmlFor="tipo_duracion">Unidad</Label>
@@ -251,9 +254,9 @@ export default function CrearTratamiento({ medicamentos = [] }: Props) {
 
         {/* Footer de ayuda */}
         <div className="mt-6 text-center">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             ¿Necesitas ayuda? 
-            <Link href="/ayuda" className="text-blue-600 hover:underline ml-1">
+            <Link href="/ayuda" className="text-primary hover:underline ml-1">
               Consulta nuestro centro de ayuda
             </Link>
           </p>

@@ -22,6 +22,7 @@ use App\Http\Controllers\PacienteMedicoController;
 use App\Http\Controllers\LandingController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\ComponentCatalogController;
+use App\Http\Controllers\MisTratamientosController;
 
 // === LANDING PAGE - Página principal ===
 Route::get('/', [LandingController::class, 'index'])->name('home');
@@ -59,13 +60,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Mis tratamientos
         Route::prefix('mis-tratamientos')->name('mis-tratamientos.')->group(function () {
             Route::get('/', [PacienteController::class, 'misTratamientos'])->name('index');
-            Route::get('crear', function () {
-                return Inertia::render('MisTratamientos/Crear');
-            })->name('crear');
-            Route::post('/', function () {
-                // Lógica para crear tratamiento (a implementar)
-                return redirect()->route('mis-tratamientos.index')->with('success', '¡Tratamiento creado exitosamente!');
-            })->name('store');
+            Route::get('crear', [MisTratamientosController::class, 'create'])->name('crear');
+            Route::post('/', [MisTratamientosController::class, 'store'])->name('store');
         });
 
         // Mi cronograma

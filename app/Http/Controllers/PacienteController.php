@@ -174,7 +174,7 @@ class PacienteController extends Controller
         // Obtener tratamientos activos
         $tratamientosActivos = $paciente->tratamientos()
             ->where('tratamientos.estado', 'Activo')
-            ->with(['medicamentos', 'medico'])
+            ->with(['medicamentos', 'medico.user'])
             ->get();
 
         // Obtener próximas administraciones (próximas 24 horas)
@@ -494,7 +494,7 @@ class PacienteController extends Controller
         $paciente = $user->pacientes()->first();
         
         if (!$paciente) {
-            return response()->json(['error' => 'Paciente no encontrado'], 404);
+            return back()->withErrors(['error' => 'Paciente no encontrado']);
         }
 
         $administracion = \App\Models\Administracion::where('id', $administracionId)
@@ -503,7 +503,7 @@ class PacienteController extends Controller
             ->first();
 
         if (!$administracion) {
-            return response()->json(['error' => 'Administración no encontrada'], 404);
+            return back()->withErrors(['error' => 'Administración no encontrada']);
         }
 
         $request->validate([
@@ -518,11 +518,7 @@ class PacienteController extends Controller
             'efectos_adversos' => $request->efectos_observados
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Administración confirmada correctamente',
-            'administracion' => $administracion->fresh()
-        ]);
+        return back()->with('success', 'Administración confirmada correctamente');
     }
 
     /**
@@ -539,7 +535,7 @@ class PacienteController extends Controller
         $paciente = $user->pacientes()->first();
         
         if (!$paciente) {
-            return response()->json(['error' => 'Paciente no encontrado'], 404);
+            return back()->withErrors(['error' => 'Paciente no encontrado']);
         }
 
         $administracion = \App\Models\Administracion::where('id', $administracionId)
@@ -548,7 +544,7 @@ class PacienteController extends Controller
             ->first();
 
         if (!$administracion) {
-            return response()->json(['error' => 'Administración no encontrada'], 404);
+            return back()->withErrors(['error' => 'Administración no encontrada']);
         }
 
         $request->validate([
@@ -560,10 +556,6 @@ class PacienteController extends Controller
             'observaciones' => $request->motivo
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Administración omitida',
-            'administracion' => $administracion->fresh()
-        ]);
+        return back()->with('success', 'Administración omitida correctamente');
     }
 } 

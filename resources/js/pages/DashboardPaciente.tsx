@@ -40,7 +40,9 @@ interface TratamientoActivo {
     nombre: string;
     medicamentos: Medicamento[];
     medico: {
-        name: string;
+        user: {
+            name: string;
+        };
     };
 }
 
@@ -328,7 +330,7 @@ export default function DashboardPaciente({
                                                     <div className="flex items-center space-x-4 mt-2 text-sm text-gray-500">
                                                         <div className="flex items-center space-x-1">
                                                             <User className="h-4 w-4" />
-                                                            <span>Dr. {tratamiento.medico.name}</span>
+                                                            <span>Dr. {tratamiento.medico.user.name}</span>
                                                         </div>
                                                         <div className="flex items-center space-x-1">
                                                             <Pill className="h-4 w-4" />

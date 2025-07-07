@@ -38,14 +38,25 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
-        $user = User::create([
+        // Obtener el rol de paciente por defecto
+        $rolPaciente = User::getDefaultRole();
+        
+        $userData = [
             'nombre' => $request->nombre,
             'apellido_paterno' => $request->apellido_paterno,
             'apellido_materno' => $request->apellido_materno,
             'name' => trim($request->nombre . ' ' . $request->apellido_paterno . ' ' . ($request->apellido_materno ?? '')),
             'email' => $request->email,
             'password' => Hash::make($request->password),
-        ]);
+            'activo' => true, // Activar por defecto
+        ];
+
+        // Asignar rol de paciente si existe
+        if ($rolPaciente) {
+            $userData['rol_id'] = $rolPaciente->id;
+        }
+
+        $user = User::create($userData);
 
         event(new Registered($user));
 

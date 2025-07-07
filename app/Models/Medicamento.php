@@ -15,27 +15,13 @@ class Medicamento extends Model
         'unidad_medida',
         'descripcion',
         'principio_activo',
-        'concentracion',
-        'unidad_concentracion',
         'forma_farmaceutica',
         'via_administracion',
-        'presentacion',
-        'unidades_por_presentacion',
-        'requiere_receta',
-        'contraindicaciones',
-        'efectos_secundarios',
-        'interacciones',
-        'categoria_terapeutica',
-        'laboratorio',
-        'codigo_barras',
-        'registro_sanitario',
         'activo'
     ];
 
     protected $casts = [
-        'requiere_receta' => 'boolean',
-        'activo' => 'boolean',
-        'unidades_por_presentacion' => 'integer'
+        'activo' => 'boolean'
     ];
 
     // Relación con tratamientos a través de la tabla pivot
@@ -77,15 +63,11 @@ class Medicamento extends Model
         return $query->where('activo', true);
     }
 
-    // Scope para medicamentos que requieren receta
-    public function scopeConReceta($query)
-    {
-        return $query->where('requiere_receta', true);
-    }
 
-    // Método para obtener el nombre completo con concentración
+
+    // Método para obtener el nombre completo con medida
     public function getNombreCompletoAttribute()
     {
-        return "{$this->nombre} {$this->concentracion} {$this->unidad_concentracion}";
+        return "{$this->nombre} {$this->medida} {$this->unidad_medida}";
     }
 } 

@@ -83,13 +83,13 @@ export default function MisTratamientos({ tratamientos = [], estadisticas }: Pro
   const obtenerColorEstado = (estado: string) => {
     switch (estado) {
       case 'activo':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-50 text-green-700 border-green-200';
       case 'pausado':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-yellow-50 text-yellow-700 border-yellow-200';
       case 'finalizado':
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-muted text-muted-foreground border-border';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-muted text-muted-foreground border-border';
     }
   };
 
@@ -101,9 +101,9 @@ export default function MisTratamientos({ tratamientos = [], estadisticas }: Pro
       case 'pausado':
         return <Clock className="h-5 w-5 text-yellow-600" />;
       case 'finalizado':
-        return <XCircle className="h-5 w-5 text-gray-600" />;
+        return <XCircle className="h-5 w-5 text-muted-foreground" />;
       default:
-        return <AlertCircle className="h-5 w-5 text-gray-600" />;
+        return <AlertCircle className="h-5 w-5 text-muted-foreground" />;
     }
   };
 
@@ -119,10 +119,10 @@ export default function MisTratamientos({ tratamientos = [], estadisticas }: Pro
         <div className="mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold">
                 Mis Tratamientos
               </h1>
-              <p className="text-gray-600 mt-2">
+              <p className="text-muted-foreground mt-2">
                 Gestiona tus medicamentos y tratamientos activos
               </p>
             </div>
@@ -145,7 +145,7 @@ export default function MisTratamientos({ tratamientos = [], estadisticas }: Pro
                     <div className="text-2xl font-bold">{estadisticas.total_activos}</div>
                     <p className="text-xs text-muted-foreground">Tratamientos activos</p>
                   </div>
-                  <Pill className="h-8 w-8 text-blue-600" />
+                  <Pill className="h-8 w-8 text-primary" />
                 </div>
               </CardContent>
             </Card>
@@ -232,11 +232,11 @@ export default function MisTratamientos({ tratamientos = [], estadisticas }: Pro
             </CardHeader>
             <CardContent className="space-y-4">
               {tratamientosActivos.map((tratamiento) => (
-                <div key={tratamiento.id} className="border rounded-lg p-4 bg-green-50">
+                <div key={tratamiento.id} className="border rounded-lg p-4 bg-green-50 hover:bg-green-100 transition-colors duration-200">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <Pill className="h-5 w-5 text-blue-600" />
+                        <Pill className="h-5 w-5 text-primary" />
                         <h4 className="font-medium text-lg">{tratamiento.nombre || 'Tratamiento'}</h4>
                         <Badge className={obtenerColorEstado(tratamiento.estado)}>
                           {obtenerIconoEstado(tratamiento.estado)}
@@ -254,8 +254,8 @@ export default function MisTratamientos({ tratamientos = [], estadisticas }: Pro
                       {/* Lista de medicamentos */}
                       <div className="space-y-3 mb-3">
                         {tratamiento.medicamentos.map((medicamento, index) => (
-                          <div key={medicamento.id} className="p-3 bg-white rounded border">
-                            <h5 className="font-medium text-blue-600 mb-2">{medicamento.nombre}</h5>
+                          <div key={medicamento.id} className="p-3 bg-background rounded border hover:shadow-sm transition-shadow duration-200">
+                            <h5 className="font-medium text-primary mb-2">{medicamento.nombre}</h5>
                             <div className="grid md:grid-cols-2 gap-2 text-sm text-muted-foreground">
                               <div>
                                 <span className="font-medium">Dosis:</span> {medicamento.dosis} {medicamento.unidad_dosis}
@@ -283,12 +283,12 @@ export default function MisTratamientos({ tratamientos = [], estadisticas }: Pro
                       </div>
 
                       {tratamiento.adherencia && (
-                        <div className="mt-3 p-2 bg-white rounded border">
+                        <div className="mt-3 p-2 bg-background rounded border">
                           <div className="flex items-center justify-between text-sm">
                             <span>Adherencia:</span>
                             <span className="font-medium">{tratamiento.adherencia.porcentaje}%</span>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                          <div className="w-full bg-muted rounded-full h-2 mt-1">
                             <div 
                               className={`h-2 rounded-full ${
                                 tratamiento.adherencia.porcentaje >= 80 ? 'bg-green-600' : 
@@ -304,7 +304,7 @@ export default function MisTratamientos({ tratamientos = [], estadisticas }: Pro
                       )}
 
                       {tratamiento.indicaciones && (
-                        <div className="mt-3 p-2 bg-blue-50 rounded border-l-4 border-blue-400">
+                        <div className="mt-3 p-2 bg-primary/10 rounded border-l-4 border-primary">
                           <p className="text-sm">
                             <span className="font-medium">Indicaciones:</span> {tratamiento.indicaciones}
                           </p>
@@ -332,9 +332,9 @@ export default function MisTratamientos({ tratamientos = [], estadisticas }: Pro
             </CardHeader>
             <CardContent className="space-y-4">
               {tratamientosPausados.map((tratamiento) => (
-                <div key={tratamiento.id} className="border rounded-lg p-4 bg-yellow-50">
+                <div key={tratamiento.id} className="border rounded-lg p-4 bg-yellow-50 hover:bg-yellow-100 transition-colors duration-200">
                   <div className="flex items-center gap-3 mb-2">
-                    <Pill className="h-5 w-5 text-gray-400" />
+                    <Pill className="h-5 w-5 text-muted-foreground" />
                     <h4 className="font-medium text-lg">{tratamiento.nombre || 'Tratamiento'}</h4>
                     <Badge className={obtenerColorEstado(tratamiento.estado)}>
                       {obtenerIconoEstado(tratamiento.estado)}
@@ -358,7 +358,7 @@ export default function MisTratamientos({ tratamientos = [], estadisticas }: Pro
           <Card className="mb-6">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <XCircle className="h-5 w-5 text-gray-600" />
+                <XCircle className="h-5 w-5 text-muted-foreground" />
                 Tratamientos Finalizados ({tratamientosFinalizados.length})
               </CardTitle>
               <CardDescription>
@@ -367,9 +367,9 @@ export default function MisTratamientos({ tratamientos = [], estadisticas }: Pro
             </CardHeader>
             <CardContent className="space-y-4">
               {tratamientosFinalizados.slice(0, 3).map((tratamiento) => (
-                <div key={tratamiento.id} className="border rounded-lg p-4 bg-gray-50">
+                <div key={tratamiento.id} className="border rounded-lg p-4 bg-muted/50 hover:bg-muted transition-colors duration-200">
                   <div className="flex items-center gap-3 mb-2">
-                    <Pill className="h-5 w-5 text-gray-400" />
+                    <Pill className="h-5 w-5 text-muted-foreground" />
                     <h4 className="font-medium text-lg">{tratamiento.nombre || 'Tratamiento'}</h4>
                     <Badge className={obtenerColorEstado(tratamiento.estado)}>
                       {obtenerIconoEstado(tratamiento.estado)}
@@ -404,7 +404,7 @@ export default function MisTratamientos({ tratamientos = [], estadisticas }: Pro
           <CardContent>
             <div className="grid md:grid-cols-2 gap-4">
               <Link href="/mi-cronograma" className="block">
-                <div className="p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                <div className="p-4 border rounded-lg hover:bg-primary/5 hover:border-primary/50 transition-all duration-200">
                   <div className="flex items-center gap-3">
                     <Calendar className="h-5 w-5 text-primary" />
                     <div>
@@ -416,7 +416,7 @@ export default function MisTratamientos({ tratamientos = [], estadisticas }: Pro
                 </div>
               </Link>
               <Link href="/mi-perfil" className="block">
-                <div className="p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                <div className="p-4 border rounded-lg hover:bg-primary/5 hover:border-primary/50 transition-all duration-200">
                   <div className="flex items-center gap-3">
                     <User className="h-5 w-5 text-primary" />
                     <div>

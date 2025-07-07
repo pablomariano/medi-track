@@ -140,57 +140,45 @@ export default function MiCronograma({ cronograma = [], fecha = new Date().toISO
     setMotivo('');
   };
 
-  const confirmarAdministracion = async () => {
+  const confirmarAdministracion = () => {
     if (!selectedAdministracion) return;
 
     setProcessing(true);
-    try {
-      await fetch(route('mi-cronograma.confirmar-administracion', selectedAdministracion.id), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-        },
-        body: JSON.stringify({
-          observaciones,
-          efectos_observados: efectosObservados,
-        }),
-      });
-
-      // Recargar la página para mostrar cambios
-      router.reload();
-      cerrarDialog();
-    } catch (error) {
-      console.error('Error al confirmar administración:', error);
-    } finally {
-      setProcessing(false);
-    }
+    
+    router.post(route('mi-cronograma.confirmar-administracion', selectedAdministracion.id), {
+      observaciones,
+      efectos_observados: efectosObservados,
+    }, {
+      onSuccess: () => {
+        cerrarDialog();
+      },
+      onError: (errors) => {
+        console.error('Error al confirmar administración:', errors);
+      },
+      onFinish: () => {
+        setProcessing(false);
+      }
+    });
   };
 
-  const omitirAdministracion = async () => {
+  const omitirAdministracion = () => {
     if (!selectedAdministracion) return;
 
     setProcessing(true);
-    try {
-      await fetch(route('mi-cronograma.omitir-administracion', selectedAdministracion.id), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-        },
-        body: JSON.stringify({
-          motivo,
-        }),
-      });
-
-      // Recargar la página para mostrar cambios
-      router.reload();
-      cerrarDialog();
-    } catch (error) {
-      console.error('Error al omitir administración:', error);
-    } finally {
-      setProcessing(false);
-    }
+    
+    router.post(route('mi-cronograma.omitir-administracion', selectedAdministracion.id), {
+      motivo,
+    }, {
+      onSuccess: () => {
+        cerrarDialog();
+      },
+      onError: (errors) => {
+        console.error('Error al omitir administración:', errors);
+      },
+      onFinish: () => {
+        setProcessing(false);
+      }
+    });
   };
 
   // Manejar cambio de fecha

@@ -12,7 +12,7 @@ class HorarioService
     /**
      * Generar horarios automáticamente para un tratamiento programado
      */
-    public function generarHorariosProgramados(Tratamiento $tratamiento)
+    public function generarHorariosProgramados(Tratamiento $tratamiento, $horarioPrincipal = null)
     {
         if ($tratamiento->tipo !== 'Programado') {
             return; // Solo generar horarios para tratamientos programados
@@ -38,7 +38,7 @@ class HorarioService
                 ->value('id');
 
             if ($medicamentoTratamientoId) {
-                $this->generarHorariosPorMedicamento($tratamiento, $medicamento, $pivot, $medicamentoTratamientoId);
+                $this->generarHorariosPorMedicamento($tratamiento, $medicamento, $pivot, $medicamentoTratamientoId, $horarioPrincipal);
             }
         }
     }
@@ -46,7 +46,7 @@ class HorarioService
     /**
      * Generar horarios específicos para un medicamento
      */
-    private function generarHorariosPorMedicamento($tratamiento, $medicamento, $pivot, $medicamentoTratamientoId)
+    private function generarHorariosPorMedicamento($tratamiento, $medicamento, $pivot, $medicamentoTratamientoId, $horarioPrincipal = null)
     {
         $frecuencia = $pivot->frecuencia_horas;
         $fechaInicio = Carbon::parse($tratamiento->fecha_inicio);
@@ -55,8 +55,8 @@ class HorarioService
         // Calcular cuántas tomas por día
         $tomasPorDia = 24 / $frecuencia;
         
-        // Horarios base según la frecuencia
-        $horariosBase = $this->obtenerHorariosBase($frecuencia);
+        // Horarios base según la frecuencia y el horario principal del usuario
+        $horariosBase = $this->obtenerHorariosBase($frecuencia, $horarioPrincipal);
 
         foreach ($horariosBase as $hora) {
             HorarioProgramado::create([
@@ -72,35 +72,70 @@ class HorarioService
     }
 
     /**
-     * Obtener horarios base según la frecuencia
+     * Obtener horarios base según la frecuencia y horario principal del usuario
      */
-    private function obtenerHorariosBase($frecuenciaHoras)
+    private function obtenerHorariosBase($frecuenciaHoras, $horarioPrincipal = null)
     {
         $horarios = [];
+        
+        // Si se proporciona horario principal, usarlo como base
+        $horaBase = 8; // Default: 8 AM
+        if ($horarioPrincipal) {
+            try {
+                $horaBase = Carbon::parse($horarioPrincipal)->hour;
+            } catch (\Exception $e) {
+                \Log::warning("Error parsing horario principal: {$horarioPrincipal}. Using default 8 AM");
+            }
+        }
+
+        // Calcular número de tomas por día
+        $tomasPorDia = 24 / $frecuenciaHoras;
 
         switch ($frecuenciaHoras) {
             case 24: // Una vez al día
-                $horarios = ['08:00:00'];
+                $horarios = [sprintf('%02d:00:00', $horaBase)];
                 break;
+                
             case 12: // Dos veces al día
-                $horarios = ['08:00:00', '20:00:00'];
+                $horarios = [
+                    sprintf('%02d:00:00', $horaBase),
+                    sprintf('%02d:00:00', ($horaBase + 12) % 24)
+                ];
                 break;
+                
             case 8: // Tres veces al día
-                $horarios = ['08:00:00', '16:00:00', '00:00:00'];
+                $horarios = [
+                    sprintf('%02d:00:00', $horaBase),
+                    sprintf('%02d:00:00', ($horaBase + 8) % 24),
+                    sprintf('%02d:00:00', ($horaBase + 16) % 24)
+                ];
                 break;
+                
             case 6: // Cuatro veces al día
-                $horarios = ['06:00:00', '12:00:00', '18:00:00', '00:00:00'];
+                $horarios = [
+                    sprintf('%02d:00:00', $horaBase),
+                    sprintf('%02d:00:00', ($horaBase + 6) % 24),
+                    sprintf('%02d:00:00', ($horaBase + 12) % 24),
+                    sprintf('%02d:00:00', ($horaBase + 18) % 24)
+                ];
                 break;
+                
             case 4: // Seis veces al día
-                $horarios = ['04:00:00', '08:00:00', '12:00:00', '16:00:00', '20:00:00', '00:00:00'];
+                $horarios = [
+                    sprintf('%02d:00:00', $horaBase),
+                    sprintf('%02d:00:00', ($horaBase + 4) % 24),
+                    sprintf('%02d:00:00', ($horaBase + 8) % 24),
+                    sprintf('%02d:00:00', ($horaBase + 12) % 24),
+                    sprintf('%02d:00:00', ($horaBase + 16) % 24),
+                    sprintf('%02d:00:00', ($horaBase + 20) % 24)
+                ];
                 break;
+                
             default:
-                // Para frecuencias personalizadas, empezar a las 8 AM
-                $horaActual = 8;
-                $tomasAlDia = 24 / $frecuenciaHoras;
-                for ($i = 0; $i < $tomasAlDia; $i++) {
-                    $horarios[] = sprintf('%02d:00:00', $horaActual % 24);
-                    $horaActual += $frecuenciaHoras;
+                // Para frecuencias personalizadas, calcular dinámicamente
+                for ($i = 0; $i < $tomasPorDia; $i++) {
+                    $hora = ($horaBase + ($i * $frecuenciaHoras)) % 24;
+                    $horarios[] = sprintf('%02d:00:00', $hora);
                 }
                 break;
         }
@@ -129,7 +164,15 @@ class HorarioService
         }
 
         $fechaInicio = Carbon::today();
-        $fechaFin = $fechaInicio->copy()->addDays($diasAdelante);
+        
+        // Usar la fecha de fin del tratamiento si existe y es posterior a diasAdelante
+        $fechaFinTratamiento = $tratamiento->fecha_fin ? Carbon::parse($tratamiento->fecha_fin) : null;
+        $fechaFinCalculada = $fechaInicio->copy()->addDays($diasAdelante);
+        
+        // Usar la fecha más lejana entre las dos
+        $fechaFin = $fechaFinTratamiento && $fechaFinTratamiento->gt($fechaFinCalculada) 
+            ? $fechaFinTratamiento 
+            : $fechaFinCalculada;
 
         foreach ($tratamiento->medicamentos as $medicamento) {
             $pivot = $medicamento->pivot;
@@ -176,24 +219,33 @@ class HorarioService
             return; // No se puede crear administración sin el ID pivot
         }
 
-        while ($fechaActual <= $fechaFin) {
-            // Verificar si ya existe administración para este día y horario
-            $fechaHoraProgramada = $fechaActual->copy()->setTimeFromTimeString($horario->hora_programada);
-            
-            $existeAdministracion = \App\Models\Administracion::where('medicamento_tratamiento_id', $medicamentoTratamientoId)
-                ->where('fecha_hora_programada', $fechaHoraProgramada)
-                ->exists();
+        // Verificar las fechas de vigencia del horario
+        $fechaInicioHorario = Carbon::parse($horario->fecha_inicio);
+        $fechaFinHorario = Carbon::parse($horario->fecha_fin);
 
-            if (!$existeAdministracion) {
-                \App\Models\Administracion::create([
-                    'medicamento_tratamiento_id' => $medicamentoTratamientoId,
-                    'horario_programado_id' => $horario->id,
-                    'paciente_id' => $horario->paciente_id,
-                    'fecha_hora_programada' => $fechaHoraProgramada,
-                    'fecha_hora_administrada' => $fechaHoraProgramada, // Se actualizará cuando se administre
-                    'dosis_administrada' => $pivot->dosis_cantidad,
-                    'estado' => \App\Models\Administracion::ESTADO_PENDIENTE,
-                ]);
+        while ($fechaActual <= $fechaFin) {
+            // Solo crear administraciones dentro del rango de vigencia del horario
+            if ($fechaActual->gte($fechaInicioHorario) && $fechaActual->lte($fechaFinHorario)) {
+                // Extraer solo la hora de la hora programada (puede venir como fecha completa)
+                $soloHora = Carbon::parse($horario->hora_programada)->format('H:i:s');
+                // Verificar si ya existe administración para este día y horario
+                $fechaHoraProgramada = $fechaActual->copy()->setTimeFromTimeString($soloHora);
+                
+                $existeAdministracion = \App\Models\Administracion::where('medicamento_tratamiento_id', $medicamentoTratamientoId)
+                    ->where('fecha_hora_programada', $fechaHoraProgramada)
+                    ->exists();
+
+                if (!$existeAdministracion) {
+                    \App\Models\Administracion::create([
+                        'medicamento_tratamiento_id' => $medicamentoTratamientoId,
+                        'horario_programado_id' => $horario->id,
+                        'paciente_id' => $horario->paciente_id,
+                        'fecha_hora_programada' => $fechaHoraProgramada,
+                        'fecha_hora_administrada' => $fechaHoraProgramada, // Se actualizará cuando se administre
+                        'dosis_administrada' => $pivot->dosis_cantidad,
+                        'estado' => \App\Models\Administracion::ESTADO_PENDIENTE,
+                    ]);
+                }
             }
 
             $fechaActual->addDay();

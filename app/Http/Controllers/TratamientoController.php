@@ -111,9 +111,22 @@ class TratamientoController extends Controller
         // Recargar medicamentos con pivot data antes de generar horarios
         $tratamiento->load('medicamentos');
         
-        $horarioService = new HorarioService();
-        $horarioService->generarHorariosProgramados($tratamiento);
-        $horarioService->generarAdministracionesProgramadas($tratamiento, 7);
+        // Verificar que hay medicamentos asociados
+        $medicamentosAsociados = $tratamiento->medicamentos()->count();
+        \Log::info("Tratamiento ID {$tratamiento->id}: {$medicamentosAsociados} medicamento(s) asociado(s)");
+        
+        if ($medicamentosAsociados > 0) {
+            $horarioService = new HorarioService();
+            $horarioService->generarHorariosProgramados($tratamiento, $request->horario_principal ?? null);
+            $horarioService->generarAdministracionesProgramadas($tratamiento, 30); // Extender a 30 días
+            
+            // Verificar que se generaron horarios
+            $horariosGenerados = \App\Models\HorarioProgramado::where('paciente_id', $tratamiento->paciente_id)->count();
+            $administracionesGeneradas = \App\Models\Administracion::where('paciente_id', $tratamiento->paciente_id)->count();
+            \Log::info("Generados: {$horariosGenerados} horarios, {$administracionesGeneradas} administraciones para paciente ID {$tratamiento->paciente_id}");
+        } else {
+            \Log::warning("No se generaron horarios porque el tratamiento ID {$tratamiento->id} no tiene medicamentos asociados");
+        }
 
         return redirect()->route('tratamientos.index')
             ->with('success', 'Tratamiento creado exitosamente con ' . count($request->medicamentos ?? []) . ' medicamento(s). Se generaron los horarios automáticamente.');
@@ -222,9 +235,22 @@ class TratamientoController extends Controller
             // Regenerar horarios automáticamente
             $tratamiento->load('medicamentos');
             
-            $horarioService = new HorarioService();
-            $horarioService->generarHorariosProgramados($tratamiento);
-            $horarioService->generarAdministracionesProgramadas($tratamiento, 7);
+            // Verificar que hay medicamentos asociados
+            $medicamentosAsociados = $tratamiento->medicamentos()->count();
+            \Log::info("Tratamiento actualizado ID {$tratamiento->id}: {$medicamentosAsociados} medicamento(s) asociado(s)");
+            
+            if ($medicamentosAsociados > 0) {
+                $horarioService = new HorarioService();
+                $horarioService->generarHorariosProgramados($tratamiento, $request->horario_principal ?? null);
+                $horarioService->generarAdministracionesProgramadas($tratamiento, 30); // Extender a 30 días
+                
+                // Verificar que se generaron horarios
+                $horariosGenerados = \App\Models\HorarioProgramado::where('paciente_id', $tratamiento->paciente_id)->count();
+                $administracionesGeneradas = \App\Models\Administracion::where('paciente_id', $tratamiento->paciente_id)->count();
+                \Log::info("Regenerados: {$horariosGenerados} horarios, {$administracionesGeneradas} administraciones para paciente ID {$tratamiento->paciente_id}");
+            } else {
+                \Log::warning("No se regeneraron horarios porque el tratamiento ID {$tratamiento->id} no tiene medicamentos asociados");
+            }
         }
 
         return redirect()->route('tratamientos.index')
