@@ -54,7 +54,7 @@ export default function EditarPerfil() {
 
   return (
     <AppSidebarLayout>
-      <div className="container mx-auto py-6 max-w-4xl">
+      <div className="container mx-auto p-6 space-y-6 max-w-none">
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center gap-4 mb-4">

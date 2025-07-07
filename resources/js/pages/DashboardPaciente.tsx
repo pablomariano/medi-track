@@ -122,7 +122,7 @@ export default function DashboardPaciente({
         <AppSidebarLayout>
             <Head title="Mi Dashboard" />
             
-            <div className="container mx-auto py-6 max-w-7xl">
+            <div className="container mx-auto p-6 space-y-6 max-w-none">
                 {/* Header de Bienvenida */}
                 <div className="mb-8">
                     <div className="flex items-center justify-between">

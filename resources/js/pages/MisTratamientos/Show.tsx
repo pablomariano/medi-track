@@ -151,7 +151,7 @@ export default function ShowMiTratamiento({ tratamiento }: Props) {
         <AppSidebarLayout>
             <Head title={`Mi Tratamiento - ${tratamiento.nombre}`} />
             
-            <div className="container mx-auto py-6 space-y-6">
+            <div className="container mx-auto p-6 space-y-6 max-w-none">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">

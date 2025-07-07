@@ -80,7 +80,7 @@ export default function Index({ pacientes }: Props) {
 
     return (
         <AppSidebarLayout>
-            <div className="container mx-auto py-6">
+            <div className="container mx-auto p-6 space-y-6 max-w-none">
                 <Card>
                     <CardHeader>
                         <div className="flex justify-between items-center">
