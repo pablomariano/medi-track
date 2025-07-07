@@ -27,11 +27,7 @@ export default function EditarPerfil() {
     contacto_emergencia_nombre: '',
     contacto_emergencia_telefono: '',
     contacto_emergencia_relacion: '',
-    alergias: '',
-    condiciones_medicas: '',
-    tipo_sangre: '',
-    altura: '',
-    peso: '',
+
   });
 
   const [processing, setProcessing] = useState(false);
@@ -54,11 +50,7 @@ export default function EditarPerfil() {
     }, 1000);
   };
 
-  const getProfileCompleteness = () => {
-    const fields = ['nombre', 'apellido_paterno', 'telefono', 'fecha_nacimiento'];
-    const completed = fields.filter(field => formData[field as keyof typeof formData] !== '').length;
-    return Math.round((completed / fields.length) * 100);
-  };
+
 
   return (
     <AppSidebarLayout>
@@ -82,26 +74,7 @@ export default function EditarPerfil() {
           </p>
         </div>
 
-        {/* Indicador de progreso */}
-        <Card className="mb-6">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="flex-1">
-                <div className="flex justify-between text-sm mb-2">
-                  <span>Completitud del perfil</span>
-                  <span>{getProfileCompleteness()}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-                    style={{ width: `${getProfileCompleteness()}%` }}
-                  ></div>
-                </div>
-              </div>
-              <CheckCircle className={`h-8 w-8 ${getProfileCompleteness() === 100 ? 'text-green-600' : 'text-gray-300'}`} />
-            </div>
-          </CardContent>
-        </Card>
+
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Información Personal */}
@@ -250,91 +223,13 @@ export default function EditarPerfil() {
             </CardContent>
           </Card>
 
-          {/* Información Médica Básica */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Heart className="h-5 w-5 text-purple-600" />
-                Información Médica Básica
-              </CardTitle>
-              <CardDescription>
-                Datos importantes para tu salud (opcional pero recomendado)
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid md:grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="tipo_sangre">Tipo de Sangre</Label>
-                  <Select 
-                    value={formData.tipo_sangre} 
-                    onValueChange={(value) => handleInputChange('tipo_sangre', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="A+">A+</SelectItem>
-                      <SelectItem value="A-">A-</SelectItem>
-                      <SelectItem value="B+">B+</SelectItem>
-                      <SelectItem value="B-">B-</SelectItem>
-                      <SelectItem value="AB+">AB+</SelectItem>
-                      <SelectItem value="AB-">AB-</SelectItem>
-                      <SelectItem value="O+">O+</SelectItem>
-                      <SelectItem value="O-">O-</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="altura">Altura (cm)</Label>
-                  <Input
-                    id="altura"
-                    type="number"
-                    value={formData.altura}
-                    onChange={(e) => handleInputChange('altura', e.target.value)}
-                    placeholder="170"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="peso">Peso (kg)</Label>
-                  <Input
-                    id="peso"
-                    type="number"
-                    value={formData.peso}
-                    onChange={(e) => handleInputChange('peso', e.target.value)}
-                    placeholder="70"
-                  />
-                </div>
-              </div>
 
-              <div>
-                <Label htmlFor="alergias">Alergias</Label>
-                <Textarea
-                  id="alergias"
-                  value={formData.alergias}
-                  onChange={(e) => handleInputChange('alergias', e.target.value)}
-                  placeholder="Describe cualquier alergia conocida a medicamentos, alimentos, etc."
-                  rows={2}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="condiciones_medicas">Condiciones Médicas</Label>
-                <Textarea
-                  id="condiciones_medicas"
-                  value={formData.condiciones_medicas}
-                  onChange={(e) => handleInputChange('condiciones_medicas', e.target.value)}
-                  placeholder="Describe cualquier condición médica preexistente"
-                  rows={2}
-                />
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Alerta informativa */}
           <Alert>
             <CheckCircle className="h-4 w-4" />
             <AlertDescription>
-              Tu información está protegida y solo será utilizada para mejorar tu atención médica. 
+              Tu información está protegida y será utilizada para mejorar tu experiencia en la plataforma. 
               Puedes modificar estos datos en cualquier momento.
             </AlertDescription>
           </Alert>

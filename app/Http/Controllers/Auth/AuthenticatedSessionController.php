@@ -61,6 +61,12 @@ class AuthenticatedSessionController extends Controller
      */
     private function userNeedsOnboarding($user): bool
     {
+        // DESHABILITADO: Onboarding automático
+        // Todos los usuarios van directo al dashboard
+        return false;
+        
+        // CÓDIGO ORIGINAL (comentado para referencia)
+        /*
         // Si ya completó el onboarding
         if (session('onboarding_completed')) {
             return false;
@@ -76,6 +82,7 @@ class AuthenticatedSessionController extends Controller
         $hasBasicData = $this->userHasBasicData($user);
         
         return !$hasBasicData;
+        */
     }
 
     /**

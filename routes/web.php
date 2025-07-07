@@ -45,17 +45,39 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('bienvenida/completar', [WelcomeController::class, 'completeOnboarding'])->name('welcome.complete');
     Route::get('bienvenida/estadisticas', [WelcomeController::class, 'getMotivationStats'])->name('welcome.stats');
 
-    // === RUTAS ESPECÍFICAS PARA CASOS DE USO DE NUEVOS USUARIOS ===
-    Route::prefix('mis-tratamientos')->name('mis-tratamientos.')->group(function () {
-        Route::get('crear', function () {
-            return Inertia::render('MisTratamientos/Crear');
-        })->name('crear');
-        Route::post('/', function () {
-            // Lógica para crear tratamiento
-            return redirect()->route('welcome.new-user')->with('success', '¡Tratamiento creado exitosamente!');
-        })->name('store');
+    // === RUTAS ESPECÍFICAS PARA PACIENTES ===
+    Route::middleware('role:paciente')->group(function () {
+        // Dashboard del paciente
+        Route::get('dashboard-paciente', [PacienteController::class, 'miDashboard'])->name('dashboard-paciente');
+        Route::get('mi-dashboard', [PacienteController::class, 'miDashboard'])->name('mi-dashboard');
+        
+        // Mis medicamentos
+        Route::prefix('mis-medicamentos')->name('mis-medicamentos.')->group(function () {
+            Route::get('/', [PacienteController::class, 'misMedicamentos'])->name('index');
+        });
+
+        // Mis tratamientos
+        Route::prefix('mis-tratamientos')->name('mis-tratamientos.')->group(function () {
+            Route::get('/', [PacienteController::class, 'misTratamientos'])->name('index');
+            Route::get('crear', function () {
+                return Inertia::render('MisTratamientos/Crear');
+            })->name('crear');
+            Route::post('/', function () {
+                // Lógica para crear tratamiento (a implementar)
+                return redirect()->route('mis-tratamientos.index')->with('success', '¡Tratamiento creado exitosamente!');
+            })->name('store');
+        });
+
+        // Mi cronograma
+        Route::prefix('mi-cronograma')->name('mi-cronograma.')->group(function () {
+            Route::get('/', [PacienteController::class, 'miCronograma'])->name('index');
+            // Rutas para confirmar/omitir administraciones
+            Route::post('administracion/{administracion}/confirmar', [PacienteController::class, 'confirmarAdministracion'])->name('confirmar-administracion');
+            Route::post('administracion/{administracion}/omitir', [PacienteController::class, 'omitirAdministracion'])->name('omitir-administracion');
+        });
     });
 
+    // Mi perfil (disponible para todos los usuarios autenticados)
     Route::prefix('mi-perfil')->name('mi-perfil.')->group(function () {
         Route::get('/', function () {
             return Inertia::render('MiPerfil/Index');
@@ -63,12 +85,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('editar', function () {
             return Inertia::render('MiPerfil/Editar');
         })->name('editar');
-    });
-
-    Route::prefix('mi-cronograma')->name('mi-cronograma.')->group(function () {
-        Route::get('/', function () {
-            return Inertia::render('MiCronograma/Index');
-        })->name('index');
     });
 
     // === RUTAS DE ADMINISTRACIÓN - Solo Admin ===

@@ -48,12 +48,10 @@ class Medicamento extends Model
                         'frecuencia_horas',
                         'tolerancia_antes_minutos',
                         'tolerancia_despues_minutos',
-                        'intervalo_minimo_horas',
-                        'dosis_maxima_dia',
-                        'dosis_maxima_semana',
-                        'dosis_maxima_consecutiva',
+                        'duracion_dias',
                         'instrucciones_especiales',
                         'estado',
+                        'activo',
                         'motivo_suspension',
                         'orden'
                     ])

@@ -16,7 +16,9 @@ import {
   Clock,
   BarChart3,
   Shield,
-  Eye
+  Eye,
+  ArrowLeft,
+  Plus
 } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
@@ -312,131 +314,125 @@ export default function NewUserWelcome() {
     return currentUserGuide.steps.filter(step => step.priority === priority);
   };
 
-  const getPriorityColor = (priority: 'high' | 'medium' | 'low') => {
-    switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'low': return 'bg-green-100 text-green-800';
-    }
-  };
-
-  const getPriorityLabel = (priority: 'high' | 'medium' | 'low') => {
-    switch (priority) {
-      case 'high': return 'Urgente';
-      case 'medium': return 'Importante';
-      case 'low': return 'Opcional';
-    }
+  const getAllSteps = () => {
+    return currentUserGuide.steps;
   };
 
   return (
     <AppSidebarLayout>
-      <div className="container mx-auto py-6 max-w-4xl">
+      <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {currentUserGuide.title}
-          </h1>
-          <p className="text-gray-600 mb-4">
-            {currentUserGuide.subtitle}
-          </p>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary">
-              {auth.user?.role?.nombre?.toUpperCase()}
-            </Badge>
-            <Badge variant="outline">
-              Usuario Nuevo
-            </Badge>
+        <div className="flex items-center gap-4">
+          <Link href={route('dashboard')}>
+            <Button variant="ghost" size="icon">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold">
+              {currentUserGuide.title}
+            </h1>
+            <p className="text-muted-foreground">
+              {currentUserGuide.subtitle}
+            </p>
           </div>
         </div>
 
-        {/* Acciones Rápidas */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-          {currentUserGuide.quickActions.map((action, index) => (
-            <Card key={index}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <action.icon className="h-5 w-5 text-blue-600" />
-                  </div>
-                  {action.title}
-                </CardTitle>
-                <CardDescription>{action.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Link href={action.href}>
-                  <Button variant={action.variant} className="w-full">
-                    Comenzar
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          ))}
+        {/* User Role Badge */}
+        <div className="flex items-center gap-2">
+          <Badge variant="outline">
+            Usuario Nuevo
+          </Badge>
+          <Badge variant="secondary">
+            {auth.user?.role?.nombre?.toUpperCase()}
+          </Badge>
         </div>
 
-        {/* Pasos por Prioridad */}
-        {(['high', 'medium', 'low'] as const).map(priority => {
-          const steps = getStepsByPriority(priority);
-          if (steps.length === 0) return null;
+        {/* Quick Actions */}
+        <div>
+          <h2 className="text-xl font-semibold mb-4">Acciones Rápidas</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {currentUserGuide.quickActions.map((action, index) => (
+              <Link key={index} href={action.href}>
+                <Card className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 border-2 hover:border-primary/50">
+                  <CardHeader className="text-center pb-4">
+                    <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-full w-fit">
+                      <action.icon className="h-8 w-8 text-primary" />
+                    </div>
+                    <CardTitle className="text-lg">{action.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="text-center">
+                    <CardDescription className="text-sm leading-relaxed">
+                      {action.description}
+                    </CardDescription>
+                    <div className="mt-4">
+                      <Button className="w-full" size="sm">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Comenzar
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
 
-          return (
-            <div key={priority} className="mb-8">
-              <div className="flex items-center gap-2 mb-4">
-                <h2 className="text-xl font-semibold">
-                  {priority === 'high' && 'Pasos Urgentes'}
-                  {priority === 'medium' && 'Pasos Importantes'}
-                  {priority === 'low' && 'Pasos Opcionales'}
-                </h2>
-                <Badge className={getPriorityColor(priority)}>
-                  {getPriorityLabel(priority)}
-                </Badge>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                {steps.map((step) => {
-                  const isCompleted = completedSteps.includes(step.id);
-                  
-                  return (
-                    <Card key={step.id} className={`${isCompleted ? 'bg-green-50 border-green-200' : ''}`}>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-3">
-                          <div className={`p-2 rounded-lg ${isCompleted ? 'bg-green-100' : 'bg-gray-100'}`}>
-                            {isCompleted ? (
-                              <CheckCircle className="h-5 w-5 text-green-600" />
-                            ) : (
-                              <step.icon className="h-5 w-5 text-gray-600" />
-                            )}
-                          </div>
-                          <span className={isCompleted ? 'line-through text-gray-500' : ''}>
-                            {step.title}
-                          </span>
-                        </CardTitle>
-                        <CardDescription className={isCompleted ? 'text-gray-400' : ''}>
-                          {step.description}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        {!isCompleted ? (
-                          <Link href={step.href}>
-                            <Button className="w-full" variant="outline">
-                              Completar paso
-                              <ArrowRight className="h-4 w-4 ml-2" />
-                            </Button>
-                          </Link>
+        {/* Steps to Complete */}
+        <div>
+          <h2 className="text-xl font-semibold mb-4">Pasos para Completar</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {getAllSteps().map((step) => {
+              const isCompleted = completedSteps.includes(step.id);
+              const IconComponent = step.icon;
+              
+              return (
+                <Link key={step.id} href={step.href}>
+                  <Card className={`cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 border-2 hover:border-primary/50 ${
+                    isCompleted ? 'bg-green-50 border-green-200' : ''
+                  }`}>
+                    <CardHeader className="text-center pb-4">
+                      <div className={`mx-auto mb-4 p-3 rounded-full w-fit ${
+                        isCompleted ? 'bg-green-100' : 'bg-primary/10'
+                      }`}>
+                        {isCompleted ? (
+                          <CheckCircle className="h-8 w-8 text-green-600" />
                         ) : (
-                          <Button variant="outline" className="w-full" disabled>
+                          <IconComponent className="h-8 w-8 text-primary" />
+                        )}
+                      </div>
+                      <CardTitle className={`text-lg ${
+                        isCompleted ? 'line-through text-gray-500' : ''
+                      }`}>
+                        {step.title}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="text-center">
+                      <CardDescription className={`text-sm leading-relaxed ${
+                        isCompleted ? 'text-gray-400' : ''
+                      }`}>
+                        {step.description}
+                      </CardDescription>
+                      <div className="mt-4">
+                        {!isCompleted ? (
+                          <Button className="w-full" size="sm">
+                            <Plus className="h-4 w-4 mr-2" />
+                            Completar
+                          </Button>
+                        ) : (
+                          <Button variant="outline" className="w-full" size="sm" disabled>
                             <CheckCircle className="h-4 w-4 mr-2" />
                             Completado
                           </Button>
                         )}
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </AppSidebarLayout>
   );

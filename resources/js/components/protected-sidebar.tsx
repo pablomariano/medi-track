@@ -73,6 +73,12 @@ const navigationSections: NavigationSection[] = [
         anyRoles: ['paciente'],
       },
       {
+        title: 'Mis Medicamentos',
+        href: '/mis-medicamentos',
+        icon: Pill,
+        anyRoles: ['paciente'],
+      },
+      {
         title: 'Mis Tratamientos',
         href: '/mis-tratamientos',
         icon: Activity,
