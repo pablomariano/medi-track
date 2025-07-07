@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Pill, Plus, Calendar, Clock, CheckCircle, XCircle, AlertCircle, User, ArrowRight } from 'lucide-react';
+import { Pill, Plus, Calendar, Clock, CheckCircle, XCircle, AlertCircle, User, ArrowRight, Eye, Edit, Activity } from 'lucide-react';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -197,25 +197,124 @@ export default function MisTratamientos({ tratamientos = [], estadisticas }: Pro
           </div>
         )}
 
-        {/* Sin tratamientos */}
+        {/* Sin tratamientos - Estado de bienvenida */}
         {tratamientos.length === 0 && (
-          <Card>
-            <CardContent className="text-center py-12">
-              <Pill className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium text-muted-foreground mb-2">
-                No tienes tratamientos registrados
-              </h3>
-              <p className="text-sm text-muted-foreground mb-6">
-                Comienza agregando tu primer medicamento para llevar un control adecuado.
-              </p>
-              <Link href="/mis-tratamientos/crear">
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Agregar primer tratamiento
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            <Card className="text-center py-12">
+              <CardContent className="space-y-6">
+                <div className="mx-auto p-4 bg-primary/10 rounded-full w-fit">
+                  <Activity className="h-12 w-12 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">
+                    ¡Crea tu primer tratamiento!
+                  </h3>
+                  <p className="text-muted-foreground max-w-lg mx-auto">
+                    Un tratamiento te permite organizar tus medicamentos con horarios específicos y 
+                    llevar un control completo de tu adherencia. Es fácil y solo toma unos minutos.
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Link href="/mis-tratamientos/crear">
+                    <Button size="lg">
+                      <Plus className="h-5 w-5 mr-2" />
+                      Crear Primer Tratamiento
+                    </Button>
+                  </Link>
+                  <Link href="/new-user-welcome">
+                    <Button variant="outline" size="lg">
+                      Ver Guía Completa
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Pasos para crear tratamiento */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5 text-primary" />
+                  ¿Cómo crear un tratamiento?
+                </CardTitle>
+                <CardDescription>
+                  Sigue estos sencillos pasos para comenzar
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-3 gap-6">
+                  <div className="text-center space-y-2">
+                    <div className="mx-auto w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-semibold text-primary">1</span>
+                    </div>
+                    <h4 className="font-medium">Información básica</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Dale un nombre a tu tratamiento (ej: "Medicamentos matutinos")
+                    </p>
+                  </div>
+                  <div className="text-center space-y-2">
+                    <div className="mx-auto w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-semibold text-primary">2</span>
+                    </div>
+                    <h4 className="font-medium">Agregar medicamentos</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Selecciona o crea los medicamentos con sus dosis y frecuencias
+                    </p>
+                  </div>
+                  <div className="text-center space-y-2">
+                    <div className="mx-auto w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-semibold text-primary">3</span>
+                    </div>
+                    <h4 className="font-medium">Configurar horarios</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Define cuándo tomar cada medicamento y recibe recordatorios
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Ejemplos de tratamientos */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Pill className="h-5 w-5 text-primary" />
+                  Ejemplos de tratamientos
+                </CardTitle>
+                <CardDescription>
+                  Ideas para organizar tus medicamentos
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="p-4 border rounded-lg bg-muted/30">
+                    <h5 className="font-medium mb-2">Medicamentos crónicos</h5>
+                    <p className="text-sm text-muted-foreground">
+                      Para medicamentos que tomas a largo plazo como hipertensión, diabetes, etc.
+                    </p>
+                  </div>
+                  <div className="p-4 border rounded-lg bg-muted/30">
+                    <h5 className="font-medium mb-2">Vitaminas y suplementos</h5>
+                    <p className="text-sm text-muted-foreground">
+                      Para vitaminas diarias, omega 3, calcio y otros suplementos.
+                    </p>
+                  </div>
+                  <div className="p-4 border rounded-lg bg-muted/30">
+                    <h5 className="font-medium mb-2">Tratamiento temporal</h5>
+                    <p className="text-sm text-muted-foreground">
+                      Para antibióticos, analgésicos o medicamentos con fecha de fin.
+                    </p>
+                  </div>
+                  <div className="p-4 border rounded-lg bg-muted/30">
+                    <h5 className="font-medium mb-2">Medicamentos PRN</h5>
+                    <p className="text-sm text-muted-foreground">
+                      Para medicamentos "según necesidad" como analgésicos de rescate.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         )}
 
         {/* Tratamientos Activos */}
@@ -311,6 +410,20 @@ export default function MisTratamientos({ tratamientos = [], estadisticas }: Pro
                         </div>
                       )}
                     </div>
+                    
+                    {/* Botones de acción */}
+                    <div className="flex space-x-2 ml-4">
+                      <Link href={route('mis-tratamientos.show', tratamiento.id)}>
+                        <Button variant="outline" size="sm">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                      <Link href={route('mis-tratamientos.edit', tratamiento.id)}>
+                        <Button variant="outline" size="sm">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -333,19 +446,37 @@ export default function MisTratamientos({ tratamientos = [], estadisticas }: Pro
             <CardContent className="space-y-4">
               {tratamientosPausados.map((tratamiento) => (
                 <div key={tratamiento.id} className="border rounded-lg p-4 bg-yellow-50 hover:bg-yellow-100 transition-colors duration-200">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Pill className="h-5 w-5 text-muted-foreground" />
-                    <h4 className="font-medium text-lg">{tratamiento.nombre || 'Tratamiento'}</h4>
-                    <Badge className={obtenerColorEstado(tratamiento.estado)}>
-                      {obtenerIconoEstado(tratamiento.estado)}
-                      <span className="ml-1">Pausado</span>
-                    </Badge>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    <span className="font-medium">Medicamentos:</span> {tratamiento.medicamentos.map(m => m.nombre).join(', ')}
-                  </div>
-                  <div className="text-sm text-muted-foreground mt-1">
-                    <span className="font-medium">Desde:</span> {formatearFecha(tratamiento.fecha_inicio)}
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Pill className="h-5 w-5 text-muted-foreground" />
+                        <h4 className="font-medium text-lg">{tratamiento.nombre || 'Tratamiento'}</h4>
+                        <Badge className={obtenerColorEstado(tratamiento.estado)}>
+                          {obtenerIconoEstado(tratamiento.estado)}
+                          <span className="ml-1">Pausado</span>
+                        </Badge>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        <span className="font-medium">Medicamentos:</span> {tratamiento.medicamentos.map(m => m.nombre).join(', ')}
+                      </div>
+                      <div className="text-sm text-muted-foreground mt-1">
+                        <span className="font-medium">Desde:</span> {formatearFecha(tratamiento.fecha_inicio)}
+                      </div>
+                    </div>
+                    
+                    {/* Botones de acción */}
+                    <div className="flex space-x-2 ml-4">
+                      <Link href={route('mis-tratamientos.show', tratamiento.id)}>
+                        <Button variant="outline" size="sm">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                      <Link href={route('mis-tratamientos.edit', tratamiento.id)}>
+                        <Button variant="outline" size="sm">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -368,19 +499,37 @@ export default function MisTratamientos({ tratamientos = [], estadisticas }: Pro
             <CardContent className="space-y-4">
               {tratamientosFinalizados.slice(0, 3).map((tratamiento) => (
                 <div key={tratamiento.id} className="border rounded-lg p-4 bg-muted/50 hover:bg-muted transition-colors duration-200">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Pill className="h-5 w-5 text-muted-foreground" />
-                    <h4 className="font-medium text-lg">{tratamiento.nombre || 'Tratamiento'}</h4>
-                    <Badge className={obtenerColorEstado(tratamiento.estado)}>
-                      {obtenerIconoEstado(tratamiento.estado)}
-                      <span className="ml-1">Finalizado</span>
-                    </Badge>
-                  </div>
-                  <div className="text-sm text-muted-foreground mb-1">
-                    <span className="font-medium">Medicamentos:</span> {tratamiento.medicamentos.map(m => m.nombre).join(', ')}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    <span className="font-medium">Período:</span> {formatearFecha(tratamiento.fecha_inicio)} - {tratamiento.fecha_fin ? formatearFecha(tratamiento.fecha_fin) : 'Fecha no especificada'}
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Pill className="h-5 w-5 text-muted-foreground" />
+                        <h4 className="font-medium text-lg">{tratamiento.nombre || 'Tratamiento'}</h4>
+                        <Badge className={obtenerColorEstado(tratamiento.estado)}>
+                          {obtenerIconoEstado(tratamiento.estado)}
+                          <span className="ml-1">Finalizado</span>
+                        </Badge>
+                      </div>
+                      <div className="text-sm text-muted-foreground mb-1">
+                        <span className="font-medium">Medicamentos:</span> {tratamiento.medicamentos.map(m => m.nombre).join(', ')}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        <span className="font-medium">Período:</span> {formatearFecha(tratamiento.fecha_inicio)} - {tratamiento.fecha_fin ? formatearFecha(tratamiento.fecha_fin) : 'Fecha no especificada'}
+                      </div>
+                    </div>
+                    
+                    {/* Botones de acción */}
+                    <div className="flex space-x-2 ml-4">
+                      <Link href={route('mis-tratamientos.show', tratamiento.id)}>
+                        <Button variant="outline" size="sm">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                      <Link href={route('mis-tratamientos.edit', tratamiento.id)}>
+                        <Button variant="outline" size="sm">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               ))}

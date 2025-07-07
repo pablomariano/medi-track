@@ -45,6 +45,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('bienvenida/progreso', [WelcomeController::class, 'updateProgress'])->name('welcome.update-progress');
     Route::post('bienvenida/completar', [WelcomeController::class, 'completeOnboarding'])->name('welcome.complete');
     Route::get('bienvenida/estadisticas', [WelcomeController::class, 'getMotivationStats'])->name('welcome.stats');
+    
+    // Página de bienvenida mejorada para nuevos usuarios
+    Route::get('new-user-welcome', function () {
+        $user = auth()->user();
+        
+        // Verificar si el usuario tiene medicamentos y tratamientos
+        $hasMedicamentos = false; // Por ahora false, implementar lógica más tarde
+        $hasTratamientos = false; // Por ahora false, implementar lógica más tarde
+        $hasProfileCompleted = !empty($user->telefono); // Simplificado
+        
+        return Inertia::render('Welcome/NewUserWelcome', [
+            'hasMedicamentos' => $hasMedicamentos,
+            'hasTratamientos' => $hasTratamientos,
+            'hasProfileCompleted' => $hasProfileCompleted,
+        ]);
+    })->name('new-user-welcome');
 
     // === RUTAS ESPECÍFICAS PARA PACIENTES ===
     Route::middleware('role:paciente')->group(function () {
@@ -62,6 +78,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/', [PacienteController::class, 'misTratamientos'])->name('index');
             Route::get('crear', [MisTratamientosController::class, 'create'])->name('crear');
             Route::post('/', [MisTratamientosController::class, 'store'])->name('store');
+            Route::get('{tratamiento}', [MisTratamientosController::class, 'show'])->name('show');
+            Route::get('{tratamiento}/editar', [MisTratamientosController::class, 'edit'])->name('edit');
+            Route::put('{tratamiento}', [MisTratamientosController::class, 'update'])->name('update');
+            Route::delete('{tratamiento}', [MisTratamientosController::class, 'destroy'])->name('destroy');
         });
 
         // Mi cronograma

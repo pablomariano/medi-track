@@ -1,438 +1,298 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Link } from '@inertiajs/react';
 import { useAuth } from '@/hooks/use-auth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
-  User, 
-  Heart, 
   Pill, 
+  Plus, 
   Calendar, 
-  UserPlus, 
-  Stethoscope, 
-  CheckCircle, 
-  ArrowRight,
-  Users,
+  Activity, 
+  User, 
+  ArrowRight, 
+  Heart, 
+  Shield, 
   Clock,
-  BarChart3,
-  Shield,
-  Eye,
-  ArrowLeft,
-  Plus
+  CheckCircle,
+  Stethoscope
 } from 'lucide-react';
-import { Link } from '@inertiajs/react';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
-interface WelcomeStep {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ComponentType<{ className?: string }>;
-  href: string;
-  completed: boolean;
-  priority: 'high' | 'medium' | 'low';
+interface Props {
+  hasMedicamentos?: boolean;
+  hasTratamientos?: boolean;
+  hasProfileCompleted?: boolean;
 }
 
-interface UserGuide {
-  role: string;
-  title: string;
-  subtitle: string;
-  steps: WelcomeStep[];
-  quickActions: QuickAction[];
-}
-
-interface QuickAction {
-  title: string;
-  description: string;
-  icon: React.ComponentType<{ className?: string }>;
-  href: string;
-  variant: 'default' | 'secondary' | 'outline';
-}
-
-export default function NewUserWelcome() {
+export default function NewUserWelcome({ 
+  hasMedicamentos = false, 
+  hasTratamientos = false,
+  hasProfileCompleted = false 
+}: Props) {
   const auth = useAuth();
-  const [completedSteps, setCompletedSteps] = useState<string[]>([]);
+  const user = auth.user;
+
+  // Calcular progreso del onboarding
+  const steps = [
+    { id: 'profile', completed: hasProfileCompleted, label: 'Completar perfil' },
+    { id: 'medicamentos', completed: hasMedicamentos, label: 'Agregar medicamentos' },
+    { id: 'tratamientos', completed: hasTratamientos, label: 'Crear tratamientos' }
+  ];
   
-  // Guías específicas por rol
-  const userGuides: Record<string, UserGuide> = {
-    paciente: {
-      role: 'paciente',
-      title: '¡Bienvenido a MediTrack!',
-      subtitle: 'Te ayudamos a gestionar tu salud de manera sencilla',
-      steps: [
-        {
-          id: 'profile',
-          title: 'Completa tu perfil',
-          description: 'Agrega información básica como fecha de nacimiento y contactos de emergencia',
-          icon: User,
-          href: '/mi-perfil/editar',
-          completed: false,
-          priority: 'high'
-        },
-        {
-          id: 'treatment',
-          title: 'Registra tu primer tratamiento',
-          description: 'Agrega los medicamentos que tomas actualmente',
-          icon: Pill,
-          href: '/mis-tratamientos/crear',
-          completed: false,
-          priority: 'high'
-        },
-        {
-          id: 'schedule',
-          title: 'Configura tus horarios',
-          description: 'Establece recordatorios para tomar tus medicamentos',
-          icon: Calendar,
-          href: '/mi-cronograma',
-          completed: false,
-          priority: 'medium'
-        }
-      ],
-      quickActions: [
-        {
-          title: 'Agregar Medicamento',
-          description: 'Registra un medicamento que tomas',
-          icon: Pill,
-          href: '/mis-tratamientos/crear',
-          variant: 'default'
-        }
-      ]
-    },
-    apoderado: {
-      role: 'apoderado',
-      title: '¡Bienvenido, Apoderado!',
-      subtitle: 'Gestiona la salud de las personas que cuidas',
-      steps: [
-        {
-          id: 'profile',
-          title: 'Completa tu perfil',
-          description: 'Información de contacto y relación con el paciente',
-          icon: User,
-          href: '/perfil/editar',
-          completed: false,
-          priority: 'high'
-        },
-        {
-          id: 'patient',
-          title: 'Registra a la persona que cuidas',
-          description: 'Agrega información del paciente bajo tu cuidado',
-          icon: UserPlus,
-          href: '/pacientes/crear',
-          completed: false,
-          priority: 'high'
-        },
-        {
-          id: 'treatment',
-          title: 'Registra tratamientos',
-          description: 'Agrega los medicamentos del paciente',
-          icon: Pill,
-          href: '/tratamientos/crear',
-          completed: false,
-          priority: 'medium'
-        }
-      ],
-      quickActions: [
-        {
-          title: 'Registrar Paciente',
-          description: 'Agrega a la persona que cuidas',
-          icon: UserPlus,
-          href: '/pacientes/crear',
-          variant: 'default'
-        }
-      ]
-    },
-    cuidador: {
-      role: 'cuidador',
-      title: '¡Bienvenido, Cuidador!',
-      subtitle: 'Herramientas profesionales para el cuidado de pacientes',
-      steps: [
-        {
-          id: 'profile',
-          title: 'Completa tu perfil profesional',
-          description: 'Certificaciones, experiencia y disponibilidad',
-          icon: User,
-          href: '/perfil/editar',
-          completed: false,
-          priority: 'high'
-        },
-        {
-          id: 'assignments',
-          title: 'Revisa tus asignaciones',
-          description: 'Ve los pacientes bajo tu cuidado',
-          icon: Users,
-          href: '/mis-pacientes',
-          completed: false,
-          priority: 'high'
-        },
-        {
-          id: 'schedule',
-          title: 'Configura tu cronograma',
-          description: 'Horarios de administración de medicamentos',
-          icon: Clock,
-          href: '/cronograma',
-          completed: false,
-          priority: 'medium'
-        }
-      ],
-      quickActions: [
-        {
-          title: 'Ver Pacientes',
-          description: 'Revisa tus asignaciones',
-          icon: Users,
-          href: '/mis-pacientes',
-          variant: 'default'
-        }
-      ]
-    },
-    medico: {
-      role: 'medico',
-      title: '¡Bienvenido, Doctor!',
-      subtitle: 'Gestiona tus pacientes y prescripciones digitalmente',
-      steps: [
-        {
-          id: 'profile',
-          title: 'Completa tu perfil médico',
-          description: 'Especialidad, colegiatura e institución',
-          icon: User,
-          href: '/perfil/editar',
-          completed: false,
-          priority: 'high'
-        },
-        {
-          id: 'patients',
-          title: 'Gestiona tus pacientes',
-          description: 'Ve y administra tu lista de pacientes',
-          icon: Users,
-          href: '/mis-pacientes',
-          completed: false,
-          priority: 'high'
-        },
-        {
-          id: 'prescriptions',
-          title: 'Crea prescripciones',
-          description: 'Prescribe tratamientos digitalmente',
-          icon: Pill,
-          href: '/prescripciones/crear',
-          completed: false,
-          priority: 'medium'
-        }
-      ],
-      quickActions: [
-        {
-          title: 'Crear Prescripción',
-          description: 'Prescribir nuevo tratamiento',
-          icon: Pill,
-          href: '/prescripciones/crear',
-          variant: 'default'
-        },
-        {
-          title: 'Ver Pacientes',
-          description: 'Lista de pacientes activos',
-          icon: Users,
-          href: '/pacientes',
-          variant: 'secondary'
-        }
-      ]
-    },
-    admin: {
-      role: 'admin',
-      title: '¡Bienvenido, Administrador!',
-      subtitle: 'Gestiona el sistema y supervisa todas las operaciones',
-      steps: [
-        {
-          id: 'system-overview',
-          title: 'Revisión del sistema',
-          description: 'Monitorea el estado general del sistema',
-          icon: BarChart3,
-          href: '/dashboard',
-          completed: false,
-          priority: 'high'
-        },
-        {
-          id: 'user-management',
-          title: 'Gestión de usuarios',
-          description: 'Administra usuarios del sistema',
-          icon: Users,
-          href: '/usuarios',
-          completed: false,
-          priority: 'high'
-        },
-        {
-          id: 'role-permissions',
-          title: 'Configurar roles y permisos',
-          description: 'Gestiona el sistema de autorización',
-          icon: Shield,
-          href: '/roles',
-          completed: false,
-          priority: 'medium'
-        },
-        {
-          id: 'audit-logs',
-          title: 'Revisar auditoría',
-          description: 'Supervisa los logs del sistema',
-          icon: Eye,
-          href: '/audit',
-          completed: false,
-          priority: 'medium'
-        }
-      ],
-      quickActions: [
-        {
-          title: 'Dashboard del Sistema',
-          description: 'Ver métricas generales',
-          icon: BarChart3,
-          href: '/dashboard',
-          variant: 'default'
-        },
-        {
-          title: 'Gestionar Usuarios',
-          description: 'Administrar cuentas de usuario',
-          icon: Users,
-          href: '/usuarios',
-          variant: 'secondary'
-        },
-        {
-          title: 'Logs de Auditoría',
-          description: 'Revisar actividad del sistema',
-          icon: Eye,
-          href: '/audit',
-          variant: 'outline'
-        }
-      ]
-    }
-  };
-
-  const currentUserGuide = userGuides[auth.user?.role?.nombre || 'paciente'] || userGuides['paciente'];
-
-  const markStepCompleted = (stepId: string) => {
-    if (!completedSteps.includes(stepId)) {
-      setCompletedSteps([...completedSteps, stepId]);
-    }
-  };
-
-  const getStepsByPriority = (priority: 'high' | 'medium' | 'low') => {
-    return currentUserGuide.steps.filter(step => step.priority === priority);
-  };
-
-  const getAllSteps = () => {
-    return currentUserGuide.steps;
-  };
+  const completedSteps = steps.filter(step => step.completed).length;
+  const progressPercentage = (completedSteps / steps.length) * 100;
 
   return (
     <AppSidebarLayout>
-      <div className="p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center gap-4">
-          <Link href={route('dashboard')}>
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold">
-              {currentUserGuide.title}
-            </h1>
-            <p className="text-muted-foreground">
-              {currentUserGuide.subtitle}
-            </p>
+      <div className="container mx-auto py-6 max-w-5xl">
+        {/* Header de bienvenida */}
+        <div className="text-center mb-8">
+          <div className="mx-auto mb-4 p-4 bg-primary/10 rounded-full w-fit">
+            <Heart className="h-12 w-12 text-primary" />
           </div>
+          <h1 className="text-3xl font-bold mb-2">
+            ¡Bienvenido a MediTrack, {user?.name?.split(' ')[0]}!
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Tu plataforma personal para llevar un control completo de tus medicamentos y tratamientos. 
+            Te ayudamos a mejorar tu adherencia al tratamiento y cuidar tu salud.
+          </p>
         </div>
 
-        {/* User Role Badge */}
-        <div className="flex items-center gap-2">
-          <Badge variant="outline">
-            Usuario Nuevo
-          </Badge>
-          <Badge variant="secondary">
-            {auth.user?.role?.nombre?.toUpperCase()}
-          </Badge>
-        </div>
+        {/* Progreso del onboarding */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" />
+              Configuración inicial ({completedSteps}/3 completado)
+            </CardTitle>
+            <CardDescription>
+              Completa estos pasos para aprovechar al máximo MediTrack
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {/* Barra de progreso */}
+            <div className="mb-6">
+              <div className="flex justify-between text-sm mb-2">
+                <span>Progreso</span>
+                <span className="font-medium">{Math.round(progressPercentage)}%</span>
+              </div>
+              <div className="w-full bg-muted rounded-full h-3">
+                <div 
+                  className="h-3 rounded-full bg-primary transition-all duration-500"
+                  style={{ width: `${progressPercentage}%` }}
+                ></div>
+              </div>
+            </div>
 
-        {/* Quick Actions */}
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Acciones Rápidas</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {currentUserGuide.quickActions.map((action, index) => (
-              <Link key={index} href={action.href}>
-                <Card className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 border-2 hover:border-primary/50">
-                  <CardHeader className="text-center pb-4">
-                    <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-full w-fit">
-                      <action.icon className="h-8 w-8 text-primary" />
-                    </div>
-                    <CardTitle className="text-lg">{action.title}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="text-center">
-                    <CardDescription className="text-sm leading-relaxed">
-                      {action.description}
-                    </CardDescription>
-                    <div className="mt-4">
-                      <Button className="w-full" size="sm">
-                        <Plus className="h-4 w-4 mr-2" />
-                        Comenzar
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Steps to Complete */}
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Pasos para Completar</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {getAllSteps().map((step) => {
-              const isCompleted = completedSteps.includes(step.id);
-              const IconComponent = step.icon;
-              
-              return (
-                <Link key={step.id} href={step.href}>
-                  <Card className={`cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 border-2 hover:border-primary/50 ${
-                    isCompleted ? 'bg-green-50 border-green-200' : ''
+            {/* Lista de pasos */}
+            <div className="space-y-4">
+              {steps.map((step, index) => (
+                <div key={step.id} className={`flex items-center gap-4 p-4 rounded-lg border transition-colors ${
+                  step.completed ? 'bg-green-50 border-green-200' : 'bg-muted/30 border-border'
+                }`}>
+                  <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
+                    step.completed ? 'bg-green-600 text-white' : 'bg-muted text-muted-foreground'
                   }`}>
-                    <CardHeader className="text-center pb-4">
-                      <div className={`mx-auto mb-4 p-3 rounded-full w-fit ${
-                        isCompleted ? 'bg-green-100' : 'bg-primary/10'
-                      }`}>
-                        {isCompleted ? (
-                          <CheckCircle className="h-8 w-8 text-green-600" />
-                        ) : (
-                          <IconComponent className="h-8 w-8 text-primary" />
-                        )}
-                      </div>
-                      <CardTitle className={`text-lg ${
-                        isCompleted ? 'line-through text-gray-500' : ''
-                      }`}>
-                        {step.title}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="text-center">
-                      <CardDescription className={`text-sm leading-relaxed ${
-                        isCompleted ? 'text-gray-400' : ''
-                      }`}>
-                        {step.description}
-                      </CardDescription>
-                      <div className="mt-4">
-                        {!isCompleted ? (
-                          <Button className="w-full" size="sm">
-                            <Plus className="h-4 w-4 mr-2" />
-                            Completar
-                          </Button>
-                        ) : (
-                          <Button variant="outline" className="w-full" size="sm" disabled>
-                            <CheckCircle className="h-4 w-4 mr-2" />
-                            Completado
-                          </Button>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
+                    {step.completed ? (
+                      <CheckCircle className="h-5 w-5" />
+                    ) : (
+                      <span className="text-sm font-medium">{index + 1}</span>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <p className={`font-medium ${step.completed ? 'text-green-800' : 'text-foreground'}`}>
+                      {step.label}
+                    </p>
+                    {step.completed && (
+                      <p className="text-sm text-green-600">✓ Completado</p>
+                    )}
+                  </div>
+                  {step.completed && (
+                    <Badge variant="secondary" className="bg-green-100 text-green-800">
+                      Listo
+                    </Badge>
+                  )}
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Acciones rápidas */}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          {/* Completar perfil */}
+          {!hasProfileCompleted && (
+            <Card className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 border-2 hover:border-primary/50">
+              <CardHeader className="text-center pb-4">
+                <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-full w-fit">
+                  <User className="h-8 w-8 text-primary" />
+                </div>
+                <CardTitle className="text-lg">Completar Mi Perfil</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center">
+                <CardDescription className="text-sm leading-relaxed">
+                  Agrega tu información personal, condiciones médicas y contactos de emergencia.
+                </CardDescription>
+                <div className="mt-4">
+                  <Link href="/mi-perfil/editar">
+                    <Button className="w-full" size="sm">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Completar Perfil
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Agregar medicamentos */}
+          <Card className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 border-2 hover:border-primary/50">
+            <CardHeader className="text-center pb-4">
+              <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-full w-fit">
+                <Pill className="h-8 w-8 text-primary" />
+              </div>
+              <CardTitle className="text-lg">Mis Medicamentos</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <CardDescription className="text-sm leading-relaxed">
+                {hasMedicamentos 
+                  ? 'Revisa y gestiona tus medicamentos registrados.'
+                  : 'Comienza agregando los medicamentos que tomas regularmente.'
+                }
+              </CardDescription>
+              <div className="mt-4">
+                <Link href="/mis-medicamentos">
+                  <Button className="w-full" size="sm" variant={hasMedicamentos ? "outline" : "default"}>
+                    {hasMedicamentos ? (
+                      <>
+                        <ArrowRight className="h-4 w-4 mr-2" />
+                        Ver Medicamentos
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Agregar Medicamentos
+                      </>
+                    )}
+                  </Button>
                 </Link>
-              );
-            })}
-          </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Crear tratamientos */}
+          <Card className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 border-2 hover:border-primary/50">
+            <CardHeader className="text-center pb-4">
+              <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-full w-fit">
+                <Activity className="h-8 w-8 text-primary" />
+              </div>
+              <CardTitle className="text-lg">Mis Tratamientos</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <CardDescription className="text-sm leading-relaxed">
+                {hasTratamientos 
+                  ? 'Revisa el progreso de tus tratamientos activos.'
+                  : 'Organiza tus medicamentos en tratamientos con horarios específicos.'
+                }
+              </CardDescription>
+              <div className="mt-4">
+                <Link href="/mis-tratamientos">
+                  <Button className="w-full" size="sm" variant={hasTratamientos ? "outline" : "default"}>
+                    {hasTratamientos ? (
+                      <>
+                        <ArrowRight className="h-4 w-4 mr-2" />
+                        Ver Tratamientos
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Crear Tratamiento
+                      </>
+                    )}
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Cronograma */}
+          <Card className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 border-2 hover:border-primary/50">
+            <CardHeader className="text-center pb-4">
+              <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-full w-fit">
+                <Calendar className="h-8 w-8 text-primary" />
+              </div>
+              <CardTitle className="text-lg">Mi Cronograma</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <CardDescription className="text-sm leading-relaxed">
+                Visualiza los horarios de todos tus medicamentos en un calendario semanal.
+              </CardDescription>
+              <div className="mt-4">
+                <Link href="/mi-cronograma">
+                  <Button className="w-full" size="sm" variant="outline">
+                    <Clock className="h-4 w-4 mr-2" />
+                    Ver Cronograma
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Consultar con médico */}
+          <Card className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 border-2 hover:border-primary/50">
+            <CardHeader className="text-center pb-4">
+              <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-full w-fit">
+                <Stethoscope className="h-8 w-8 text-primary" />
+              </div>
+              <CardTitle className="text-lg">Consulta Médica</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <CardDescription className="text-sm leading-relaxed">
+                ¿Necesitas ayuda médica? Te conectamos con profesionales de la salud.
+              </CardDescription>
+              <div className="mt-4">
+                <Button className="w-full" size="sm" variant="outline" disabled>
+                  <Stethoscope className="h-4 w-4 mr-2" />
+                  Próximamente
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Recursos educativos */}
+          <Card className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105 border-2 hover:border-primary/50">
+            <CardHeader className="text-center pb-4">
+              <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-full w-fit">
+                <Shield className="h-8 w-8 text-primary" />
+              </div>
+              <CardTitle className="text-lg">Recursos Educativos</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <CardDescription className="text-sm leading-relaxed">
+                Aprende sobre adherencia al tratamiento, efectos secundarios y más.
+              </CardDescription>
+              <div className="mt-4">
+                <Button className="w-full" size="sm" variant="outline" disabled>
+                  <ArrowRight className="h-4 w-4 mr-2" />
+                  Próximamente
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
+
+        {/* Información importante */}
+        <Alert>
+          <Shield className="h-4 w-4" />
+          <AlertDescription className="text-sm">
+            <strong>Importante:</strong> MediTrack es una herramienta de apoyo para el control de medicamentos. 
+            Siempre consulta con tu médico antes de hacer cambios en tu tratamiento. En caso de emergencia, 
+            contacta inmediatamente a los servicios de urgencia.
+          </AlertDescription>
+        </Alert>
       </div>
     </AppSidebarLayout>
   );

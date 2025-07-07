@@ -88,6 +88,12 @@ class RolesAndPermissionsSeeder extends Seeder
             ['nombre' => 'medicines.create', 'descripcion' => 'Crear medicamentos', 'modulo' => 'medicines'],
             ['nombre' => 'medicines.edit', 'descripcion' => 'Editar medicamentos', 'modulo' => 'medicines'],
             ['nombre' => 'medicines.delete', 'descripcion' => 'Eliminar medicamentos', 'modulo' => 'medicines'],
+            
+            // Tratamientos
+            ['nombre' => 'tratamientos.index', 'descripcion' => 'Ver tratamientos', 'modulo' => 'tratamientos'],
+            ['nombre' => 'tratamientos.create', 'descripcion' => 'Crear tratamientos', 'modulo' => 'tratamientos'],
+            ['nombre' => 'tratamientos.edit', 'descripcion' => 'Editar tratamientos', 'modulo' => 'tratamientos'],
+            ['nombre' => 'tratamientos.delete', 'descripcion' => 'Eliminar tratamientos', 'modulo' => 'tratamientos'],
         ];
 
         foreach ($permisos as $permiso) {
@@ -137,9 +143,15 @@ class RolesAndPermissionsSeeder extends Seeder
         ];
         $this->assignPermissionsByName($apoderado->id, $permisosApoderado);
 
-        // Paciente: solo sus propios datos
+        // Paciente: solo sus propios datos y medicamentos básicos
         $permisosPaciente = [
-            'pacientes.own'
+            'pacientes.own',
+            'medicines.index',
+            'medicines.create',
+            'medicines.edit', // Solo sus propios medicamentos
+            'tratamientos.index',
+            'tratamientos.create',
+            'tratamientos.edit' // Solo sus propios tratamientos
         ];
         $this->assignPermissionsByName($paciente->id, $permisosPaciente);
     }

@@ -16,7 +16,9 @@ import {
     ArrowRight,
     User,
     Activity,
-    Plus
+    Plus,
+    Eye,
+    Edit
 } from 'lucide-react';
 import AppSidebarLayout from '@/layouts/app/app-sidebar-layout';
 
@@ -30,7 +32,7 @@ interface Medicamento {
 interface ProximaAdministracion {
     id: number;
     fecha_hora_programada: string;
-    medicamentoTratamiento: {
+    medicamentoTratamiento?: {
         medicamento: Medicamento;
     };
 }
@@ -228,7 +230,7 @@ export default function DashboardPaciente({
                                                 {formatearHora(estadisticas.proxima_dosis.fecha_hora_programada)}
                                             </div>
                                             <p className="text-sm text-muted-foreground">
-                                                {estadisticas.proxima_dosis.medicamentoTratamiento.medicamento.nombre}
+                                                {estadisticas.proxima_dosis.medicamentoTratamiento?.medicamento?.nombre || 'Medicamento no disponible'}
                                             </p>
                                         </>
                                     ) : (
@@ -271,7 +273,7 @@ export default function DashboardPaciente({
                                                 </div>
                                                 <div>
                                                     <div className="font-medium">
-                                                        {admin.medicamentoTratamiento.medicamento.nombre}
+                                                        {admin.medicamentoTratamiento?.medicamento?.nombre || 'Medicamento no disponible'}
                                                     </div>
                                                     <div className="text-sm text-gray-500">
                                                         {formatearFecha(admin.fecha_hora_programada)} a las {formatearHora(admin.fecha_hora_programada)}
@@ -346,6 +348,20 @@ export default function DashboardPaciente({
                                                             </Badge>
                                                         ))}
                                                     </div>
+                                                </div>
+                                                
+                                                {/* Botones de acción */}
+                                                <div className="flex space-x-2 ml-4">
+                                                    <Link href={route('mis-tratamientos.show', tratamiento.id)}>
+                                                        <Button variant="outline" size="sm">
+                                                            <Eye className="h-4 w-4" />
+                                                        </Button>
+                                                    </Link>
+                                                    <Link href={route('mis-tratamientos.edit', tratamiento.id)}>
+                                                        <Button variant="outline" size="sm">
+                                                            <Edit className="h-4 w-4" />
+                                                        </Button>
+                                                    </Link>
                                                 </div>
                                             </div>
                                         </div>

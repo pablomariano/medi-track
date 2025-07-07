@@ -332,19 +332,74 @@ export default function MisMedicamentos({
           </div>
         )}
 
-        {/* Sin medicamentos registrados */}
+        {/* Sin medicamentos registrados - Estado de bienvenida */}
         {medicamentos.length === 0 && (
-          <Card>
-            <CardContent className="text-center py-12">
-              <Pill className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium text-muted-foreground mb-2">
-                No hay medicamentos disponibles
-              </h3>
-              <p className="text-sm text-muted-foreground mb-6">
-                Actualmente no hay medicamentos registrados en el sistema.
-              </p>
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            <Card className="text-center py-12">
+              <CardContent className="space-y-6">
+                <div className="mx-auto p-4 bg-primary/10 rounded-full w-fit">
+                  <Pill className="h-12 w-12 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold mb-2">
+                    ¡Comienza a gestionar tus medicamentos!
+                  </h3>
+                  <p className="text-muted-foreground max-w-md mx-auto">
+                    Para comenzar a usar MediTrack, primero necesitas crear un tratamiento que incluya 
+                    los medicamentos que tomas regularmente.
+                  </p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Link href="/mis-tratamientos/crear">
+                    <Button size="lg">
+                      <Plus className="h-5 w-5 mr-2" />
+                      Crear Mi Primer Tratamiento
+                    </Button>
+                  </Link>
+                  <Link href="/new-user-welcome">
+                    <Button variant="outline" size="lg">
+                      Ver Guía de Inicio
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Información educativa */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="h-5 w-5 text-primary" />
+                    ¿Qué es un tratamiento?
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Un tratamiento es un conjunto de medicamentos que tomas con horarios específicos. 
+                    Por ejemplo: "Medicamentos para la presión arterial" o "Vitaminas diarias".
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5 text-primary" />
+                    Beneficios de MediTrack
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="text-sm text-muted-foreground space-y-1">
+                    <li>• Recordatorios automáticos</li>
+                    <li>• Control de adherencia</li>
+                    <li>• Historial completo</li>
+                    <li>• Cronograma personalizado</li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         )}
 
         {/* Enlaces útiles */}
