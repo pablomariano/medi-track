@@ -29,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\CheckRole::class,
             'assignment' => \App\Http\Middleware\CheckAssignment::class,
             'audit' => \App\Http\Middleware\AuditLogger::class,
+            'api.auth' => \App\Http\Middleware\ApiAuthMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

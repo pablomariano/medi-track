@@ -27,6 +27,16 @@ use App\Http\Controllers\MisTratamientosController;
 // === LANDING PAGE - Página principal ===
 Route::get('/', [LandingController::class, 'index'])->name('home');
 
+// === API DE MÉTRICAS TEMPORALES (FUERA DE AUTH PARA MANEJAR JSON) ===
+Route::prefix('api/temporal-adherence')->name('api.temporal-adherence.')->middleware(['web', 'api.auth'])->group(function () {
+    Route::get('patient/{pacienteId}/metrics', [\App\Http\Controllers\Api\TemporalAdherenceController::class, 'getPatientMetrics'])->name('patient-metrics');
+    Route::get('patient/{pacienteId}/trends', [\App\Http\Controllers\Api\TemporalAdherenceController::class, 'getPatientTrends'])->name('patient-trends');
+    Route::get('patient/{pacienteId}/distribution', [\App\Http\Controllers\Api\TemporalAdherenceController::class, 'getDistributionData'])->name('patient-distribution');
+    Route::get('comparison', [\App\Http\Controllers\Api\TemporalAdherenceController::class, 'getComparison'])->name('comparison');
+});
+
+
+
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -43,13 +53,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // === DASHBOARD DE ADHERENCIA TEMPORAL ===
     Route::get('dashboard/adherencia-temporal', [DashboardController::class, 'adherenciaTemporal'])->name('dashboard.adherencia-temporal');
     
-    // === API DE MÉTRICAS TEMPORALES ===
-    Route::prefix('api/temporal-adherence')->name('api.temporal-adherence.')->group(function () {
-        Route::get('patient/{pacienteId}/metrics', [\App\Http\Controllers\Api\TemporalAdherenceController::class, 'getPatientMetrics'])->name('patient-metrics');
-        Route::get('patient/{pacienteId}/trends', [\App\Http\Controllers\Api\TemporalAdherenceController::class, 'getPatientTrends'])->name('patient-trends');
-        Route::get('patient/{pacienteId}/distribution', [\App\Http\Controllers\Api\TemporalAdherenceController::class, 'getDistributionData'])->name('patient-distribution');
-        Route::get('comparison', [\App\Http\Controllers\Api\TemporalAdherenceController::class, 'getComparison'])->name('comparison');
-    });
+
+
+
 
     // === BIENVENIDA PARA USUARIOS NUEVOS ===
     Route::get('bienvenida', [WelcomeController::class, 'newUser'])->name('welcome.new-user');

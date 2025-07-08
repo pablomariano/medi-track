@@ -106,6 +106,136 @@ class TemporalAdherenceController extends Controller
     }
 
     /**
+     * Obtiene las tendencias diarias de un paciente específico
+     * 
+     * @param Request $request
+     * @param int $pacienteId
+     * @return JsonResponse
+     */
+    public function getPatientTrends(Request $request, int $pacienteId): JsonResponse
+    {
+        try {
+            $request->validate([
+                'fecha_inicio' => 'nullable|date',
+                'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
+            ]);
+
+            $paciente = Paciente::findOrFail($pacienteId);
+
+            // Por defecto, últimos 21 días
+            $fechaInicio = $request->fecha_inicio 
+                ? Carbon::parse($request->fecha_inicio)
+                : Carbon::now()->subDays(21);
+            
+            $fechaFin = $request->fecha_fin 
+                ? Carbon::parse($request->fecha_fin)
+                : Carbon::now();
+
+            // Obtener administraciones del período
+            $administraciones = Administracion::where('paciente_id', $pacienteId)
+                ->whereNotNull('score_puntualidad')
+                ->whereBetween('fecha_hora_programada', [$fechaInicio, $fechaFin])
+                ->orderBy('fecha_hora_programada')
+                ->get();
+
+            // Agrupar por día y calcular métricas
+            $tendenciasPorDia = [];
+            $fechaActual = $fechaInicio->copy();
+
+            while ($fechaActual <= $fechaFin) {
+                $administracionesDia = $administraciones->filter(function($admin) use ($fechaActual) {
+                    return Carbon::parse($admin->fecha_hora_programada)->isSameDay($fechaActual);
+                });
+
+                if ($administracionesDia->isNotEmpty()) {
+                    // Calcular métricas del día
+                    $promedioAdelanto = $administracionesDia->where('minutos_adelanto', '>', 0)->avg('minutos_adelanto') ?? 0;
+                    $promedioRetraso = $administracionesDia->where('minutos_retraso', '>', 0)->avg('minutos_retraso') ?? 0;
+                    
+                    // Calcular variabilidad (desviación estándar de los scores)
+                    $scores = $administracionesDia->pluck('score_puntualidad')->toArray();
+                    $variabilidad = $this->calcularDesviacionEstandar($scores);
+
+                    $tendenciasPorDia[] = [
+                        'fecha' => $fechaActual->format('Y-m-d'),
+                        'promedio_adelanto' => round($promedioAdelanto, 1),
+                        'promedio_retraso' => round($promedioRetraso, 1),
+                        'variabilidad' => round($variabilidad, 1),
+                        'total_administraciones' => $administracionesDia->count(),
+                        'score_promedio' => round($administracionesDia->avg('score_puntualidad'), 1)
+                    ];
+                } else {
+                    // Día sin administraciones
+                    $tendenciasPorDia[] = [
+                        'fecha' => $fechaActual->format('Y-m-d'),
+                        'promedio_adelanto' => 0,
+                        'promedio_retraso' => 0,
+                        'variabilidad' => 0,
+                        'total_administraciones' => 0,
+                        'score_promedio' => 0
+                    ];
+                }
+
+                $fechaActual->addDay();
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $tendenciasPorDia,
+                'meta' => [
+                    'paciente_id' => $pacienteId,
+                    'paciente_nombre' => $paciente->nombre,
+                    'periodo' => [
+                        'inicio' => $fechaInicio->format('Y-m-d'),
+                        'fin' => $fechaFin->format('Y-m-d'),
+                        'dias' => $fechaInicio->diffInDays($fechaFin) + 1
+                    ],
+                    'total_administraciones' => $administraciones->count()
+                ]
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Datos de entrada inválidos',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            \Log::error('Error obteniendo tendencias del paciente', [
+                'paciente_id' => $pacienteId,
+                'request' => $request->all(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error interno del servidor',
+                'debug' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
+        }
+    }
+
+    /**
+     * Calcula la desviación estándar de un array de valores
+     */
+    private function calcularDesviacionEstandar(array $values): float
+    {
+        if (empty($values)) return 0;
+        
+        $count = count($values);
+        if ($count < 2) return 0;
+        
+        $mean = array_sum($values) / $count;
+        $variance = array_sum(array_map(function($x) use ($mean) {
+            return pow($x - $mean, 2);
+        }, $values)) / $count;
+        
+        return sqrt($variance);
+    }
+
+    /**
      * Analiza tendencias comparando dos períodos
      * 
      * @param Request $request

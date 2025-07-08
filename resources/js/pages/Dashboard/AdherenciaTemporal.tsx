@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Clock, TrendingUp, Users, Activity, Target, AlertTriangle } from 'lucide-react';
 import PunctualityChart from '@/components/charts/PunctualityChart';
+import PatientTrendsLineChart from '@/components/charts/PatientTrendsLineChart';
 
 interface Paciente {
     id: number;
@@ -253,6 +254,14 @@ export default function AdherenciaTemporal({ pacientes, metricas }: Props) {
                                     <Badge variant="outline">Tendencias: /api/temporal-adherence/patient/{selectedPaciente}/trends</Badge>
                                     <Badge variant="outline">Distribución: /api/temporal-adherence/patient/{selectedPaciente}/distribution</Badge>
                                 </div>
+                            </div>
+                            {/* Gráfico de líneas de tendencias */}
+                            <div className="mt-8">
+                                <PatientTrendsLineChart 
+                                    pacienteId={parseInt(selectedPaciente)}
+                                    apiEndpoint={`/api/temporal-adherence/patient/${selectedPaciente}/trends`}
+                                    theme={typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'}
+                                />
                             </div>
                         </CardContent>
                     </Card>

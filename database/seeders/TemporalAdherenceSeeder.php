@@ -338,10 +338,20 @@ class TemporalAdherenceSeeder extends Seeder
     // Métodos auxiliares
     private function esValidoDiaSegun(Carbon $fecha, string $diasSemana): bool
     {
-        $diasArray = explode(',', $diasSemana);
-        $diaActual = $fecha->dayOfWeek; // 0=domingo, 1=lunes, etc.
+        // Si es "Daily", válido todos los días
+        if ($diasSemana === 'Daily') {
+            return true;
+        }
         
-        return in_array($diaActual, $diasArray);
+        // Si está en formato de array separado por comas
+        if (str_contains($diasSemana, ',')) {
+            $diasArray = explode(',', $diasSemana);
+            $diaActual = $fecha->dayOfWeek; // 0=domingo, 1=lunes, etc.
+            return in_array($diaActual, $diasArray);
+        }
+        
+        // Por defecto, asumir que es válido
+        return true;
     }
     
     private function obtenerFactorDiaSemana(Carbon $fecha): float
