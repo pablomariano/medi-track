@@ -30,10 +30,10 @@ class DatabaseSeeder extends Seeder
             MedicamentosTratamientosSeeder::class,
         ]);
 
-        // Seedear horarios programados y historial de administraciones
+        // Seedear horarios programados y historial de administraciones con métricas temporales
         $this->call([
             HorariosProgramadosSeeder::class,
-            AdministracionesHistorialSeeder::class,
+            TemporalAdherenceSeeder::class,
             EstadisticasYAlertasSeeder::class,
         ]);
 
@@ -52,11 +52,13 @@ class DatabaseSeeder extends Seeder
         echo "   - Sistema completo de tolerancias y validaciones\n";
         echo "   - Configuraciones de frecuencia personalizables\n\n";
         
-        echo "📊 Historial de administraciones (último mes):\n";
-        echo "   - Horarios programados para medicamentos\n";
-        echo "   - Administraciones programadas con adherencia realista (75-95%)\n";
-        echo "   - Estadísticas de consumo y adherencia\n";
-        echo "   - Alertas automáticas por patrones de riesgo\n";
-        echo "   - Datos listos para gráficos de dashboard\n\n";
+        echo "📊 Historial con métricas temporales (últimas 3 semanas):\n";
+        echo "   - Administraciones con variaciones temporales realistas\n";
+        echo "   - Perfiles de comportamiento temporal por paciente\n";
+        echo "   - Scores de puntualidad calculados (0-100)\n";
+        echo "   - Categorías temporales: muy_temprano, temprano, puntual, tardío, muy_tardío\n";
+        echo "   - Métricas de adelanto/retraso en minutos\n";
+        echo "   - Datos optimizados para gráficos de líneas y barras\n";
+        echo "   - Sistema completo de adherencia temporal implementado\n\n";
     }
 }
