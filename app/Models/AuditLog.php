@@ -202,6 +202,9 @@ class AuditLog extends Model
             // Ignorar errores de sesión en testing/console
         }
 
+        // Obtener IP real del usuario de manera robusta
+        $ipAddress = self::getRealIpAddress($request);
+
         return self::create([
             'usuario_id' => $user ? $user->id : null,
             'created_by_name' => $user ? $user->name : 'Sistema',
@@ -210,7 +213,7 @@ class AuditLog extends Model
             'registro_id' => $datos['registro_id'] ?? null,
             'datos_anteriores' => $datos['datos_anteriores'] ?? null,
             'datos_nuevos' => $datos['datos_nuevos'] ?? null,
-            'ip_address' => $request ? $request->ip() : '127.0.0.1',
+            'ip_address' => $ipAddress,
             'user_agent' => $request ? $request->userAgent() : 'Sistema',
             'metodo_http' => $request ? $request->method() : null,
             'url' => $request ? $request->fullUrl() : null,
@@ -220,6 +223,61 @@ class AuditLog extends Model
             'severidad' => $datos['severidad'] ?? 'medium',
             'created_at' => Carbon::now()
         ]);
+    }
+
+    /**
+     * Obtener la IP real del usuario de manera robusta
+     */
+    private static function getRealIpAddress($request): string
+    {
+        if (!$request) {
+            return '127.0.0.1';
+        }
+
+        // Intentar obtener IP de diferentes headers
+        $ipSources = [
+            'HTTP_CF_CONNECTING_IP', // Cloudflare
+            'HTTP_X_FORWARDED_FOR', // Proxy estándar
+            'HTTP_X_FORWARDED',     // Proxy alternativo
+            'HTTP_X_CLUSTER_CLIENT_IP', // Cluster
+            'HTTP_FORWARDED_FOR',   // Forwarded
+            'HTTP_FORWARDED',       // Forwarded alternativo
+            'HTTP_X_REAL_IP',       // Nginx real IP
+            'HTTP_CLIENT_IP',       // Client IP
+            'REMOTE_ADDR'           // IP directa
+        ];
+
+        foreach ($ipSources as $header) {
+            $ip = $request->server($header);
+            if ($ip && self::isValidIp($ip)) {
+                // Si es una lista de IPs (como en X-Forwarded-For), tomar la primera
+                if (strpos($ip, ',') !== false) {
+                    $ips = array_map('trim', explode(',', $ip));
+                    $ip = $ips[0];
+                }
+                
+                if (self::isValidIp($ip)) {
+                    return $ip;
+                }
+            }
+        }
+
+        // Fallback al método estándar de Laravel
+        $laravelIp = $request->ip();
+        if ($laravelIp && $laravelIp !== '127.0.0.1') {
+            return $laravelIp;
+        }
+
+        // Último fallback
+        return '127.0.0.1';
+    }
+
+    /**
+     * Validar si una IP es válida
+     */
+    private static function isValidIp($ip): bool
+    {
+        return filter_var(trim($ip), FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false;
     }
 
     // Método para limpiar logs antiguos
