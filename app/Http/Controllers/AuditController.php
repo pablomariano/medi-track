@@ -17,7 +17,7 @@ class AuditController extends Controller
     {
         $filtros = $request->only([
             'usuario_id', 'accion', 'tabla', 'severidad',
-            'fecha_inicio', 'fecha_fin', 'busqueda'
+            'fecha_inicio', 'fecha_fin', 'busqueda', 'page'
         ]);
 
         $query = AuditService::buscar($filtros);

@@ -56,6 +56,7 @@ interface Props {
     fecha_inicio?: string
     fecha_fin?: string
     busqueda?: string
+    page?: string
   }
   usuarios_disponibles: Array<{ id: number; name: string }>
   acciones_disponibles: Array<{ value: string; label: string }>
@@ -92,6 +93,23 @@ export default function AuditIndex({
   const limpiarFiltros = () => {
     setLocalFiltros({})
     router.get(route('audit.index'))
+  }
+
+  const irAPagina = (url: string) => {
+    // Extraer el número de página de la URL
+    const urlObj = new URL(url, window.location.origin)
+    const page = urlObj.searchParams.get('page')
+    
+    // Combinar filtros actuales con la página
+    const parametros = { ...localFiltros }
+    if (page) {
+      parametros.page = page
+    }
+    
+    router.get(route('audit.index'), parametros, {
+      preserveState: true,
+      preserveScroll: true
+    })
   }
 
   const exportarCompliance = () => {
@@ -441,16 +459,25 @@ export default function AuditIndex({
                   {Math.min(logs.current_page * logs.per_page, logs.total)} de {logs.total} registros
                 </div>
                 <div className="flex space-x-1">
-                  {logs.links.map((link, index) => (
-                    <Button
-                      key={index}
-                      variant={link.active ? "default" : "outline"}
-                      size="sm"
-                      disabled={!link.url}
-                      onClick={() => link.url && router.visit(link.url)}
-                      dangerouslySetInnerHTML={{ __html: link.label }}
-                    />
-                  ))}
+                  {logs.links.map((link, index) => {
+                    // Limpiar las etiquetas HTML de los enlaces
+                    const cleanLabel = link.label
+                      .replace(/&laquo;/g, '«')
+                      .replace(/&raquo;/g, '»')
+                      .replace(/&hellip;/g, '...')
+                    
+                    return (
+                      <Button
+                        key={index}
+                        variant={link.active ? "default" : "outline"}
+                        size="sm"
+                        disabled={!link.url}
+                        onClick={() => link.url && irAPagina(link.url)}
+                      >
+                        {cleanLabel}
+                      </Button>
+                    )
+                  })}
                 </div>
               </div>
             )}
