@@ -36,6 +36,7 @@ class DatabaseSeeder extends Seeder
             TemporalAdherenceSeeder::class,
             EstadisticasYAlertasSeeder::class,
             AnaLopezRealisticAdherenceSeeder::class,
+            PedroSilvaRealisticAdherenceSeeder::class,
         ]);
 
         echo "\n🎉 Base de datos inicializada con datos coherentes\n";
