@@ -1,7 +1,7 @@
 import { Head, router } from '@inertiajs/react'
 import AppLayout from '@/layouts/app-layout'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, User, Globe, Calendar, Database, Activity } from 'lucide-react'
 import { format } from 'date-fns'
@@ -71,237 +71,229 @@ export default function AuditShow({ log, cambios_detallados }: Props) {
     <AppLayout>
       <Head title={`Log de Auditoría #${log.id}`} />
 
-      <div className="space-y-6">
+      <div className="container mx-auto p-6 space-y-6 max-w-none">
         {/* Header */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center gap-4">
           <Button
-            variant="outline"
+            variant="ghost"
+            size="icon"
             onClick={() => router.visit(route('audit.index'))}
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver
+            <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Log de Auditoría #{log.id}
-            </h1>
+            <h1 className="text-2xl font-bold">Log de Auditoría #{log.id}</h1>
             <p className="text-muted-foreground">
-              {log.descripcion_accion} - {log.tiempo_transcurrido}
+              {log.descripcion_accion} &middot; {log.tiempo_transcurrido}
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Información General */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Activity className="mr-2 h-5 w-5" />
-                Información General
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-500">ID</label>
-                  <p className="text-lg font-mono">{log.id}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Acción</label>
-                  <div className="mt-1">
-                    <Badge variant="outline">{log.descripcion_accion}</Badge>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Severidad</label>
-                  <div className="mt-1">
-                    <Badge className={getSeverityColor(log.severidad)}>
-                      {log.severidad.toUpperCase()}
-                    </Badge>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Fecha y Hora</label>
-                  <p className="flex items-center mt-1">
-                    <Calendar className="mr-2 h-4 w-4" />
-                    {format(new Date(log.created_at), 'dd/MM/yyyy HH:mm:ss', { locale: es })}
-                  </p>
-                </div>
-              </div>
-
-              {log.tabla_afectada && (
-                <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-6 w-full max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Información General */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5" /> Información General
+                </CardTitle>
+                <CardDescription>Datos principales del evento registrado</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Tabla</label>
+                    <label className="text-xs font-medium text-muted-foreground">ID</label>
+                    <p className="text-lg font-mono">{log.id}</p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Acción</label>
+                    <div className="mt-1">
+                      <Badge variant="outline">{log.descripcion_accion}</Badge>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Severidad</label>
+                    <div className="mt-1">
+                      <Badge className={getSeverityColor(log.severidad)}>
+                        {log.severidad.toUpperCase()}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Fecha y Hora</label>
                     <p className="flex items-center mt-1">
-                      <Database className="mr-2 h-4 w-4" />
-                      {log.tabla_afectada}
+                      <Calendar className="mr-2 h-4 w-4" />
+                      {format(new Date(log.created_at), 'dd/MM/yyyy HH:mm:ss', { locale: es })}
                     </p>
                   </div>
-                  {log.registro_id && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">ID del Registro</label>
-                      <p className="text-lg font-mono">{log.registro_id}</p>
+                  {log.tabla_afectada && (
+                    <div className="col-span-1 sm:col-span-2">
+                      <label className="text-xs font-medium text-muted-foreground">Tabla</label>
+                      <p className="flex items-center mt-1">
+                        <Database className="mr-2 h-4 w-4" />
+                        {log.tabla_afectada}
+                        {log.registro_id && (
+                          <span className="ml-4 text-xs text-muted-foreground">ID: {log.registro_id}</span>
+                        )}
+                      </p>
                     </div>
                   )}
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* Información del Usuario */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <User className="mr-2 h-5 w-5" />
-                Usuario y Contexto
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-gray-500">Usuario</label>
-                <p className="text-lg">{log.created_by_name}</p>
-                {log.usuario && (
-                  <p className="text-sm text-gray-500">
-                    ID: {log.usuario_id} - {log.usuario.email}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-gray-500">Dirección IP</label>
-                <p className="flex items-center">
-                  <Globe className="mr-2 h-4 w-4" />
-                  <span className="font-mono">{log.ip_address}</span>
-                </p>
-              </div>
-
-              {log.session_id && (
-                <div>
-                  <label className="text-sm font-medium text-gray-500">ID de Sesión</label>
-                  <p className="font-mono text-sm">{log.session_id}</p>
-                </div>
-              )}
-
-              {log.user_agent && (
-                <div>
-                  <label className="text-sm font-medium text-gray-500">User Agent</label>
-                  <p className="text-sm text-gray-600 break-all">{log.user_agent}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Información de la Request */}
-          {(log.metodo_http || log.url || log.ruta) && (
+            {/* Información del Usuario */}
             <Card>
               <CardHeader>
-                <CardTitle>Información de la Request</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" /> Usuario y Contexto
+                </CardTitle>
+                <CardDescription>Información del usuario y contexto de sesión</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {log.metodo_http && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">Método HTTP</label>
-                    <Badge variant="outline">{log.metodo_http}</Badge>
-                  </div>
-                )}
-
-                {log.url && (
-                  <div>
-                    <label className="text-sm font-medium text-gray-500">URL</label>
-                    <p className="text-sm font-mono bg-gray-50 p-2 rounded break-all">
-                      {log.url}
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Usuario</label>
+                  <p className="text-base font-medium">{log.created_by_name}</p>
+                  {log.usuario && (
+                    <p className="text-xs text-muted-foreground">
+                      ID: {log.usuario_id} &middot; {log.usuario.email}
                     </p>
+                  )}
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Dirección IP</label>
+                  <p className="flex items-center">
+                    <Globe className="mr-2 h-4 w-4" />
+                    <span className="font-mono text-sm">{log.ip_address}</span>
+                  </p>
+                </div>
+                {log.session_id && (
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">ID de Sesión</label>
+                    <p className="font-mono text-xs">{log.session_id}</p>
                   </div>
                 )}
-
-                {log.ruta && (
+                {log.user_agent && (
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Ruta</label>
-                    <p className="text-sm font-mono">{log.ruta}</p>
+                    <label className="text-xs font-medium text-muted-foreground">User Agent</label>
+                    <p className="text-xs text-muted-foreground break-all bg-muted rounded p-2 mt-1">{log.user_agent}</p>
                   </div>
                 )}
               </CardContent>
             </Card>
-          )}
+          </div>
 
-          {/* Contexto Adicional */}
-          {log.contexto_adicional && (
+          {/* Información de la Request y Contexto */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {(log.metodo_http || log.url || log.ruta) && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Información de la Request</CardTitle>
+                  <CardDescription>Detalles técnicos de la petición HTTP</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {log.metodo_http && (
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Método HTTP</label>
+                      <div className="mt-1">
+                        <Badge variant="outline">{log.metodo_http}</Badge>
+                      </div>
+                    </div>
+                  )}
+                  {log.url && (
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">URL</label>
+                      <p className="text-xs font-mono bg-muted p-2 rounded break-all mt-1">
+                        {log.url}
+                      </p>
+                    </div>
+                  )}
+                  {log.ruta && (
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Ruta</label>
+                      <p className="text-xs font-mono mt-1">{log.ruta}</p> 
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+            {log.contexto_adicional && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Contexto Adicional</CardTitle>
+                  <CardDescription>Información extra relevante para el evento</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <pre className="text-xs bg-muted p-4 rounded-lg overflow-auto max-h-40">
+                    {JSON.stringify(log.contexto_adicional, null, 2)}
+                  </pre>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Cambios Detallados */}
+          {cambios_detallados && cambios_detallados.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle>Contexto Adicional</CardTitle>
+                <CardTitle>Cambios Realizados</CardTitle>
+                <CardDescription>Comparación de valores antes y después</CardDescription>
               </CardHeader>
               <CardContent>
-                <pre className="text-xs bg-gray-50 p-4 rounded-lg overflow-auto max-h-40">
-                  {JSON.stringify(log.contexto_adicional, null, 2)}
-                </pre>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        {/* Cambios Detallados */}
-        {cambios_detallados && cambios_detallados.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Cambios Realizados</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {cambios_detallados.map((cambio, index) => (
-                  <div key={index} className="border rounded-lg p-4">
-                    <h4 className="font-medium mb-2">Campo: {cambio.campo}</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm font-medium text-red-600">Valor Anterior</label>
-                        <div className="mt-1 p-2 bg-red-50 rounded">
-                          {formatValue(cambio.anterior)}
+                <div className="space-y-4">
+                  {cambios_detallados.map((cambio, index) => (
+                    <div key={index} className="border rounded-lg p-4 bg-muted/50">
+                      <h4 className="font-medium mb-2">Campo: <span className="font-mono text-xs">{cambio.campo}</span></h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-xs font-medium text-red-600">Valor Anterior</label>
+                          <div className="mt-1 p-2 bg-red-50 rounded">
+                            {formatValue(cambio.anterior)}
+                          </div>
                         </div>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-green-600">Valor Nuevo</label>
-                        <div className="mt-1 p-2 bg-green-50 rounded">
-                          {formatValue(cambio.nuevo)}
+                        <div>
+                          <label className="text-xs font-medium text-green-600">Valor Nuevo</label>
+                          <div className="mt-1 p-2 bg-green-50 rounded">
+                            {formatValue(cambio.nuevo)}
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Datos Completos */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {log.datos_anteriores && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Datos Anteriores</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <pre className="text-xs bg-gray-50 p-4 rounded-lg overflow-auto max-h-60">
-                  {JSON.stringify(log.datos_anteriores, null, 2)}
-                </pre>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           )}
 
-          {log.datos_nuevos && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Datos Nuevos</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <pre className="text-xs bg-gray-50 p-4 rounded-lg overflow-auto max-h-60">
-                  {JSON.stringify(log.datos_nuevos, null, 2)}
-                </pre>
-              </CardContent>
-            </Card>
-          )}
+          {/* Datos Completos */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {log.datos_anteriores && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Datos Anteriores</CardTitle>
+                  <CardDescription>Estado previo del registro</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <pre className="text-xs bg-muted p-4 rounded-lg overflow-auto max-h-60">
+                    {JSON.stringify(log.datos_anteriores, null, 2)}
+                  </pre>
+                </CardContent>
+              </Card>
+            )}
+            {log.datos_nuevos && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Datos Nuevos</CardTitle>
+                  <CardDescription>Estado posterior del registro</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <pre className="text-xs bg-muted p-4 rounded-lg overflow-auto max-h-60">
+                    {JSON.stringify(log.datos_nuevos, null, 2)}
+                  </pre>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </div>
       </div>
     </AppLayout>
