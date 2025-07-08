@@ -34,8 +34,18 @@ class AuditLogger
      */
     private function debeAuditar(Request $request): bool
     {
+        // Verificar si la auditoría está habilitada globalmente
+        if (!config('audit.enabled', true)) {
+            return false;
+        }
+
         // No auditar en testing a menos que sea explícito
         if (app()->environment('testing') && !config('audit.enable_in_testing', false)) {
+            return false;
+        }
+
+        // No auditar en console a menos que sea explícito
+        if (app()->runningInConsole() && !config('audit.enable_in_console', false)) {
             return false;
         }
 
@@ -46,6 +56,11 @@ class AuditLogger
 
         // No auditar requests AJAX de polling frecuente
         if ($this->esPollingAjax($request)) {
+            return false;
+        }
+
+        // No auditar requests de health check
+        if ($request->is('health') || $request->is('up')) {
             return false;
         }
 
@@ -66,7 +81,7 @@ class AuditLogger
         }
 
         // Auditar accesos a rutas sensibles (GET)
-        $rutasSensibles = [
+        $rutasSensibles = config('audit.sensitive_routes', [
             'pacientes',
             'personal-medico',
             'tratamientos',
@@ -77,7 +92,7 @@ class AuditLogger
             'roles',
             'permisos',
             'audit-logs'
-        ];
+        ]);
 
         foreach ($rutasSensibles as $ruta) {
             if (str_contains($path, $ruta)) {
@@ -206,7 +221,9 @@ class AuditLogger
     private function esRequestDeAsset(Request $request): bool
     {
         $path = $request->path();
-        $extensiones = ['.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2'];
+        $extensiones = config('audit.exclude_asset_extensions', [
+            '.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico', '.woff', '.woff2'
+        ]);
 
         foreach ($extensiones as $ext) {
             if (str_ends_with($path, $ext)) {
@@ -226,12 +243,13 @@ class AuditLogger
             return false;
         }
 
-        $rutasPolling = [
+        $rutasPolling = config('audit.polling_routes', [
             'notifications/count',
             'dashboard/live',
             'health-check',
-            'heartbeat'
-        ];
+            'heartbeat',
+            'live-stats'
+        ]);
 
         $path = $request->path();
         foreach ($rutasPolling as $ruta) {
@@ -248,7 +266,7 @@ class AuditLogger
      */
     private function filtrarParametrosSensibles(array $parametros): array
     {
-        $camposSensibles = [
+        $camposSensibles = config('audit.sensitive_fields', [
             'password',
             'password_confirmation',
             'current_password',
@@ -256,7 +274,7 @@ class AuditLogger
             '_token',
             'api_key',
             'secret'
-        ];
+        ]);
 
         foreach ($camposSensibles as $campo) {
             if (isset($parametros[$campo])) {

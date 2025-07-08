@@ -12,15 +12,48 @@ class AuditService
      */
     public static function log(string $accion, array $opciones = [])
     {
-        return AuditLog::registrar([
-            'accion' => $accion,
-            'tabla_afectada' => $opciones['tabla'] ?? null,
-            'registro_id' => $opciones['registro_id'] ?? null,
-            'datos_anteriores' => $opciones['datos_anteriores'] ?? null,
-            'datos_nuevos' => $opciones['datos_nuevos'] ?? null,
-            'contexto_adicional' => $opciones['contexto'] ?? null,
-            'severidad' => $opciones['severidad'] ?? 'medium',
-        ]);
+        try {
+            // Verificar si la auditoría está habilitada
+            if (!config('audit.enabled', true)) {
+                return null;
+            }
+
+            // Validar datos de entrada
+            if (empty($accion)) {
+                \Log::warning('AuditService: Acción vacía en log de auditoría');
+                return null;
+            }
+
+            $logData = [
+                'accion' => $accion,
+                'tabla_afectada' => $opciones['tabla'] ?? null,
+                'registro_id' => $opciones['registro_id'] ?? null,
+                'datos_anteriores' => $opciones['datos_anteriores'] ?? null,
+                'datos_nuevos' => $opciones['datos_nuevos'] ?? null,
+                'contexto_adicional' => $opciones['contexto'] ?? null,
+                'severidad' => $opciones['severidad'] ?? config('audit.default_severity', 'medium'),
+            ];
+
+            // Limpiar datos sensibles si están presentes
+            if (isset($logData['datos_anteriores'])) {
+                $logData['datos_anteriores'] = self::limpiarDatosSensibles($logData['datos_anteriores']);
+            }
+            if (isset($logData['datos_nuevos'])) {
+                $logData['datos_nuevos'] = self::limpiarDatosSensibles($logData['datos_nuevos']);
+            }
+
+            return AuditLog::registrar($logData);
+
+        } catch (\Exception $e) {
+            // Log del error pero no fallar la aplicación
+            \Log::error('Error en AuditService::log: ' . $e->getMessage(), [
+                'accion' => $accion,
+                'opciones' => $opciones,
+                'exception' => $e
+            ]);
+            
+            return null;
+        }
     }
 
     /**
