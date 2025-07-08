@@ -23,6 +23,10 @@ class Administracion extends Model
         'estado',
         'es_dentro_ventana_tolerancia',
         'minutos_diferencia',
+        'minutos_adelanto',
+        'minutos_retraso',
+        'score_puntualidad',
+        'categoria_temporal',
         'sintoma_reportado_id',
         'intensidad_sintoma',
         'criterio_cumplido',
@@ -33,7 +37,11 @@ class Administracion extends Model
     protected $casts = [
         'fecha_hora_programada' => 'datetime',
         'fecha_hora_administrada' => 'datetime',
-        'es_dentro_ventana_tolerancia' => 'boolean'
+        'es_dentro_ventana_tolerancia' => 'boolean',
+        'score_puntualidad' => 'decimal:2',
+        'minutos_adelanto' => 'integer',
+        'minutos_retraso' => 'integer',
+        'minutos_diferencia' => 'integer'
     ];
 
     protected $appends = ['tratamiento', 'medicamento'];
@@ -94,5 +102,174 @@ class Administracion extends Model
     public function scopeTardias($query)
     {
         return $query->where('estado', self::ESTADO_TARDIA);
+    }
+
+    // Scopes para métricas temporales
+    public function scopePuntuales($query)
+    {
+        return $query->where('categoria_temporal', 'puntual');
+    }
+
+    public function scopeTempranas($query)
+    {
+        return $query->whereIn('categoria_temporal', ['temprano', 'muy_temprano']);
+    }
+
+    public function scopeTardiasTemporales($query)
+    {
+        return $query->whereIn('categoria_temporal', ['tardio', 'muy_tardio']);
+    }
+
+    public function scopeConBuenaPuntualidad($query, $umbral = 80)
+    {
+        return $query->where('score_puntualidad', '>=', $umbral);
+    }
+
+    public function scopePorPeriodo($query, $fechaInicio, $fechaFin)
+    {
+        return $query->whereBetween('fecha_hora_programada', [$fechaInicio, $fechaFin]);
+    }
+
+    public function scopePorMedicamento($query, $medicamentoId)
+    {
+        return $query->whereHas('medicamentoTratamiento', function($q) use ($medicamentoId) {
+            $q->where('medicamento_id', $medicamentoId);
+        });
+    }
+
+    public function scopePorTratamiento($query, $tratamientoId)
+    {
+        return $query->whereHas('medicamentoTratamiento', function($q) use ($tratamientoId) {
+            $q->where('tratamiento_id', $tratamientoId);
+        });
+    }
+
+    public function scopeConMetricasTemporales($query)
+    {
+        return $query->whereNotNull('fecha_hora_administrada')
+                    ->whereNotNull('score_puntualidad');
+    }
+
+    public function scopePorCategoria($query, $categoria)
+    {
+        return $query->where('categoria_temporal', $categoria);
+    }
+
+    // Métodos de ayuda para métricas temporales
+    public function esPuntual(): bool
+    {
+        return $this->categoria_temporal === 'puntual';
+    }
+
+    public function esTemprana(): bool
+    {
+        return in_array($this->categoria_temporal, ['temprano', 'muy_temprano']);
+    }
+
+    public function esTardiaTemporalmente(): bool
+    {
+        return in_array($this->categoria_temporal, ['tardio', 'muy_tardio']);
+    }
+
+    public function tieneBuenaPuntualidad($umbral = 80): bool
+    {
+        return $this->score_puntualidad >= $umbral;
+    }
+
+    public function getColorCategoriaTemporal(): string
+    {
+        return match($this->categoria_temporal) {
+            'muy_temprano' => '#dc2626', // red-600
+            'temprano' => '#f59e0b',     // amber-500
+            'puntual' => '#10b981',      // emerald-500
+            'tardio' => '#f59e0b',       // amber-500
+            'muy_tardio' => '#dc2626',   // red-600
+            default => '#6b7280'         // gray-500
+        };
+    }
+
+    public function getTextoCategoriaTemporal(): string
+    {
+        return match($this->categoria_temporal) {
+            'muy_temprano' => 'Muy Temprano',
+            'temprano' => 'Temprano',
+            'puntual' => 'Puntual',
+            'tardio' => 'Tardío',
+            'muy_tardio' => 'Muy Tardío',
+            default => 'No definido'
+        };
+    }
+
+    public function getDescripcionTemporal(): string
+    {
+        if (!$this->fecha_hora_programada || !$this->fecha_hora_administrada) {
+            return 'Sin información temporal';
+        }
+
+        if ($this->esPuntual()) {
+            return 'Administrado a tiempo';
+        }
+
+        if ($this->esTemprana()) {
+            $minutos = $this->minutos_adelanto;
+            return "Administrado {$minutos} minuto" . ($minutos != 1 ? 's' : '') . " antes de tiempo";
+        }
+
+        if ($this->esTardiaTemporalmente()) {
+            $minutos = $this->minutos_retraso;
+            return "Administrado {$minutos} minuto" . ($minutos != 1 ? 's' : '') . " después de tiempo";
+        }
+
+        return 'Información temporal no disponible';
+    }
+
+    public function formatearDiferenciaTemporal(): string
+    {
+        if ($this->minutos_diferencia === 0) {
+            return 'Exacto';
+        }
+
+        $abs = abs($this->minutos_diferencia);
+        $signo = $this->minutos_diferencia > 0 ? '+' : '-';
+        
+        if ($abs >= 60) {
+            $horas = intval($abs / 60);
+            $minutos = $abs % 60;
+            $texto = $horas . 'h';
+            if ($minutos > 0) {
+                $texto .= ' ' . $minutos . 'm';
+            }
+        } else {
+            $texto = $abs . 'm';
+        }
+
+        return $signo . $texto;
+    }
+
+    /**
+     * Retorna la diferencia temporal en minutos para el TemporalAdherenceService
+     * Positivo = tarde, Negativo = temprano
+     */
+    public function getDiferenciaTemporal(): ?int
+    {
+        if (!$this->fecha_hora_programada || !$this->fecha_hora_administrada) {
+            return null;
+        }
+
+        $programada = \Carbon\Carbon::parse($this->fecha_hora_programada);
+        $administrada = \Carbon\Carbon::parse($this->fecha_hora_administrada);
+        
+        return $administrada->diffInMinutes($programada, false);
+    }
+
+    /**
+     * Verifica si la administración está completa para análisis temporal
+     */
+    public function tieneMetricasTemporalesCompletas(): bool
+    {
+        return !is_null($this->fecha_hora_programada) &&
+               !is_null($this->fecha_hora_administrada) &&
+               !is_null($this->score_puntualidad) &&
+               !is_null($this->categoria_temporal);
     }
 } 

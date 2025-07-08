@@ -60,6 +60,12 @@ const navigationSections: NavigationSection[] = [
         icon: BarChart3,
         anyRoles: ['admin', 'medico', 'cuidador'],
       },
+      {
+        title: 'Adherencia Temporal',
+        href: '/dashboard/adherencia-temporal',
+        icon: Clock,
+        anyRoles: ['admin', 'medico', 'cuidador'],
+      },
     ],
   },
   {

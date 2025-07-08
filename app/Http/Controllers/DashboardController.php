@@ -13,12 +13,20 @@ use App\Models\User;
 use App\Models\Role;
 use App\Models\Permiso;
 use App\Models\Medicamento;
+use App\Services\TemporalAdherenceService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
+    protected TemporalAdherenceService $temporalService;
+
+    public function __construct(TemporalAdherenceService $temporalService)
+    {
+        $this->temporalService = $temporalService;
+    }
+
     public function index()
     {
         $user = Auth::user();
@@ -153,6 +161,21 @@ class DashboardController extends Controller
             $dosisTardias = $administracionesDia->where('estado', 'Tardía')->count();
             $dosisOmitidas = $administracionesDia->where('estado', 'Omitida')->count();
             
+            // Métricas temporales avanzadas
+            $administracionesConMetricas = $administracionesDia->where('score_puntualidad', '>', 0);
+            $dosisPuntuales = $administracionesDia->where('categoria_temporal', 'puntual')->count();
+            $dosisTempranas = $administracionesDia->whereIn('categoria_temporal', ['temprano', 'muy_temprano'])->count();
+            $dosisTardiasTempo = $administracionesDia->whereIn('categoria_temporal', ['tardio', 'muy_tardio'])->count();
+            $scorePuntualidadPromedio = $administracionesConMetricas->avg('score_puntualidad') ?? 0;
+            
+            // Métricas de tiempo específicas
+            $tiempoPromedioAdelanto = $administracionesDia->where('minutos_adelanto', '>', 0)->avg('minutos_adelanto') ?? 0;
+            $tiempoPromedioRetraso = $administracionesDia->where('minutos_retraso', '>', 0)->avg('minutos_retraso') ?? 0;
+            
+            // Calcular variabilidad del día (desviación estándar de scores)
+            $scoresPuntualidad = $administracionesConMetricas->pluck('score_puntualidad')->toArray();
+            $variabilidadDia = $this->calcularDesviacionEstandar($scoresPuntualidad);
+            
             // Calcular adherencia real (administradas + tardías / programadas)
             $adherencia = $dosisProgamadas > 0 
                 ? round((($dosisAdministradas + $dosisTardias) / $dosisProgamadas) * 100, 1)
@@ -179,11 +202,40 @@ class DashboardController extends Controller
                 'dosis_administradas' => $dosisAdministradas + $dosisTardias,
                 'dosis_programadas' => $dosisProgamadas,
                 'dosis_omitidas' => $dosisOmitidas,
-                'dosis_tardias' => $dosisTardias
+                'dosis_tardias' => $dosisTardias,
+                // Métricas temporales avanzadas
+                'temporal_metrics' => [
+                    'dosis_puntuales' => $dosisPuntuales,
+                    'dosis_tempranas' => $dosisTempranas,
+                    'dosis_tardias_temporales' => $dosisTardiasTempo,
+                    'score_puntualidad_promedio' => round($scorePuntualidadPromedio, 1),
+                    'tiempo_promedio_adelanto' => round($tiempoPromedioAdelanto, 1),
+                    'tiempo_promedio_retraso' => round($tiempoPromedioRetraso, 1),
+                    'variabilidad_dia' => round($variabilidadDia, 1),
+                    'porcentaje_puntualidad' => $dosisProgamadas > 0 ? round(($dosisPuntuales / $dosisProgamadas) * 100, 1) : 0
+                ]
             ];
         }
         
         return $datos;
+    }
+
+    /**
+     * Calcula la desviación estándar de un array de valores
+     */
+    private function calcularDesviacionEstandar(array $values): float
+    {
+        if (empty($values)) return 0;
+        
+        $count = count($values);
+        if ($count < 2) return 0;
+        
+        $mean = array_sum($values) / $count;
+        $variance = array_sum(array_map(function($x) use ($mean) {
+            return pow($x - $mean, 2);
+        }, $values)) / $count;
+        
+        return sqrt($variance);
     }
     
     private function obtenerActividadReciente()
@@ -313,6 +365,105 @@ class DashboardController extends Controller
             'medicamentos_count' => $medicamentosCount,
             'pacientes_activos' => $pacientesActivos,
             'tratamientos_activos' => $tratamientosActivos,
+        ];
+    }
+
+    /**
+     * Dashboard específico para adherencia temporal
+     */
+    public function adherenciaTemporal()
+    {
+        $user = Auth::user();
+        
+        // Verificar permisos de acceso
+        if (!$user->hasAnyRole(['admin', 'medico', 'cuidador'])) {
+            return redirect()->route('dashboard')
+                ->with('error', 'No tienes permisos para acceder al dashboard de adherencia temporal.');
+        }
+
+        // Obtener lista de pacientes con tratamientos activos
+        $pacientes = Paciente::with(['user', 'tratamientos.medicamentoTratamientos.medicamento'])
+            ->whereHas('tratamientos', function($query) {
+                $query->where('estado', 'Activo');
+            })
+            ->get()
+            ->map(function($paciente) {
+                return [
+                    'id' => $paciente->id,
+                    'nombre' => $paciente->nombre . ' ' . $paciente->apellido,
+                    'email' => $paciente->user->email ?? 'No disponible',
+                    'tratamientos_activos' => $paciente->tratamientos->where('estado', 'Activo')->count(),
+                ];
+            });
+
+        // Métricas generales del sistema
+        $metricas = $this->obtenerMetricasTemporalesGenerales();
+        
+        return Inertia::render('Dashboard/AdherenciaTemporal', [
+            'pacientes' => $pacientes,
+            'metricas' => $metricas
+        ]);
+    }
+
+    /**
+     * Obtener métricas temporales generales del sistema
+     */
+    private function obtenerMetricasTemporalesGenerales()
+    {
+        $fechaInicio = Carbon::now()->subDays(30);
+        
+        // Obtener administraciones con métricas temporales de los últimos 30 días
+        $administraciones = Administracion::whereNotNull('score_puntualidad')
+            ->where('fecha_hora_programada', '>=', $fechaInicio)
+            ->get();
+
+        if ($administraciones->isEmpty()) {
+            return [
+                'total_administraciones' => 0,
+                'score_promedio' => 0,
+                'porcentaje_puntuales' => 0,
+                'tiempo_promedio_retraso' => 0,
+                'tiempo_promedio_adelanto' => 0,
+                'variabilidad_sistema' => 0,
+                'distribucion_categorias' => [
+                    'muy_temprano' => 0,
+                    'temprano' => 0,
+                    'puntual' => 0,
+                    'tardio' => 0,
+                    'muy_tardio' => 0
+                ]
+            ];
+        }
+
+        $totalAdministraciones = $administraciones->count();
+        $scorePromedio = $administraciones->avg('score_puntualidad');
+        $dosisPuntuales = $administraciones->where('categoria_temporal', 'puntual')->count();
+        $porcentajePuntuales = ($dosisPuntuales / $totalAdministraciones) * 100;
+        
+        $tiempoPromedioRetraso = $administraciones->where('minutos_retraso', '>', 0)->avg('minutos_retraso') ?? 0;
+        $tiempoPromedioAdelanto = $administraciones->where('minutos_adelanto', '>', 0)->avg('minutos_adelanto') ?? 0;
+        
+        // Calcular variabilidad del sistema
+        $scores = $administraciones->pluck('score_puntualidad')->toArray();
+        $variabilidadSistema = $this->calcularDesviacionEstandar($scores);
+        
+        // Distribución por categorías
+        $distribucionCategorias = [
+            'muy_temprano' => $administraciones->where('categoria_temporal', 'muy_temprano')->count(),
+            'temprano' => $administraciones->where('categoria_temporal', 'temprano')->count(),
+            'puntual' => $administraciones->where('categoria_temporal', 'puntual')->count(),
+            'tardio' => $administraciones->where('categoria_temporal', 'tardio')->count(),
+            'muy_tardio' => $administraciones->where('categoria_temporal', 'muy_tardio')->count(),
+        ];
+
+        return [
+            'total_administraciones' => $totalAdministraciones,
+            'score_promedio' => round($scorePromedio, 1),
+            'porcentaje_puntuales' => round($porcentajePuntuales, 1),
+            'tiempo_promedio_retraso' => round($tiempoPromedioRetraso, 1),
+            'tiempo_promedio_adelanto' => round($tiempoPromedioAdelanto, 1),
+            'variabilidad_sistema' => round($variabilidadSistema, 1),
+            'distribucion_categorias' => $distribucionCategorias
         ];
     }
 } 

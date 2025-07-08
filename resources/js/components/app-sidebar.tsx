@@ -36,6 +36,11 @@ const dashboardItems: NavigationItem[] = [
     href: '/dashboard/medicamentos',
     icon: BarChart3,
   },
+  {
+    title: 'Adherencia Temporal',
+    href: '/dashboard/adherencia-temporal',
+    icon: Clock,
+  },
 ];
 
 const medicamentosItems: NavigationItem[] = [

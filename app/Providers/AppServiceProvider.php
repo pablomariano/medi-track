@@ -34,6 +34,9 @@ class AppServiceProvider extends ServiceProvider
         
         // Registrar observer de auditoría para modelos críticos
         $this->registerAuditObservers();
+        
+        // Registrar observer para métricas temporales de administraciones
+        $this->registerTemporalAdherenceObserver();
     }
 
     /**
@@ -79,5 +82,13 @@ class AppServiceProvider extends ServiceProvider
                 $modelo::observe(\App\Observers\AuditableObserver::class);
             }
         }
+    }
+
+    /**
+     * Registrar observer para métricas temporales de administraciones
+     */
+    private function registerTemporalAdherenceObserver(): void
+    {
+        \App\Models\Administracion::observe(\App\Observers\AdministracionObserver::class);
     }
 }
