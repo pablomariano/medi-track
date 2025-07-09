@@ -15,7 +15,7 @@ import { ProtectedLink } from '@/components/auth/ProtectedLink';
 import { useAuth } from '@/hooks/use-auth';
 import { CanAccess } from '@/components/auth/CanAccess';
 import { usePage } from '@inertiajs/react';
-import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, UserCheck, Stethoscope, Heart, UserX, User, LucideIcon, UserPlus, Activity, Clock, BarChart3, UserCog, Code, Settings2 } from 'lucide-react';
+import { Home, Calendar, Users, FileText, Settings, PlusCircle, Pill, Shield, Key, UserCheck, Stethoscope, Heart, UserX, User, LucideIcon, UserPlus, Activity, Clock, BarChart3, UserCog, Code, Settings2, Mail } from 'lucide-react';
 
 interface NavigationItem {
   title: string;
@@ -94,6 +94,12 @@ const navigationSections: NavigationSection[] = [
         title: 'Mi Cronograma',
         href: '/mi-cronograma',
         icon: Calendar,
+        anyRoles: ['paciente'],
+      },
+      {
+        title: 'Preferencias de Email',
+        href: '/settings/email-preferences',
+        icon: Mail,
         anyRoles: ['paciente'],
       },
     ],

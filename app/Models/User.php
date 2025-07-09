@@ -83,6 +83,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Paciente::class, 'usuario_id');
     }
 
+    // Relación con preferencias de email
+    public function emailPreferences()
+    {
+        return $this->hasOne(EmailPreference::class);
+    }
+
     // Método para verificar si el usuario está activo
     public function isActive()
     {
