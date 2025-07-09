@@ -22,7 +22,7 @@ class EmailPreferencesController extends Controller
         $user = auth()->user();
         $preferences = EmailPreference::getOrCreateForUser($user);
         
-        return Inertia::render('Settings/EmailPreferences', [
+        return Inertia::render('settings/EmailPreferences', [
             'preferences' => $preferences->getDisplayConfig(),
             'user' => [
                 'name' => $user->display_name,
