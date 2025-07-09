@@ -25,13 +25,12 @@ interface Props {
 export default function CrearTratamiento({ medicamentos = [] }: Props) {
   const { data, setData, post, processing, errors } = useForm({
     medicamento_id: '',
-    medicamento_personalizado: '',
     dosis: '',
     unidad_dosis: 'mg',
     frecuencia: '1',
     tipo_frecuencia: 'diario',
     horario_principal: '08:00',
-    duracion: '30',
+    duracion: '',
     tipo_duracion: 'dias',
     indicaciones: '',
     es_prn: false
@@ -48,6 +47,14 @@ export default function CrearTratamiento({ medicamentos = [] }: Props) {
         console.error('Error al crear tratamiento:', errors);
       }
     });
+  };
+
+  // Función para validar y manejar cambios en campos numéricos
+  const handleNumericChange = (field: string, value: string) => {
+    const numericValue = parseFloat(value);
+    if (value === '' || (!isNaN(numericValue) && numericValue >= 0)) {
+      setData(field as any, value);
+    }
   };
 
   return (
@@ -80,81 +87,71 @@ export default function CrearTratamiento({ medicamentos = [] }: Props) {
               Información del tratamiento
             </CardTitle>
             <CardDescription>
-              Ingresa la información básica de tu medicamento y horarios
+              Selecciona tu medicamento del listado y completa la información
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Medicamento */}
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="medicamento">Buscar medicamento</Label>
-                  <Select 
-                    value={data.medicamento_id} 
-                    onValueChange={(value) => {
-                      setData('medicamento_id', value);
-                      // Limpiar el campo personalizado si se selecciona uno de la BD
-                      if (value) setData('medicamento_personalizado', '');
-                    }}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Busca tu medicamento..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {medicamentos.map((medicamento) => (
-                        <SelectItem key={medicamento.id} value={medicamento.id.toString()}>
-                          <div>
-                            <div className="font-medium">{medicamento.nombre}</div>
-                            {medicamento.principio_activo && (
-                              <div className="text-sm text-muted-foreground">{medicamento.principio_activo}</div>
-                            )}
-                            {medicamento.forma_farmaceutica && (
-                              <div className="text-xs text-muted-foreground">{medicamento.forma_farmaceutica}</div>
-                            )}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.medicamento_id && <p className="text-sm text-destructive mt-1">{errors.medicamento_id}</p>}
-                </div>
-
-                <div className="text-center text-muted-foreground text-sm">o agrega uno nuevo</div>
-
-                <div>
-                  <Label htmlFor="medicamento_personalizado">Nombre del medicamento</Label>
-                  <Input
-                    id="medicamento_personalizado"
-                    value={data.medicamento_personalizado}
-                    onChange={(e) => {
-                      setData('medicamento_personalizado', e.target.value);
-                      // Limpiar la selección si se escribe algo
-                      if (e.target.value) setData('medicamento_id', '');
-                    }}
-                    placeholder="Escribe el nombre del medicamento..."
-                  />
-                  {errors.medicamento_personalizado && <p className="text-sm text-destructive mt-1">{errors.medicamento_personalizado}</p>}
-                </div>
+              {/* Medicamento - Solo selección desde listado */}
+              <div>
+                <Label htmlFor="medicamento" className="text-base font-medium">
+                  Medicamento <span className="text-destructive">*</span>
+                </Label>
+                <Select 
+                  value={data.medicamento_id} 
+                  onValueChange={(value) => setData('medicamento_id', value)}
+                  required
+                >
+                  <SelectTrigger className="mt-2">
+                    <SelectValue placeholder="Selecciona tu medicamento..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {medicamentos.map((medicamento) => (
+                      <SelectItem key={medicamento.id} value={medicamento.id.toString()}>
+                        <div>
+                          <div className="font-medium">{medicamento.nombre}</div>
+                          {medicamento.principio_activo && (
+                            <div className="text-sm text-muted-foreground">{medicamento.principio_activo}</div>
+                          )}
+                          {medicamento.forma_farmaceutica && (
+                            <div className="text-xs text-muted-foreground">{medicamento.forma_farmaceutica}</div>
+                          )}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.medicamento_id && <p className="text-sm text-destructive mt-1">{errors.medicamento_id}</p>}
+                <p className="text-xs text-muted-foreground mt-1">
+                  ¿No encuentras tu medicamento? Contacta a tu médico para agregarlo al sistema
+                </p>
               </div>
 
               {/* Dosis */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="dosis">Dosis</Label>
+                  <Label htmlFor="dosis" className="text-base font-medium">
+                    Dosis <span className="text-destructive">*</span>
+                  </Label>
                   <Input
                     id="dosis"
                     value={data.dosis}
-                    onChange={(e) => setData('dosis', e.target.value)}
+                    onChange={(e) => handleNumericChange('dosis', e.target.value)}
                     placeholder="250"
                     type="number"
+                    min="0"
+                    step="any"
+                    className="mt-2"
                     required
                   />
                   {errors.dosis && <p className="text-sm text-destructive mt-1">{errors.dosis}</p>}
                 </div>
                 <div>
-                  <Label htmlFor="unidad_dosis">Unidad</Label>
+                  <Label htmlFor="unidad_dosis" className="text-base font-medium">
+                    Unidad <span className="text-destructive">*</span>
+                  </Label>
                   <Select value={data.unidad_dosis} onValueChange={(value) => setData('unidad_dosis', value)}>
-                    <SelectTrigger>
+                    <SelectTrigger className="mt-2">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -172,9 +169,11 @@ export default function CrearTratamiento({ medicamentos = [] }: Props) {
               {/* Frecuencia y horario */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="frecuencia">Veces al día</Label>
+                  <Label htmlFor="frecuencia" className="text-base font-medium">
+                    Frecuencia <span className="text-destructive">*</span>
+                  </Label>
                   <Select value={data.frecuencia} onValueChange={(value) => setData('frecuencia', value)}>
-                    <SelectTrigger>
+                    <SelectTrigger className="mt-2">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -187,35 +186,46 @@ export default function CrearTratamiento({ medicamentos = [] }: Props) {
                   {errors.frecuencia && <p className="text-sm text-destructive mt-1">{errors.frecuencia}</p>}
                 </div>
                 <div>
-                  <Label htmlFor="horario_principal">Horario principal</Label>
+                  <Label htmlFor="horario_principal" className="text-base font-medium">
+                    Horario principal <span className="text-destructive">*</span>
+                  </Label>
                   <Input
                     id="horario_principal"
                     type="time"
                     value={data.horario_principal}
                     onChange={(e) => setData('horario_principal', e.target.value)}
+                    className="mt-2"
                     required
                   />
+                  {errors.horario_principal && <p className="text-sm text-destructive mt-1">{errors.horario_principal}</p>}
                 </div>
               </div>
 
               {/* Duración */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="duracion">Duración</Label>
+                  <Label htmlFor="duracion" className="text-base font-medium">
+                    Duración <span className="text-destructive">*</span>
+                  </Label>
                   <Input
                     id="duracion"
                     value={data.duracion}
-                    onChange={(e) => setData('duracion', e.target.value)}
+                    onChange={(e) => handleNumericChange('duracion', e.target.value)}
                     placeholder="30"
                     type="number"
+                    min="1"
+                    step="1"
+                    className="mt-2"
                     required
                   />
                   {errors.duracion && <p className="text-sm text-destructive mt-1">{errors.duracion}</p>}
                 </div>
                 <div>
-                  <Label htmlFor="tipo_duracion">Unidad</Label>
+                  <Label htmlFor="tipo_duracion" className="text-base font-medium">
+                    Periodo <span className="text-destructive">*</span>
+                  </Label>
                   <Select value={data.tipo_duracion} onValueChange={(value) => setData('tipo_duracion', value)}>
-                    <SelectTrigger>
+                    <SelectTrigger className="mt-2">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -230,21 +240,25 @@ export default function CrearTratamiento({ medicamentos = [] }: Props) {
 
               {/* Indicaciones opcionales */}
               <div>
-                <Label htmlFor="indicaciones">Indicaciones especiales (opcional)</Label>
+                <Label htmlFor="indicaciones" className="text-base font-medium">
+                  Indicaciones especiales (opcional)
+                </Label>
                 <Textarea
                   id="indicaciones"
                   value={data.indicaciones}
                   onChange={(e) => setData('indicaciones', e.target.value)}
                   placeholder="Ej: Tomar con comida, evitar alcohol, etc."
                   rows={3}
+                  className="mt-2"
                 />
+                {errors.indicaciones && <p className="text-sm text-destructive mt-1">{errors.indicaciones}</p>}
               </div>
 
               {/* Botón de envío */}
               <Button 
                 type="submit" 
                 className="w-full"
-                disabled={processing || (!data.medicamento_id && !data.medicamento_personalizado) || !data.dosis}
+                disabled={processing || !data.medicamento_id || !data.dosis || !data.duracion}
               >
                 {processing ? 'Creando tratamiento...' : 'Crear Tratamiento'}
               </Button>

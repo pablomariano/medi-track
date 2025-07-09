@@ -32,11 +32,11 @@ interface NavigationItem {
 
 interface NavigationSection {
   title: string;
-  items: NavigationItem[];
   permission?: string;
   role?: string;
   anyRoles?: string[];
   requireAdmin?: boolean;
+  items: NavigationItem[];
 }
 
 const navigationSections: NavigationSection[] = [
@@ -53,12 +53,6 @@ const navigationSections: NavigationSection[] = [
         href: '/admin-dashboard',
         icon: Settings2,
         requireAdmin: true,
-      },
-      {
-        title: 'Dashboard Medicamentos',
-        href: '/dashboard/medicamentos',
-        icon: BarChart3,
-        anyRoles: ['admin', 'medico', 'cuidador'],
       },
       {
         title: 'Adherencia Temporal',
@@ -112,13 +106,6 @@ const navigationSections: NavigationSection[] = [
         title: 'Medicamentos',
         href: '/medicamentos',
         icon: Pill,
-        resource: 'medicamentos',
-        action: 'index',
-      },
-      {
-        title: 'Data Table',
-        href: '/medicamentos-datatable',
-        icon: BarChart3,
         resource: 'medicamentos',
         action: 'index',
       },
@@ -213,24 +200,6 @@ const navigationSections: NavigationSection[] = [
         href: '/generos',
         icon: UserCheck,
         permission: 'generos.index',
-      },
-      {
-        title: 'Medicines (Legacy)',
-        href: '/medicines',
-        icon: Pill,
-        resource: 'medicines',
-        action: 'index',
-      },
-      {
-        title: 'Catálogo de Componentes',
-        href: '/component-catalog',
-        icon: Code,
-        requireAdmin: true,
-      },
-      {
-        title: 'Settings',
-        href: '/settings',
-        icon: Settings,
       },
     ],
   },

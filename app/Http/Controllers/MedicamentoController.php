@@ -103,18 +103,19 @@ class MedicamentoController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'principio_activo' => 'required|string|max:255',
-            'concentracion' => 'required|string|max:50',
-            'unidad_concentracion' => 'required|string|max:20',
+            'medida' => 'required|string|max:50', // concentración
+            'unidad_medida' => 'required|string|max:20', // unidad de concentración
             'forma_farmaceutica' => 'required|string|max:100',
             'via_administracion' => 'required|string|max:100',
             'presentacion' => 'required|string|max:100',
             'unidades_por_presentacion' => 'required|integer|min:1',
             'requiere_receta' => 'boolean',
+            'laboratorio' => 'nullable|string|max:100',
+            'categoria_terapeutica' => 'nullable|string|max:100',
+            'descripcion' => 'nullable|string',
             'contraindicaciones' => 'nullable|string',
             'efectos_secundarios' => 'nullable|string',
             'interacciones' => 'nullable|string',
-            'categoria_terapeutica' => 'nullable|string|max:100',
-            'laboratorio' => 'nullable|string|max:100',
             'codigo_barras' => 'nullable|string|max:50',
             'registro_sanitario' => 'nullable|string|max:50'
         ]);
@@ -146,18 +147,19 @@ class MedicamentoController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'principio_activo' => 'required|string|max:255',
-            'concentracion' => 'required|string|max:50',
-            'unidad_concentracion' => 'required|string|max:20',
+            'medida' => 'required|string|max:50', // concentración
+            'unidad_medida' => 'required|string|max:20', // unidad de concentración
             'forma_farmaceutica' => 'required|string|max:100',
             'via_administracion' => 'required|string|max:100',
             'presentacion' => 'required|string|max:100',
             'unidades_por_presentacion' => 'required|integer|min:1',
             'requiere_receta' => 'boolean',
+            'laboratorio' => 'nullable|string|max:100',
+            'categoria_terapeutica' => 'nullable|string|max:100',
+            'descripcion' => 'nullable|string',
             'contraindicaciones' => 'nullable|string',
             'efectos_secundarios' => 'nullable|string',
             'interacciones' => 'nullable|string',
-            'categoria_terapeutica' => 'nullable|string|max:100',
-            'laboratorio' => 'nullable|string|max:100',
             'codigo_barras' => 'nullable|string|max:50',
             'registro_sanitario' => 'nullable|string|max:50',
             'activo' => 'boolean'

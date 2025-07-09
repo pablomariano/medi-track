@@ -32,11 +32,6 @@ const dashboardItems: NavigationItem[] = [
     icon: Settings2,
   },
   {
-    title: 'Dashboard Medicamentos',
-    href: '/dashboard/medicamentos',
-    icon: BarChart3,
-  },
-  {
     title: 'Adherencia Temporal',
     href: '/dashboard/adherencia-temporal',
     icon: Clock,
@@ -48,11 +43,6 @@ const medicamentosItems: NavigationItem[] = [
     title: 'Medicamentos',
     href: '/medicamentos',
     icon: Pill,
-  },
-  {
-    title: 'Data Table',
-    href: '/medicamentos-datatable',
-    icon: BarChart3,
   },
   {
     title: 'Tratamientos',
@@ -125,21 +115,6 @@ const configuracionItems: NavigationItem[] = [
     href: '/generos',
     icon: UserCheck,
   },
-  {
-    title: 'Catálogo de Componentes',
-    href: '/component-catalog',
-    icon: Code,
-  },
-  {
-    title: 'Medicines (Legacy)',
-    href: '/medicines',
-    icon: Pill,
-  },
-  // {
-  //   title: 'Settings',
-  //   href: '/settings',
-  //   icon: Settings,
-  // },
 ];
 
 const auditoriaItems: NavigationItem[] = [
