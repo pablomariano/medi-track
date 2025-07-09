@@ -29,6 +29,20 @@ print_info() {
     echo -e "${BLUE}ℹ️  $1${NC}"
 }
 
+# 0. Verificar API key de Resend
+print_info "Verificando configuración de Resend..."
+if [ -z "$RESEND_API_KEY" ]; then
+    print_warning "RESEND_API_KEY no está configurada como variable de ambiente."
+    echo -n "Por favor, ingresa tu API key de Resend: "
+    read -s RESEND_API_KEY
+    echo
+    if [ -z "$RESEND_API_KEY" ]; then
+        print_error "API key de Resend es requerida para el despliegue."
+        exit 1
+    fi
+fi
+print_status "API key de Resend configurada correctamente"
+
 # 1. Update system
 print_info "Updating system packages..."
 apt update && apt upgrade -y
@@ -114,7 +128,7 @@ DB_PASSWORD=secure_password_change_this
 
 # Email Configuration with Resend
 MAIL_MAILER=resend
-RESEND_KEY=re_YHrNScci_Kztb9gp7hFLDti4stzx2DwxS
+RESEND_KEY=$RESEND_API_KEY
 MAIL_FROM_ADDRESS=noreply@correos.meditrack.cl
 MAIL_FROM_NAME="MediTrack"
 
