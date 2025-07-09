@@ -138,9 +138,26 @@ export function AppSidebar() {
     // Comparación exacta para rutas específicas
     if (page.url === href) return true;
     
+    // Lista de rutas que deben ser exactas (sin marcado para sub-rutas)
+    const exactMatchRoutes = [
+      '/asignaciones-cuidadores',
+      '/asignaciones-medicos',
+      '/administraciones',
+      '/roles',
+      '/permisos',
+      '/generos'
+    ];
+    
+    // Si es una ruta que requiere coincidencia exacta, no marcar sub-rutas
+    if (exactMatchRoutes.includes(href)) {
+      return page.url === href;
+    }
+    
     // Para rutas que pueden tener sub-rutas (como /pacientes/1/edit)
     if (href !== '/' && href !== '/dashboard' && page.url.startsWith(href)) {
-      return true;
+      // Evitar conflictos con rutas similares (ej: /pacientes vs /pacientes-especiales)
+      const nextChar = page.url.charAt(href.length);
+      return nextChar === '/' || nextChar === '' || nextChar === '?' || nextChar === '#';
     }
     
     return false;
