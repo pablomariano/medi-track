@@ -122,10 +122,10 @@ class TemporalAdherenceController extends Controller
 
             $paciente = Paciente::findOrFail($pacienteId);
 
-            // Por defecto, últimos 21 días
+            // Por defecto, última semana (7 días)
             $fechaInicio = $request->fecha_inicio 
                 ? Carbon::parse($request->fecha_inicio)
-                : Carbon::now()->subDays(21);
+                : Carbon::now()->subDays(7);
             
             $fechaFin = $request->fecha_fin 
                 ? Carbon::parse($request->fecha_fin)

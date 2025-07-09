@@ -80,12 +80,10 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        // Verificar si el usuario necesita onboarding
-        if ($this->userNeedsOnboarding($user)) {
-            return redirect()->route('welcome.new-user');
-        }
-
-        return to_route('dashboard');
+        // Redirigir a verificación de email - el usuario deberá verificar antes de continuar
+        return redirect()->route('verification.notice')
+            ->with('status', 'registration-success')
+            ->with('message', '¡Registro exitoso! Por favor verifica tu correo electrónico para continuar.');
     }
 
     /**
