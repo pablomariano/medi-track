@@ -14,6 +14,10 @@ use Carbon\Carbon;
 
 class PedroSilvaRealisticAdherenceSeeder extends Seeder
 {
+    private $fechaInicio;
+    private $fechaFin;
+    private $diasTotales;
+
     public function run(): void
     {
         // Buscar el paciente Pedro Silva Menor
@@ -39,6 +43,11 @@ class PedroSilvaRealisticAdherenceSeeder extends Seeder
         
         // Finalmente tratamientos
         Tratamiento::where('paciente_id', $paciente->id)->delete();
+
+        // Inicializar fechas y calcular duración
+        $this->fechaInicio = Carbon::now()->subDays(14)->startOfDay();
+        $this->fechaFin = Carbon::now()->endOfDay();
+        $this->diasTotales = $this->fechaInicio->diffInDays($this->fechaFin);
 
         // Crear múltiples medicamentos
         $medicamentos = [
@@ -80,9 +89,6 @@ class PedroSilvaRealisticAdherenceSeeder extends Seeder
             ]
         ];
 
-        $fechaInicio = Carbon::now()->subDays(14)->startOfDay();
-        $fechaFin = Carbon::now()->endOfDay();
-
         foreach ($medicamentos as $medData) {
             // Crear medicamento
             $medicamento = Medicamento::create([
@@ -90,8 +96,8 @@ class PedroSilvaRealisticAdherenceSeeder extends Seeder
                 'descripcion' => $medData['descripcion'],
                 'medida' => $medData['medida'],
                 'unidad_medida' => $medData['unidad_medida'],
-                'created_at' => $fechaInicio,
-                'updated_at' => $fechaInicio,
+                'created_at' => $this->fechaInicio,
+                'updated_at' => $this->fechaInicio,
             ]);
 
             // Crear tratamiento
@@ -101,11 +107,11 @@ class PedroSilvaRealisticAdherenceSeeder extends Seeder
                 'nombre' => "Tratamiento {$medData['nombre']}",
                 'diagnostico' => "Tratamiento con {$medData['nombre']}",
                 'observaciones' => $medData['descripcion'],
-                'fecha_inicio' => $fechaInicio,
-                'fecha_fin' => $fechaFin->copy()->addMonths(3),
+                'fecha_inicio' => $this->fechaInicio,
+                'fecha_fin' => $this->fechaFin->copy()->addMonths(3),
                 'estado' => 'Activo',
-                'created_at' => $fechaInicio,
-                'updated_at' => $fechaInicio,
+                'created_at' => $this->fechaInicio,
+                'updated_at' => $this->fechaInicio,
             ]);
 
             // Crear relación medicamento-tratamiento
@@ -117,8 +123,8 @@ class PedroSilvaRealisticAdherenceSeeder extends Seeder
                 'frecuencia_horas' => 24 / count($medData['horarios']),
                 'duracion_dias' => 90,
                 'activo' => true,
-                'created_at' => $fechaInicio,
-                'updated_at' => $fechaInicio,
+                'created_at' => $this->fechaInicio,
+                'updated_at' => $this->fechaInicio,
             ]);
 
             // Crear horarios programados y administraciones
@@ -128,21 +134,21 @@ class PedroSilvaRealisticAdherenceSeeder extends Seeder
                     'paciente_id' => $paciente->id,
                     'hora_programada' => $hora,
                     'dias_semana' => 'Daily', // Todos los días
-                    'fecha_inicio' => $fechaInicio,
-                    'fecha_fin' => $fechaFin->copy()->addMonths(3),
+                    'fecha_inicio' => $this->fechaInicio,
+                    'fecha_fin' => $this->fechaFin->copy()->addMonths(3),
                     'activo' => true,
-                    'created_at' => $fechaInicio,
-                    'updated_at' => $fechaInicio,
+                    'created_at' => $this->fechaInicio,
+                    'updated_at' => $this->fechaInicio,
                 ]);
 
                 // Generar administraciones para los últimos 14 días
-                $fechaActual = $fechaInicio->copy();
+                $fechaActual = $this->fechaInicio->copy();
                 
-                while ($fechaActual->lte($fechaFin)) {
+                while ($fechaActual->lte($this->fechaFin)) {
                     $horaProgamada = Carbon::createFromFormat('Y-m-d H:i', $fechaActual->format('Y-m-d') . ' ' . $hora);
                     
-                    // Aplicar variabilidad según el patrón de Pedro Silva
-                    $variacionMinutos = $this->calcularVariabilidad($fechaActual, $hora, $medData['variabilidad']);
+                    // Aplicar variabilidad creciente según el patrón de Pedro Silva
+                    $variacionMinutos = $this->calcularVariabilidadCreciente($fechaActual, $hora, $medData['variabilidad']);
                     $horaReal = $horaProgamada->copy()->addMinutes($variacionMinutos);
 
                     // Calcular métricas temporales
@@ -193,39 +199,67 @@ class PedroSilvaRealisticAdherenceSeeder extends Seeder
         $totalAdministraciones = Administracion::where('paciente_id', $paciente->id)->count();
 
         $this->command->info("✓ Generadas {$totalAdministraciones} administraciones totales para Pedro Silva Menor");
-        $this->command->info("✓ Período: {$fechaInicio->format('d/m/Y')} - {$fechaFin->format('d/m/Y')}");
+        $this->command->info("✓ Período: {$this->fechaInicio->format('d/m/Y')} - {$this->fechaFin->format('d/m/Y')}");
     }
 
     /**
-     * Calcula la variabilidad según el patrón sofisticado de Pedro Silva
+     * Calcula la variabilidad creciente según el patrón sofisticado de Pedro Silva
      */
-    private function calcularVariabilidad(Carbon $fecha, string $hora, string $tipoVariabilidad): int
+    private function calcularVariabilidadCreciente(Carbon $fecha, string $hora, string $tipoVariabilidad): int
     {
+        // Calcular el factor de progresión (0.0 al inicio, 1.0 al final)
+        $diasTranscurridos = $this->fechaInicio->diffInDays($fecha);
+        $factorProgresion = $diasTranscurridos / $this->diasTotales;
+        
+        // Aplicar una curva exponencial suave para el crecimiento
+        $factorCrecimiento = pow($factorProgresion, 0.5);
+        
         $esFinDeSemana = $fecha->isWeekend();
         $esManana = (int)explode(':', $hora)[0] < 12;
 
-        // Patrón de fin de semana: muy puntual
+        // Rangos base según tipo de variabilidad
+        $rangosBase = [
+            'baja' => ['min' => -5, 'max' => 5],
+            'media' => ['min' => -10, 'max' => 10],
+            'alta' => ['min' => -15, 'max' => 15]
+        ];
+
+        // Rangos máximos (al final del período)
+        $rangosMaximos = [
+            'baja' => ['min' => -20, 'max' => 25],
+            'media' => ['min' => -35, 'max' => 40],
+            'alta' => ['min' => -50, 'max' => 55]
+        ];
+
+        $rangoBase = $rangosBase[$tipoVariabilidad];
+        $rangoMaximo = $rangosMaximos[$tipoVariabilidad];
+
+        // Calcular rangos actuales basados en el factor de crecimiento
+        $rangoActual = [
+            'min' => $rangoBase['min'] + ($rangoMaximo['min'] - $rangoBase['min']) * $factorCrecimiento,
+            'max' => $rangoBase['max'] + ($rangoMaximo['max'] - $rangoBase['max']) * $factorCrecimiento
+        ];
+
+        // Modificadores por contexto temporal
         if ($esFinDeSemana) {
-            return rand(-15, 30); // retorna un valor entre -3 y 3 minutos de variabilidad
+            // Fines de semana: menor variabilidad pero sigue creciendo
+            $rangoActual['min'] *= 0.6;
+            $rangoActual['max'] *= 0.8;
         }
 
-        // Patrones de días de semana
         if ($esManana) {
-            // Mañanas: baja variabilidad
-            return rand(-3, 3);
-        } else {
-            // Tardes/noches: variabilidad según el tipo
-            switch ($tipoVariabilidad) {
-                case 'baja':
-                    return rand(-15, 15);
-                case 'media':
-                    return rand(-27, 27);
-                case 'alta':
-                    return rand(-42, 38);
-                default:
-                    return rand(-15, 15);
-            }
+            // Mañanas: menor variabilidad
+            $rangoActual['min'] *= 0.7;
+            $rangoActual['max'] *= 0.7;
         }
+
+        // Agregar algo de aleatoriedad con sesgo hacia retrasos en días avanzados
+        $variacionBase = rand((int)$rangoActual['min'], (int)$rangoActual['max']);
+        
+        // Sesgo hacia retrasos conforme avanza el tiempo
+        $sesgoRetraso = $factorCrecimiento * 10; // Máximo 10 minutos de sesgo
+        
+        return (int)($variacionBase + $sesgoRetraso);
     }
 
     /**
@@ -240,8 +274,10 @@ class PedroSilvaRealisticAdherenceSeeder extends Seeder
                 return 'Ligero retraso';
             } elseif ($variacionMinutos <= 15) {
                 return 'Retraso moderado';
-            } else {
+            } elseif ($variacionMinutos <= 30) {
                 return 'Retraso significativo';
+            } else {
+                return 'Retraso muy significativo';
             }
         } else {
             $adelanto = abs($variacionMinutos);
@@ -254,4 +290,4 @@ class PedroSilvaRealisticAdherenceSeeder extends Seeder
             }
         }
     }
-} 
+}

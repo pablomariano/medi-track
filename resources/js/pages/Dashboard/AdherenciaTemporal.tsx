@@ -8,6 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Clock, TrendingUp, Users, Activity, Target, AlertTriangle } from 'lucide-react';
 import PunctualityChart from '@/components/charts/PunctualityChart';
 import PatientTrendsLineChart from '@/components/charts/PatientTrendsLineChart';
+import { DatePickerWithRange } from '@/components/ui/date-picker-range';
+import { DateRange } from 'react-day-picker';
+import { subDays } from 'date-fns';
 
 interface Paciente {
     id: number;
@@ -39,6 +42,10 @@ interface Props {
 
 export default function AdherenciaTemporal({ pacientes, metricas }: Props) {
     const [selectedPaciente, setSelectedPaciente] = useState<string>('general');
+    const [dateRange, setDateRange] = useState<DateRange | undefined>({
+        from: subDays(new Date(), 7), // Última semana por defecto
+        to: new Date()
+    });
 
     const getScoreColor = (score: number): string => {
         if (score >= 90) return 'text-green-600';
@@ -236,32 +243,58 @@ export default function AdherenciaTemporal({ pacientes, metricas }: Props) {
                 {selectedPaciente && selectedPaciente !== 'general' && (
                     <Card>
                         <CardHeader>
-                            <CardTitle>Análisis Detallado - Paciente Seleccionado</CardTitle>
-                            <p className="text-sm text-muted-foreground">
-                                Para ver el análisis completo del paciente, use el API endpoint: 
-                                <code className="ml-2 px-2 py-1 bg-gray-100 rounded text-xs">
-                                    /api/temporal-adherence/patient/{selectedPaciente}/metrics
-                                </code>
-                            </p>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-center py-8 text-gray-500">
-                                <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                                <p className="mb-2">Análisis detallado del paciente disponible</p>
-                                <p className="text-sm">Use los endpoints de la API para obtener métricas específicas</p>
-                                <div className="mt-4 space-y-2">
-                                    <Badge variant="outline">Métricas: /api/temporal-adherence/patient/{selectedPaciente}/metrics</Badge>
-                                    <Badge variant="outline">Tendencias: /api/temporal-adherence/patient/{selectedPaciente}/trends</Badge>
-                                    <Badge variant="outline">Distribución: /api/temporal-adherence/patient/{selectedPaciente}/distribution</Badge>
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                <div>
+                                    <CardTitle>Tendencias de Adherencia Temporal</CardTitle>
+                                    <p className="text-sm text-muted-foreground">
+                                        Evolución de puntualidad en las administraciones del paciente seleccionado
+                                    </p>
+                                </div>
+                                <div className="flex flex-col sm:flex-row gap-2">
+                                    <DatePickerWithRange
+                                        date={dateRange}
+                                        onDateChange={setDateRange}
+                                        placeholder="Seleccionar período"
+                                        className="w-full sm:w-auto"
+                                    />
                                 </div>
                             </div>
+                        </CardHeader>
+                        <CardContent>
                             {/* Gráfico de líneas de tendencias */}
-                            <div className="mt-8">
+                            <div className="mt-4">
                                 <PatientTrendsLineChart 
                                     pacienteId={parseInt(selectedPaciente)}
-                                    apiEndpoint={`/api/temporal-adherence/patient/${selectedPaciente}/trends`}
+                                    apiEndpoint={(() => {
+                                        const baseUrl = `/api/temporal-adherence/patient/${selectedPaciente}/trends`;
+                                        if (dateRange?.from && dateRange?.to) {
+                                            const fechaInicio = dateRange.from.toISOString().split('T')[0];
+                                            const fechaFin = dateRange.to.toISOString().split('T')[0];
+                                            return `${baseUrl}?fecha_inicio=${fechaInicio}&fecha_fin=${fechaFin}`;
+                                        }
+                                        return baseUrl;
+                                    })()}
                                     theme={typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'}
                                 />
+                            </div>
+                            
+                            {/* Información del API */}
+                            <div className="mt-6 p-4 bg-muted/50 rounded-lg">
+                                <h4 className="text-sm font-medium mb-2">Endpoints disponibles:</h4>
+                                <div className="space-y-1 text-xs">
+                                    <div>
+                                        <Badge variant="outline" className="mr-2">Métricas</Badge>
+                                        <code>/api/temporal-adherence/patient/{selectedPaciente}/metrics</code>
+                                    </div>
+                                    <div>
+                                        <Badge variant="outline" className="mr-2">Tendencias</Badge>
+                                        <code>/api/temporal-adherence/patient/{selectedPaciente}/trends</code>
+                                    </div>
+                                    <div>
+                                        <Badge variant="outline" className="mr-2">Distribución</Badge>
+                                        <code>/api/temporal-adherence/patient/{selectedPaciente}/distribution</code>
+                                    </div>
+                                </div>
                             </div>
                         </CardContent>
                     </Card>

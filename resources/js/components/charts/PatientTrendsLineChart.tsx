@@ -76,7 +76,9 @@ export default function PatientTrendsLineChart({ pacienteId, apiEndpoint, theme 
     <Card className="bg-background">
       <CardHeader>
         <CardTitle className="text-base font-semibold">Tendencias de Retraso/Adelanto y Variabilidad</CardTitle>
-        <span className="text-xs text-muted-foreground">Últimos 21 días</span>
+        <span className="text-xs text-muted-foreground">
+          {data.length > 0 ? `${data.length} días de datos` : 'Período seleccionado'}
+        </span>
       </CardHeader>
       <CardContent>
         {loading ? (
